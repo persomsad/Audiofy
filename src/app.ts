@@ -1,5 +1,6 @@
 import Vue from 'nativescript-vue'
-import Home from './components/Home.vue'
+import InputView from './views/InputView.vue'
+import store from './stores'
 
 declare let __DEV__: boolean
 
@@ -7,5 +8,6 @@ declare let __DEV__: boolean
 Vue.config.silent = !__DEV__
 
 new Vue({
-  render: (h) => h('frame', [h(Home)]),
+  store,
+  render: (h: any) => h('frame', [h(InputView)]),
 }).$start()
