@@ -13,7 +13,7 @@
       "~/*": ["src/*"],
       "@/*": ["src/*"]
     },
-    "typeRoots": ["types"],
+    "typeRoots": ["types", "node_modules/@types"],
     "types": ["node"],
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
