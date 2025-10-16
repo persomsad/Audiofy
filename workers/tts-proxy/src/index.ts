@@ -1,66 +1,71 @@
 /**
- * 豆包 TTS Cloudflare Workers 代理
- * 基于火山引擎语音合成 API
- * 文档: https://www.volcengine.com/docs/6561/1257584
+ * Qwen3-TTS Cloudflare Workers 代理
+ * 基于阿里云 DashScope 文本语音合成 API
+ * 文档: https://bailian.console.aliyun.com/?tab=doc#/doc/?type=model&url=2879134
  */
 
 // 环境变量类型定义
 interface Env {
   APP_SECRET: string // Audiofy 应用密钥
-  DOUBAO_APPID: string // 豆包应用ID
-  DOUBAO_TOKEN: string // 豆包访问令牌
-  DOUBAO_CLUSTER: string // 豆包集群ID
+  DASHSCOPE_API_KEY: string // 阿里云 DashScope API 密钥
 }
 
 // 请求体类型
 interface TTSRequest {
   text: string
+  voice?: string // 可选：语音角色（默认 Cherry）
 }
 
-// 豆包 API 请求体类型
-interface DoubaoTTSRequest {
-  app: {
-    appid: string
-    token: string
-    cluster: string
-  }
-  user: {
-    uid: string
-  }
-  audio: {
-    voice_type: string
-    encoding: string
-    speed_ratio: number
-    volume_ratio: number
-    pitch_ratio: number
-  }
-  request: {
-    reqid: string
+// DashScope TTS API 请求体类型
+interface DashScopeTTSRequest {
+  model: string
+  input: {
     text: string
-    text_type: string
-    operation: string
+  }
+  parameters: {
+    voice: string
+    format: string
+    sample_rate: number
+    language_type: string // 语言类型：Chinese, English 等
   }
 }
 
-// 豆包 API 响应类型
-interface DoubaoTTSResponse {
-  data: string // Base64 编码的音频数据
+// DashScope API 响应类型
+interface DashScopeTTSResponse {
+  output: {
+    url: string // 音频下载 URL（24小时有效）
+    duration?: number // 音频时长（秒，可选）
+  }
+  request_id: string
   [key: string]: unknown
 }
 
 // 代理响应类型
 interface TTSResponse {
-  audioData: string // Base64 编码的音频数据
+  audioUrl: string // 音频下载 URL（24小时有效）
   duration: number // 音频时长（秒）
 }
 
 // 错误响应类型
 interface ErrorResponse {
   error: string
+  code?: string
 }
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
+    // 处理 OPTIONS 预检请求（CORS）
+    if (request.method === 'OPTIONS') {
+      return new Response(null, {
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+          'Access-Control-Max-Age': '86400',
+        },
+      })
+    }
+
     // 1. 验证请求方法
     if (request.method !== 'POST') {
       return jsonResponse({ error: 'Method not allowed' }, 405)
@@ -81,80 +86,95 @@ export default {
       }
 
       const text = body.text.trim()
+      const voice = body.voice || 'Cherry' // 默认使用 Cherry 语音（温柔女声）
 
-      // 4. 生成唯一请求ID
-      const reqid = `audiofy-${Date.now()}-${Math.random().toString(36).substring(7)}`
-
-      // 5. 构造豆包 TTS API 请求体
-      const doubaoRequest: DoubaoTTSRequest = {
-        app: {
-          appid: env.DOUBAO_APPID,
-          token: env.DOUBAO_TOKEN,
-          cluster: env.DOUBAO_CLUSTER,
-        },
-        user: {
-          uid: 'audiofy-user',
-        },
-        audio: {
-          voice_type: 'BV001_streaming', // 语音类型（可配置）
-          encoding: 'mp3', // 音频格式: mp3, wav, ogg
-          speed_ratio: 1.0, // 语速倍率 (0.5-2.0)
-          volume_ratio: 1.0, // 音量倍率 (0.1-3.0)
-          pitch_ratio: 1.0, // 音调倍率 (0.5-2.0)
-        },
-        request: {
-          reqid: reqid,
-          text: text,
-          text_type: 'plain', // 文本类型: plain/ssml
-          operation: 'submit', // 操作类型: submit(提交)/query(查询)
-        },
-      }
-
-      // 6. 调用豆包 TTS API
-      const doubaoResponse = await fetch('https://openspeech.bytedance.com/api/v1/tts', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          // 豆包API使用特殊的Bearer格式: "Bearer; {token}"
-          Authorization: `Bearer; ${env.DOUBAO_TOKEN}`,
-        },
-        body: JSON.stringify(doubaoRequest),
-      })
-
-      // 7. 解析豆包响应
-      const doubaoData = (await doubaoResponse.json()) as DoubaoTTSResponse | ErrorResponse
-
-      if (!doubaoResponse.ok) {
-        console.error('Doubao TTS API error:', doubaoData)
+      // 4. 验证语音角色（可选：添加白名单验证）
+      const validVoices = [
+        'Cherry',
+        'Ethan',
+        'Nofish',
+        'Jennifer',
+        'Ryan',
+        'Katerina',
+        'Elias',
+        'Jada',
+        'Dylan',
+        'Sunny',
+        'Li',
+        'Marcus',
+        'Roy',
+        'Peter',
+        'Rocky',
+        'Kiki',
+        'Eric',
+      ]
+      if (!validVoices.includes(voice)) {
         return jsonResponse(
           {
-            error: 'error' in doubaoData ? doubaoData.error : 'TTS synthesis failed',
+            error: `Invalid voice: ${voice}. Valid options: ${validVoices.join(', ')}`,
           },
-          doubaoResponse.status,
+          400,
         )
       }
 
-      // 8. 提取音频数据
-      if (!('data' in doubaoData) || !doubaoData.data) {
+      // 5. 构造 DashScope TTS API 请求体
+      const dashScopeRequest: DashScopeTTSRequest = {
+        model: 'qwen3-tts-flash', // 快速模型，适合实时应用
+        input: {
+          text: text,
+        },
+        parameters: {
+          voice: voice, // 语音角色
+          format: 'mp3', // 音频格式：mp3, wav, pcm
+          sample_rate: 22050, // 采样率（Hz）
+          language_type: 'Chinese', // 语言类型（建议与文本语种一致，以获得正确发音和自然语调）
+        },
+      }
+
+      // 6. 调用 DashScope Qwen3-TTS API
+      const dashScopeResponse = await fetch(
+        'https://dashscope.aliyuncs.com/api/v1/services/aigc/text2speech/synthesis',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${env.DASHSCOPE_API_KEY}`, // 标准 Bearer 认证
+          },
+          body: JSON.stringify(dashScopeRequest),
+        },
+      )
+
+      // 7. 解析 DashScope 响应
+      const dashScopeData = (await dashScopeResponse.json()) as DashScopeTTSResponse | ErrorResponse
+
+      if (!dashScopeResponse.ok) {
+        console.error('DashScope TTS API error:', dashScopeData)
         return jsonResponse(
           {
-            error: 'Invalid API response: missing audio data',
+            error: 'error' in dashScopeData ? dashScopeData.error : 'TTS synthesis failed',
+            code: 'code' in dashScopeData ? dashScopeData.code : undefined,
+          },
+          dashScopeResponse.status,
+        )
+      }
+
+      // 8. 提取音频 URL 和元数据
+      if (!('output' in dashScopeData) || !dashScopeData.output.url) {
+        return jsonResponse(
+          {
+            error: 'Invalid API response: missing audio URL',
           },
           500,
         )
       }
 
-      const audioData = doubaoData.data
+      const audioUrl = dashScopeData.output.url
+      const duration = dashScopeData.output.duration || Math.ceil(text.length / 5) // 如果API未返回时长，使用粗略估算
 
-      // 9. 估算音频时长（基于文本长度）
-      // 注意：豆包API可能不直接返回时长，这里使用粗略估算
-      // 更准确的方法是解码音频文件头获取时长
-      const estimatedDuration = Math.ceil(text.length / 5) // 粗略估算：5字符/秒
-
-      // 10. 返回音频数据
+      // 9. 返回音频 URL（客户端需要在24小时内下载）
       const response: TTSResponse = {
-        audioData: audioData,
-        duration: estimatedDuration,
+        audioUrl: audioUrl,
+        duration: duration,
       }
 
       return jsonResponse(response, 200)
