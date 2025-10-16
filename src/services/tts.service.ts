@@ -1,17 +1,19 @@
 /**
  * TTS (Text-to-Speech) 服务
- * 调用 Cloudflare Workers 豆包 TTS API 代理
+ * 调用 Cloudflare Workers Qwen3-TTS API 代理
  */
 
 import { $fetch } from 'ofetch'
+import { File } from '@nativescript/core'
 import { API_CONFIG } from './config'
 
 export interface TTSRequest {
   text: string
+  voice?: string // 可选：语音角色（默认 Cherry）
 }
 
 export interface TTSResponse {
-  audioData: string // Base64 编码的音频数据
+  audioUrl: string // 音频下载 URL（24小时有效）
   duration: number // 音频时长（秒）
 }
 
@@ -19,9 +21,10 @@ export class TTSService {
   /**
    * 将文本转换为语音
    * @param text 中文文本
-   * @returns Base64 编码的音频数据和时长
+   * @param voice 可选：语音角色（默认 Cherry）
+   * @returns 音频下载 URL 和时长
    */
-  static async textToSpeech(text: string): Promise<TTSResponse> {
+  static async textToSpeech(text: string, voice: string = 'Cherry'): Promise<TTSResponse> {
     if (!text || text.trim().length === 0) {
       throw new Error('Text cannot be empty')
     }
@@ -39,28 +42,93 @@ export class TTSService {
         },
         body: {
           text: text.trim(),
+          voice: voice,
         },
         timeout: API_CONFIG.TIMEOUT,
       })
 
-      if (!response.audioData || !response.duration) {
-        throw new Error('Invalid API response: missing audioData or duration')
+      if (!response.audioUrl || !response.duration) {
+        throw new Error('Invalid API response: missing audioUrl or duration')
       }
 
       return response
-    } catch (error: any) {
+    } catch (error) {
       // 处理常见错误
-      if (error.status === 401) {
+      const err = error as { status?: number; message?: string }
+      if (err.status === 401) {
         throw new Error('Authentication failed: invalid APP_SECRET')
-      } else if (error.status === 429) {
+      } else if (err.status === 429) {
         throw new Error('API rate limit exceeded, please try again later')
-      } else if (error.status >= 500) {
+      } else if (err.status && err.status >= 500) {
         throw new Error('Server error, please try again later')
-      } else if (error.message?.includes('timeout')) {
+      } else if (err.message?.includes('timeout')) {
         throw new Error('Request timeout, please check your network connection')
       } else {
-        throw new Error(`TTS generation failed: ${error.message || 'Unknown error'}`)
+        throw new Error(`TTS generation failed: ${err.message || 'Unknown error'}`)
       }
     }
+  }
+
+  /**
+   * 下载音频文件并保存到本地（带重试机制）
+   * @param audioUrl 音频下载 URL
+   * @param localPath 本地保存路径
+   * @param maxRetries 最大重试次数（默认3次）
+   * @returns 下载成功返回 true
+   */
+  static async downloadAudio(
+    audioUrl: string,
+    localPath: string,
+    maxRetries: number = 3,
+  ): Promise<boolean> {
+    let lastError: Error | null = null
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        // 使用指数退避策略：第1次立即尝试，第2次等1秒，第3次等2秒
+        if (attempt > 1) {
+          const delay = Math.pow(2, attempt - 2) * 1000
+          await new Promise((resolve) => setTimeout(resolve, delay))
+        }
+
+        const response = await $fetch<ArrayBuffer>(audioUrl, {
+          method: 'GET',
+          timeout: 30000, // 30秒超时
+        })
+
+        // 将 ArrayBuffer 转换为 Uint8Array 并写入文件
+        const uint8Array = new Uint8Array(response)
+        const file = File.fromPath(localPath)
+        await file.write(uint8Array)
+
+        // 验证文件完整性
+        if (!File.exists(localPath)) {
+          throw new Error('File save failed: file does not exist after writing')
+        }
+
+        const savedFile = File.fromPath(localPath)
+        const fileSize = savedFile.size
+        if (fileSize === 0) {
+          throw new Error('File save failed: file size is 0')
+        }
+
+        console.log(
+          `[TTS] Audio downloaded successfully (attempt ${attempt}/${maxRetries}): ${fileSize} bytes`,
+        )
+        return true
+      } catch (error) {
+        lastError = error instanceof Error ? error : new Error(String(error))
+        console.error(`[TTS] Download attempt ${attempt}/${maxRetries} failed:`, lastError.message)
+
+        // 如果是最后一次尝试，直接抛出错误
+        if (attempt === maxRetries) {
+          throw new Error(
+            `Failed to download audio after ${maxRetries} attempts: ${lastError?.message || 'Unknown error'}`,
+          )
+        }
+      }
+    }
+
+    throw new Error(`Failed to download audio: ${lastError?.message || 'Unknown error'}`)
   }
 }

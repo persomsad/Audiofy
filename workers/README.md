@@ -1,21 +1,20 @@
 # Audiofy API Proxy Layer
 
-Cloudflare Workers 实现的 API 代理层，用于保护 Gemini 和豆包 TTS 的 API 密钥。
+Cloudflare Workers 实现的 API 代理层，用于保护 Gemini 和 Qwen3-TTS 的 API 密钥。
 
 ## 项目结构
 
 ```
 workers/
-├── src/
-│   ├── gemini-proxy.ts       # Gemini 翻译 API 代理
-│   └── tts-proxy.ts           # 豆包 TTS API 代理
-├── test/
-│   └── test-api.js            # API 测试脚本
-├── wrangler-gemini.toml       # Gemini Worker 配置
-├── wrangler-tts.toml          # TTS Worker 配置
-├── package.json               # 依赖和脚本
-├── DEPLOYMENT.md              # 详细部署指南
-└── README.md                  # 本文件
+├── tts-proxy/
+│   ├── src/
+│   │   └── index.ts            # Qwen3-TTS API 代理
+│   ├── wrangler.toml           # TTS Worker 配置
+│   ├── package.json            # TTS Worker 依赖
+│   ├── .dev.vars.example       # 环境变量示例
+│   └── README.md               # TTS 代理文档
+├── DEPLOYMENT.md               # 详细部署指南
+└── README.md                   # 本文件
 ```
 
 ## 快速开始
@@ -23,36 +22,29 @@ workers/
 ### 安装依赖
 
 ```bash
+cd workers/tts-proxy
 npm install
 ```
 
 ### 本地开发
 
 ```bash
-# 启动 Gemini 代理（端口 8787）
-npm run dev:gemini
-
-# 启动 TTS 代理（端口 8788）
-npm run dev:tts
+# 启动 TTS 代理（端口 8787）
+cd workers/tts-proxy
+npm run dev
 ```
 
 ### 测试
 
-```bash
-# 设置测试密钥
-export APP_SECRET="your-test-secret"
-
-# 运行测试脚本
-npm test
-```
+参考 [tts-proxy/README.md](./tts-proxy/README.md) 中的测试步骤
 
 ### 部署
 
-详细部署步骤请参考 [DEPLOYMENT.md](./DEPLOYMENT.md)
+详细部署步骤请参考 [tts-proxy/README.md](./tts-proxy/README.md) 或 [DEPLOYMENT.md](./DEPLOYMENT.md)
 
 ```bash
-# 部署所有 Workers
-npm run deploy:all
+cd workers/tts-proxy
+npm run deploy
 ```
 
 ## API 接口
@@ -62,12 +54,14 @@ npm run deploy:all
 **Endpoint**: `POST /`
 
 **请求头**:
+
 ```
 Content-Type: application/json
 Authorization: Bearer {APP_SECRET}
 ```
 
 **请求体**:
+
 ```json
 {
   "text": "Hello world"
@@ -75,33 +69,38 @@ Authorization: Bearer {APP_SECRET}
 ```
 
 **响应**:
+
 ```json
 {
   "translatedText": "你好世界"
 }
 ```
 
-### 2. 豆包 TTS 代理
+### 2. Qwen3-TTS 代理
 
 **Endpoint**: `POST /`
 
 **请求头**:
+
 ```
 Content-Type: application/json
 Authorization: Bearer {APP_SECRET}
 ```
 
 **请求体**:
+
 ```json
 {
-  "text": "你好世界"
+  "text": "你好世界",
+  "voice": "Cherry"
 }
 ```
 
 **响应**:
+
 ```json
 {
-  "audioData": "base64-encoded-audio-data...",
+  "audioUrl": "https://dashscope-result-****.oss-cn-beijing.aliyuncs.com/****.mp3",
   "duration": 2
 }
 ```
@@ -116,24 +115,26 @@ Authorization: Bearer {APP_SECRET}
 
 ## 错误代码
 
-| 状态码 | 说明 |
-|--------|------|
-| 200 | 成功 |
-| 400 | 请求参数错误 |
-| 401 | 认证失败（APP_SECRET 错误） |
-| 405 | 方法不允许（只支持 POST） |
-| 429 | API 限流（请求过于频繁） |
-| 500 | 内部错误（上游 API 故障） |
+| 状态码 | 说明                        |
+| ------ | --------------------------- |
+| 200    | 成功                        |
+| 400    | 请求参数错误                |
+| 401    | 认证失败（APP_SECRET 错误） |
+| 405    | 方法不允许（只支持 POST）   |
+| 429    | API 限流（请求过于频繁）    |
+| 500    | 内部错误（上游 API 故障）   |
 
 ## 费用
 
 ### Cloudflare Workers 免费额度
+
 - 每天 100,000 次请求
 - 足够个人项目使用
 
 ### API 调用费用
+
 - **Gemini API**: 免费版 1,500 次/天
-- **豆包 TTS**: 约 ¥0.1-0.3 / 1000 字符
+- **Qwen3-TTS**: 约 ¥0.8 / 10,000 字符（比豆包更经济）
 
 ## 参考文档
 

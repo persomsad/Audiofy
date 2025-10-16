@@ -4,8 +4,6 @@
 # Audiofy 应用密钥（用于保护代理访问）
 APP_SECRET=your-local-app-secret
 
-# 豆包 API 凭证（从火山引擎控制台获取）
-# 获取地址：https://console.volcengine.com/speech/app
-DOUBAO_APPID=your-doubao-appid
-DOUBAO_TOKEN=your-doubao-token
-DOUBAO_CLUSTER=your-doubao-cluster
+# 阿里云 DashScope API 密钥（从阿里云百炼控制台获取）
+# 获取地址：https://bailian.console.aliyun.com/
+DASHSCOPE_API_KEY=your-dashscope-api-key
