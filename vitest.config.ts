@@ -24,6 +24,7 @@ export default defineConfig({
         __dirname,
         './src/__mocks__/@nativescript/secure-storage.ts',
       ),
+      'nativescript-audio': resolve(__dirname, './src/__mocks__/nativescript-audio.ts'),
     },
   },
 })
