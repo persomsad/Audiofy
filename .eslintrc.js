@@ -32,7 +32,7 @@ module.exports = {
     'vue/max-attributes-per-line': [
       'error',
       {
-        singleline: 3,
+        singleline: 5, // 允许单行最多5个属性
         multiline: 1,
       },
     ],
