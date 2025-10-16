@@ -12,9 +12,9 @@
     "fmt": "prettier --write 'src/**/*.{ts,vue,json,scss}'",
     "fmt:check": "prettier --check 'src/**/*.{ts,vue,json,scss}'",
     "typecheck": "tsc --noEmit",
-    "test": "vitest",
+    "test": "vitest --run",
     "test:ui": "vitest --ui",
-    "test:coverage": "vitest --coverage",
+    "test:coverage": "vitest --run --coverage",
     "prepare": "husky"
   },
   "dependencies": {
