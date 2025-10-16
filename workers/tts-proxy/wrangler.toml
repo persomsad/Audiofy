@@ -1,5 +1,5 @@
 # Cloudflare Workers 配置文件
-# 豆包 TTS API 代理服务
+# Qwen3-TTS API 代理服务
 
 name = "audiofy-tts-proxy"
 main = "src/index.ts"
@@ -9,9 +9,7 @@ compatibility_date = "2024-01-01"
 # [vars]
 # 这些变量应该通过 Cloudflare Dashboard 或 wrangler secret 命令设置，不要提交到代码库
 # APP_SECRET = "your-app-secret"
-# DOUBAO_APPID = "your-doubao-appid"
-# DOUBAO_TOKEN = "your-doubao-token"
-# DOUBAO_CLUSTER = "your-doubao-cluster"
+# DASHSCOPE_API_KEY = "your-dashscope-api-key"
 
 # Workers 配置
 workers_dev = true
