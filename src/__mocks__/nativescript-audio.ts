@@ -3,6 +3,8 @@
  * 用于测试环境
  */
 
+import { vi } from 'vitest'
+
 export class TNSPlayer {
   initFromFile: (...args: any[]) => Promise<any>
   play: () => Promise<void>
