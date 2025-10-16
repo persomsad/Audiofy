@@ -58,7 +58,7 @@ describe('useTTS', () => {
         audioUrl: 'https://example.com/audio.mp3',
         duration: 10.5,
       })
-      vi.mocked(TTSService.downloadAudio).mockResolvedValueOnce(undefined)
+      vi.mocked(TTSService.downloadAudio).mockResolvedValueOnce(true)
 
       const { synthesize, isLoading, error } = useTTS()
 
@@ -164,7 +164,7 @@ describe('useTTS', () => {
           audioUrl: 'https://example.com/audio.mp3',
           duration: 10.5,
         })
-      vi.mocked(TTSService.downloadAudio).mockResolvedValueOnce(undefined)
+      vi.mocked(TTSService.downloadAudio).mockResolvedValueOnce(true)
 
       const { synthesize } = useTTS({ maxRetries: 1 })
       const text = '测试文本'
@@ -225,7 +225,7 @@ describe('useTTS', () => {
             )
           }),
       )
-      vi.mocked(TTSService.downloadAudio).mockResolvedValue(undefined)
+      vi.mocked(TTSService.downloadAudio).mockResolvedValue(true)
 
       const { synthesize, isLoading } = useTTS()
       const text = '测试文本'
@@ -246,7 +246,7 @@ describe('useTTS', () => {
         audioUrl: 'https://example.com/audio.mp3',
         duration: 10.5,
       })
-      vi.mocked(TTSService.downloadAudio).mockResolvedValueOnce(undefined)
+      vi.mocked(TTSService.downloadAudio).mockResolvedValueOnce(true)
 
       const { synthesize } = useTTS()
       const text = '测试文本'
