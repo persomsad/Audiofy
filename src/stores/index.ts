@@ -1,13 +1,11 @@
 /**
- * Vuex Store - 音频状态管理
+ * Vuex 4 Store - 音频状态管理
+ * 兼容 Vue 3
  */
 
-import Vue from 'vue'
-import Vuex from 'vuex'
+import { createStore } from 'vuex'
 import { TranslateService } from '@/services/translate.service'
 import { TTSService } from '@/services/tts.service'
-
-Vue.use(Vuex)
 
 export interface AudioItem {
   id: string
@@ -24,7 +22,7 @@ export interface RootState {
   error: string | null
 }
 
-export default new Vuex.Store<RootState>({
+export default createStore<RootState>({
   state: {
     audioList: [],
     loading: false,
