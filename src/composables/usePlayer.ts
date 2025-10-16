@@ -92,7 +92,7 @@ export function usePlayer(options: PlayerOptions = {}) {
           }
           console.log('[PlayerService] Playback completed')
         },
-        errorCallback: (err) => {
+        errorCallback: (err: any) => {
           const message = err?.msg || String(err) || 'Unknown playback error'
           error.value = message
           status.value = 'error'
@@ -102,7 +102,7 @@ export function usePlayer(options: PlayerOptions = {}) {
 
       // 5. 获取音频时长
       const audioDuration = await player.getAudioTrackDuration()
-      duration.value = Math.floor(audioDuration / 1000) // 毫秒转秒
+      duration.value = Math.floor(Number(audioDuration) / 1000) // 毫秒转秒
 
       // 6. 保存当前文章
       currentArticle.value = article
