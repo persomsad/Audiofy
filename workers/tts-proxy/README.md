@@ -1,22 +1,23 @@
 # Audiofy TTS Proxy - Cloudflare Workers
 
-豆包 TTS API 的 Cloudflare Workers 代理服务，用于保护 API 密钥并提供统一的认证层。
+Qwen3-TTS API（阿里云 DashScope）的 Cloudflare Workers 代理服务，用于保护 API 密钥并提供统一的认证层。
 
 ## 功能特性
 
 - ✅ 统一认证：使用 `APP_SECRET` 保护代理访问
-- ✅ 密钥保护：豆包 API 凭证存储在 Cloudflare Workers 环境变量中，不暴露给客户端
+- ✅ 密钥保护：DashScope API 密钥存储在 Cloudflare Workers 环境变量中，不暴露给客户端
 - ✅ 错误处理：友好的错误信息和状态码
 - ✅ CORS 支持：允许跨域请求
 - ✅ 类型安全：完整的 TypeScript 类型定义
+- ✅ 语音角色：支持 17 种语音角色（Cherry, Ethan, Nofish 等）
+- ✅ 高性能：使用 qwen3-tts-flash 快速模型，适合实时应用
 
 ## 前置要求
 
 1. **Cloudflare 账号**：注册免费账号 https://dash.cloudflare.com/sign-up
-2. **豆包 API 凭证**（从火山引擎控制台获取）：
-   - `DOUBAO_APPID`：应用ID
-   - `DOUBAO_TOKEN`：访问令牌（Access Token）
-   - `DOUBAO_CLUSTER`：集群ID
+2. **阿里云 DashScope API 密钥**（从阿里云百炼控制台获取）：
+   - 访问 https://bailian.console.aliyun.com/
+   - 开通 Qwen3-TTS 服务并获取 API Key
 3. **Node.js**：v18+ 和 npm
 
 ## 本地开发
@@ -35,9 +36,7 @@ npm install
 ```bash
 # .dev.vars
 APP_SECRET=your-local-app-secret
-DOUBAO_APPID=your-doubao-appid
-DOUBAO_TOKEN=your-doubao-token
-DOUBAO_CLUSTER=your-doubao-cluster
+DASHSCOPE_API_KEY=your-dashscope-api-key
 ```
 
 ### 3. 启动本地开发服务器
@@ -54,17 +53,19 @@ npm run dev
 curl -X POST http://localhost:8787 \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer your-local-app-secret" \
-  -d '{"text":"你好，世界"}'
+  -d '{"text":"你好，世界","voice":"Cherry"}'
 ```
 
 预期响应：
 
 ```json
 {
-  "audioData": "base64_encoded_audio_data...",
+  "audioUrl": "https://dashscope-result-****.oss-cn-beijing.aliyuncs.com/****.mp3",
   "duration": 3
 }
 ```
+
+**注意**：`audioUrl` 有效期为 24 小时，客户端需要在此时间内下载音频文件。
 
 ## 生产部署
 
@@ -85,15 +86,9 @@ npx wrangler login
 npx wrangler secret put APP_SECRET
 # 提示输入时，输入您的应用密钥，例如：audiofy_prod_secret_2024
 
-# 设置豆包 API 凭证
-npx wrangler secret put DOUBAO_APPID
-# 输入：从火山引擎控制台获取的 APPID
-
-npx wrangler secret put DOUBAO_TOKEN
-# 输入：从火山引擎控制台获取的 TOKEN
-
-npx wrangler secret put DOUBAO_CLUSTER
-# 输入：从火山引擎控制台获取的 CLUSTER
+# 设置 DashScope API 密钥
+npx wrangler secret put DASHSCOPE_API_KEY
+# 输入：从阿里云百炼控制台获取的 API Key（格式如 sk-****）
 ```
 
 #### 3. 部署到 Cloudflare Workers
@@ -123,9 +118,7 @@ https://audiofy-tts-proxy.luhuizhx.workers.dev
 1. 在 Worker 详情页，点击 `Settings` → `Variables`
 2. 添加以下环境变量（类型选择 `Secret`）：
    - `APP_SECRET`：您的应用密钥
-   - `DOUBAO_APPID`：豆包应用ID
-   - `DOUBAO_TOKEN`：豆包访问令牌
-   - `DOUBAO_CLUSTER`：豆包集群ID
+   - `DASHSCOPE_API_KEY`：阿里云 DashScope API 密钥（格式如 sk-\*\*\*\*）
 3. 点击 `Save and Deploy`
 
 ## API 使用
@@ -138,9 +131,19 @@ Content-Type: application/json
 Authorization: Bearer <APP_SECRET>
 
 {
-  "text": "要合成的中文文本"
+  "text": "要合成的中文文本",
+  "voice": "Cherry"  // 可选，默认为 Cherry
 }
 ```
+
+#### 支持的语音角色
+
+共 17 种语音角色可选：
+
+- `Cherry`（默认）：温柔女声
+- `Ethan`：沉稳男声
+- `Nofish`：清新女声
+- `Jennifer`, `Ryan`, `Katerina`, `Elias`, `Jada`, `Dylan`, `Sunny`, `Li`, `Marcus`, `Roy`, `Peter`, `Rocky`, `Kiki`, `Eric`
 
 ### 响应格式
 
@@ -148,10 +151,15 @@ Authorization: Bearer <APP_SECRET>
 
 ```json
 {
-  "audioData": "base64_encoded_audio_data...",
+  "audioUrl": "https://dashscope-result-****.oss-cn-beijing.aliyuncs.com/****.mp3",
   "duration": 10
 }
 ```
+
+**重要提示**：
+
+- `audioUrl` 有效期为 **24 小时**，客户端需要在此时间内下载音频文件
+- 音频格式为 **MP3**，采样率 22050 Hz
 
 **错误响应**：
 
@@ -161,13 +169,17 @@ Authorization: Bearer <APP_SECRET>
   { "error": "Unauthorized" }
   ```
 
-- **400 Bad Request**：请求格式错误
+- **400 Bad Request**：请求格式错误或语音角色无效
 
   ```json
   { "error": "Invalid request: text is required" }
   ```
 
-- **500 Internal Server Error**：豆包 API 错误或服务器错误
+  ```json
+  { "error": "Invalid voice: xxx. Valid options: Cherry, Ethan, ..." }
+  ```
+
+- **500 Internal Server Error**：DashScope API 错误或服务器错误
   ```json
   { "error": "TTS synthesis failed" }
   ```
@@ -230,19 +242,20 @@ Cloudflare Workers 免费额度（每天）：
    ```
 3. 重新设置密钥：`npx wrangler secret put APP_SECRET`
 
-### 问题：豆包 API 返回错误
+### 问题：DashScope API 返回错误
 
 **解决方案**：
 
-1. 验证豆包凭证是否正确（APPID, TOKEN, CLUSTER）
-2. 检查火山引擎控制台中的 API 配额和余额
-3. 查看实时日志：`npm run tail`
+1. 验证 DashScope API 密钥是否正确
+2. 检查阿里云百炼控制台中的 API 配额和余额
+3. 确认 Qwen3-TTS 服务已开通
+4. 查看实时日志：`npm run tail`
 
 ## 相关文档
 
 - [Cloudflare Workers 文档](https://developers.cloudflare.com/workers/)
 - [Wrangler CLI 文档](https://developers.cloudflare.com/workers/wrangler/)
-- [火山引擎语音合成 API](https://www.volcengine.com/docs/6561/1257584)
+- [阿里云 DashScope Qwen3-TTS 文档](https://bailian.console.aliyun.com/?tab=doc#/doc/?type=model&url=2879134)
 - [Audiofy 架构设计文档](../../docs/architecture/ADR-002-Architecture-Design.md)
 
 ## 许可证
