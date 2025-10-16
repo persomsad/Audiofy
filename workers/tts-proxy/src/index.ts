@@ -21,11 +21,7 @@ interface DashScopeTTSRequest {
   model: string
   input: {
     text: string
-  }
-  parameters: {
     voice: string
-    format: string
-    sample_rate: number
     language_type: string // 语言类型：Chinese, English 等
   }
 }
@@ -33,8 +29,14 @@ interface DashScopeTTSRequest {
 // DashScope API 响应类型
 interface DashScopeTTSResponse {
   output: {
-    url: string // 音频下载 URL（24小时有效）
-    duration?: number // 音频时长（秒，可选）
+    audio: {
+      url: string // 音频下载 URL（24小时有效）
+      expires_at: number // URL 过期时间戳
+    }
+    finish_reason: string
+  }
+  usage: {
+    characters: number
   }
   request_id: string
   [key: string]: unknown
@@ -122,18 +124,14 @@ export default {
         model: 'qwen3-tts-flash', // 快速模型，适合实时应用
         input: {
           text: text,
-        },
-        parameters: {
           voice: voice, // 语音角色
-          format: 'mp3', // 音频格式：mp3, wav, pcm
-          sample_rate: 22050, // 采样率（Hz）
           language_type: 'Chinese', // 语言类型（建议与文本语种一致，以获得正确发音和自然语调）
         },
       }
 
       // 6. 调用 DashScope Qwen3-TTS API
       const dashScopeResponse = await fetch(
-        'https://dashscope.aliyuncs.com/api/v1/services/aigc/text2speech/synthesis',
+        'https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation',
         {
           method: 'POST',
           headers: {
@@ -159,7 +157,7 @@ export default {
       }
 
       // 8. 提取音频 URL 和元数据
-      if (!('output' in dashScopeData) || !dashScopeData.output.url) {
+      if (!('output' in dashScopeData) || !dashScopeData.output.audio?.url) {
         return jsonResponse(
           {
             error: 'Invalid API response: missing audio URL',
@@ -168,8 +166,8 @@ export default {
         )
       }
 
-      const audioUrl = dashScopeData.output.url
-      const duration = dashScopeData.output.duration || Math.ceil(text.length / 5) // 如果API未返回时长，使用粗略估算
+      const audioUrl = dashScopeData.output.audio.url
+      const duration = Math.ceil(text.length / 5) // 粗略估算音频时长（API 不返回 duration 字段）
 
       // 9. 返回音频 URL（客户端需要在24小时内下载）
       const response: TTSResponse = {
