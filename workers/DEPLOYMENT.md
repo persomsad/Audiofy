@@ -1,6 +1,6 @@
 # Cloudflare Workers 部署指南
 
-本文档说明如何部署 Audiofy 的 API 代理层（Gemini 翻译代理 + 豆包 TTS 代理）。
+本文档说明如何部署 Audiofy 的 TTS API 代理层（Qwen3-TTS 代理）。
 
 ## 前置条件
 
@@ -9,20 +9,20 @@
    - 获取 Account ID（Dashboard 右侧边栏可查看）
 
 2. **API 密钥准备**
-   - Google Gemini API Key：https://ai.google.dev/
-   - 豆包 TTS API Key：https://www.volcengine.com/docs/6561/97465
+   - 阿里云 DashScope API Key：https://bailian.console.aliyun.com/
    - 生成 APP_SECRET（用于保护代理接口）：
      ```bash
      openssl rand -base64 32
      ```
 
 3. **安装工具**
+
    ```bash
-   # 安装 Node.js 20+
-   node --version  # 确认版本 >= 20
+   # 安装 Node.js 18+
+   node --version  # 确认版本 >= 18
 
    # 安装依赖
-   cd workers
+   cd workers/tts-proxy
    npm install
    ```
 
@@ -45,67 +45,48 @@ npx wrangler whoami
 **重要：不要在代码或配置文件中硬编码密钥！**
 
 ```bash
-# 配置 Gemini 代理的密钥
-npx wrangler secret put GEMINI_API_KEY --config wrangler-gemini.toml
-# 输入你的 Gemini API Key 并回车
-
-npx wrangler secret put APP_SECRET --config wrangler-gemini.toml
-# 输入你的 APP_SECRET 并回车
-
 # 配置 TTS 代理的密钥
-npx wrangler secret put DOUBAO_API_KEY --config wrangler-tts.toml
-# 输入你的豆包 API Key 并回车
+npx wrangler secret put DASHSCOPE_API_KEY
+# 输入你的 DashScope API Key（格式如 sk-****）并回车
 
-npx wrangler secret put APP_SECRET --config wrangler-tts.toml
-# 输入相同的 APP_SECRET 并回车
+npx wrangler secret put APP_SECRET
+# 输入你的 APP_SECRET 并回车
 ```
 
-### 3. 更新配置文件
-
-编辑 `wrangler-gemini.toml` 和 `wrangler-tts.toml`，取消注释并填写 `account_id`：
-
-```toml
-account_id = "YOUR_ACCOUNT_ID"  # 从 Cloudflare Dashboard 获取
-```
-
-### 4. 本地测试
+### 3. 本地测试
 
 ```bash
-# 启动 Gemini 代理（端口 8787）
-npm run dev:gemini
+# 创建 .dev.vars 文件
+cd workers/tts-proxy
+cp .dev.vars.example .dev.vars
+# 编辑 .dev.vars 填入真实密钥
 
-# 在另一个终端启动 TTS 代理（端口 8788）
-npm run dev:tts
+# 启动本地开发服务器
+npm run dev
 
-# 在第三个终端运行测试
-export APP_SECRET="your-app-secret"
-npm test
+# 在另一个终端测试
+curl -X POST http://localhost:8787 \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer your-app-secret" \
+  -d '{"text":"你好世界","voice":"Cherry"}'
 ```
 
-### 5. 部署到生产环境
+### 4. 部署到生产环境
 
 ```bash
-# 部署所有代理
-npm run deploy:all
-
-# 或者单独部署
-npm run deploy:gemini
-npm run deploy:tts
+npm run deploy
 ```
 
-### 6. 获取部署 URL
+### 5. 获取部署 URL
 
 部署成功后，命令行会输出 Worker URL：
 
 ```
-✨ Published audiofy-gemini-proxy
-   https://audiofy-gemini-proxy.<your-subdomain>.workers.dev
-
 ✨ Published audiofy-tts-proxy
    https://audiofy-tts-proxy.<your-subdomain>.workers.dev
 ```
 
-**将这两个 URL 记录下来**，后续在 NativeScript 应用中需要配置这些地址。
+**将这个 URL 记录下来**，后续在 NativeScript 应用中需要配置这个地址。
 
 ---
 
@@ -113,35 +94,20 @@ npm run deploy:tts
 
 使用 `curl` 测试生产环境的 API：
 
-### 测试 Gemini 翻译代理
-
-```bash
-curl -X POST https://audiofy-gemini-proxy.<your-subdomain>.workers.dev \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_APP_SECRET" \
-  -d '{"text": "Hello world"}'
-```
-
-**预期响应**：
-```json
-{
-  "translatedText": "你好世界"
-}
-```
-
-### 测试豆包 TTS 代理
+### 测试 Qwen3-TTS 代理
 
 ```bash
 curl -X POST https://audiofy-tts-proxy.<your-subdomain>.workers.dev \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_APP_SECRET" \
-  -d '{"text": "你好世界"}'
+  -d '{"text":"你好世界","voice":"Cherry"}'
 ```
 
-**预期响应**：
+**预期响应**:
+
 ```json
 {
-  "audioData": "base64-encoded-audio-data...",
+  "audioUrl": "https://dashscope-result-****.oss-cn-beijing.aliyuncs.com/****.mp3",
   "duration": 2
 }
 ```
@@ -154,40 +120,34 @@ curl -X POST https://audiofy-tts-proxy.<your-subdomain>.workers.dev \
 
 **原因**：APP_SECRET 不匹配
 
-**解决**：
+**解决**:
+
 1. 确认请求头中的 `Authorization: Bearer YOUR_APP_SECRET` 正确
-2. 重新配置密钥：`npx wrangler secret put APP_SECRET --config wrangler-xxx.toml`
+2. 重新配置密钥：`npx wrangler secret put APP_SECRET`
 
 ### 错误 2: `429 Too Many Requests`
 
 **原因**：API 限流
 
 **解决**：
-- Gemini API 免费版限制：15 RPM（每分钟请求数）
-- 豆包 TTS 限制：根据你的账户等级
+
+- Qwen3-TTS 限制：根据你的账户等级
 - 等待 1 分钟后重试，或升级 API 套餐
 
 ### 错误 3: `500 Internal Server Error`
 
-**原因**：上游 API（Gemini/豆包）故障或密钥错误
+**原因**：上游 API（DashScope）故障或密钥错误
 
-**解决**：
+**解决**:
+
 1. 检查 Cloudflare Dashboard → Workers → 选择 Worker → Logs 查看详细错误
-2. 验证 API Key 是否有效：
-   ```bash
-   # 测试 Gemini API Key
-   curl https://generativelanguage.googleapis.com/v1beta/models \
-     -H "x-goog-api-key: YOUR_GEMINI_KEY"
-   ```
+2. 验证 DashScope API Key 是否有效
+3. 确认 Qwen3-TTS 服务已开通
 
 ### 查看实时日志
 
 ```bash
-# Gemini 代理日志
-npx wrangler tail --config wrangler-gemini.toml
-
-# TTS 代理日志
-npx wrangler tail --config wrangler-tts.toml
+npx wrangler tail
 ```
 
 ---
@@ -204,25 +164,24 @@ npx wrangler tail --config wrangler-tts.toml
 
 ### API 调用费用
 
-- **Gemini API 免费版**：每天 1,500 次请求（足够测试）
-- **豆包 TTS**：约 ¥0.1-0.3 / 1000 字符（月费约 ¥18-30）
+- **Qwen3-TTS**：约 ¥0.8 / 10,000 字符（比豆包更经济）
 
 ---
 
 ## 安全最佳实践
 
 1. **定期轮换 APP_SECRET**
+
    ```bash
    # 生成新密钥
    openssl rand -base64 32
 
    # 更新 Workers 密钥
-   npx wrangler secret put APP_SECRET --config wrangler-gemini.toml
-   npx wrangler secret put APP_SECRET --config wrangler-tts.toml
+   npx wrangler secret put APP_SECRET
    ```
 
 2. **限制 CORS 域名**
-   - 编辑 `gemini-proxy.ts` 和 `tts-proxy.ts`
+   - 编辑 `workers/tts-proxy/src/index.ts`
    - 将 `'Access-Control-Allow-Origin': '*'` 改为你的应用域名
 
 3. **监控异常流量**
@@ -236,12 +195,13 @@ npx wrangler tail --config wrangler-tts.toml
 部署完成后，在 NativeScript 应用中配置以下环境变量：
 
 ```typescript
-// src/config/api.ts
+// src/services/config.ts
 export const API_CONFIG = {
-  GEMINI_PROXY_URL: 'https://audiofy-gemini-proxy.<your-subdomain>.workers.dev',
   TTS_PROXY_URL: 'https://audiofy-tts-proxy.<your-subdomain>.workers.dev',
   APP_SECRET: '<stored-in-secure-storage>',
-};
+  MAX_TEXT_LENGTH: 5000,
+  TIMEOUT: 30000,
+}
 ```
 
 **注意**：`APP_SECRET` 应该存储在 `@nativescript/secure-storage` 中，不要硬编码在代码里！
@@ -252,5 +212,5 @@ export const API_CONFIG = {
 
 - [Cloudflare Workers 文档](https://developers.cloudflare.com/workers/)
 - [Wrangler CLI 文档](https://developers.cloudflare.com/workers/wrangler/)
-- [Gemini API 文档](https://ai.google.dev/docs)
-- [豆包 TTS API 文档](https://www.volcengine.com/docs/6561/97465)
+- [阿里云 DashScope Qwen3-TTS 文档](https://bailian.console.aliyun.com/?tab=doc#/doc/?type=model&url=2879134)
+- [TTS Proxy 详细文档](./tts-proxy/README.md)
