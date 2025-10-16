@@ -20,6 +20,10 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(__dirname, './src'),
+      '@nativescript/secure-storage': resolve(
+        __dirname,
+        './src/__mocks__/@nativescript/secure-storage.ts',
+      ),
     },
   },
 })
