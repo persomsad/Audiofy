@@ -1,0 +1,28 @@
+# Cloudflare Workers 配置文件 - 豆包 TTS API 代理
+# 文档：https://developers.cloudflare.com/workers/wrangler/configuration/
+
+name = "audiofy-tts-proxy"
+main = "src/tts-proxy.ts"
+compatibility_date = "2024-01-01"
+
+# Workers 运行时配置
+workers_dev = true
+
+# 账户信息（部署前需要填写）
+# account_id = "YOUR_ACCOUNT_ID"
+
+# 环境变量（通过命令行或 Cloudflare Dashboard 设置）
+# 不要在此文件中硬编码密钥！
+[vars]
+# DOUBAO_API_KEY = ""  # 通过 wrangler secret put DOUBAO_API_KEY 设置
+# APP_SECRET = ""      # 通过 wrangler secret put APP_SECRET 设置
+
+# 路由配置（可选，用于自定义域名）
+# routes = [
+#   { pattern = "api.audiofy.com/tts", zone_name = "audiofy.com" }
+# ]
+
+# 限制配置
+[limits]
+# 单次请求的 CPU 时间限制（毫秒）
+cpu_ms = 100
