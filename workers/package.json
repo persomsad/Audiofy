@@ -1,0 +1,21 @@
+{
+  "name": "audiofy-workers",
+  "version": "0.1.0",
+  "description": "Cloudflare Workers API proxies for Audiofy",
+  "private": true,
+  "scripts": {
+    "dev:gemini": "wrangler dev --config wrangler-gemini.toml",
+    "dev:tts": "wrangler dev --config wrangler-tts.toml",
+    "deploy:gemini": "wrangler deploy --config wrangler-gemini.toml",
+    "deploy:tts": "wrangler deploy --config wrangler-tts.toml",
+    "deploy:all": "npm run deploy:gemini && npm run deploy:tts",
+    "test": "node test/test-api.js"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20231218.0",
+    "wrangler": "^4.43.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
