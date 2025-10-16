@@ -6,7 +6,7 @@
 
 ## 日期
 
-2025-01-16
+2025-01-17 (最后更新)
 
 ## 背景 (Context)
 
@@ -14,7 +14,7 @@ Audiofy 需要一个清晰的架构设计来支持以下核心功能：
 
 1. **用户输入文章**（MVP 阶段：手动复制粘贴）
 2. **调用 Gemini API 翻译**（英文 → 中文）
-3. **调用豆包 TTS API 生成语音**（中文文本 → WAV 音频）
+3. **调用 Qwen3-TTS API 生成语音**（中文文本 → MP3 音频）
 4. **本地存储音频和元数据**（设备文件系统）
 5. **播放音频**（支持后台播放、进度控制、锁屏控制）
 
@@ -75,18 +75,18 @@ flowchart TB
 
     subgraph ProxyLayer [API 代理层 - Cloudflare Workers]
         GeminiProxy[Gemini API 代理]
-        TTSProxy[豆包 TTS API 代理]
+        TTSProxy[Qwen3-TTS API 代理]
     end
 
     subgraph ExternalAPIs [外部 API]
         GeminiAPI[Google Gemini API]
-        DoubaoAPI[豆包 TTS API]
+        Qwen3API[阿里云 Qwen3-TTS API]
     end
 
     APIClient --> GeminiProxy
     APIClient --> TTSProxy
     GeminiProxy --> GeminiAPI
-    TTSProxy --> DoubaoAPI
+    TTSProxy --> Qwen3API
 
     style ProxyLayer fill:#fff3bf,stroke:#f59f00,stroke-width:2px
     style ExternalAPIs fill:#e7f5ff,stroke:#1971c2,stroke-width:1px
@@ -141,7 +141,7 @@ sequenceDiagram
     participant SS as StorageService
     participant Proxy as Cloudflare Workers
     participant Gemini as Gemini API
-    participant Doubao as 豆包 TTS API
+    participant Qwen3TTS as Qwen3-TTS API
 
     User->>UI: 输入英文文章
     UI->>UI: 显示加载状态
@@ -154,13 +154,14 @@ sequenceDiagram
 
     TS->>TTSS: synthesize(translatedText)
     TTSS->>Proxy: POST /api/tts
-    Proxy->>Doubao: 调用豆包 TTS API
-    Doubao-->>Proxy: 返回 WAV 音频（Base64）
-    Proxy-->>TTSS: 返回音频数据
+    Proxy->>Qwen3TTS: 调用 Qwen3-TTS API
+    Qwen3TTS-->>Proxy: 返回音频 URL（24小时有效）
+    Proxy-->>TTSS: 返回音频 URL
 
-    TTSS->>SS: saveAudio(audioData)
+    TTSS->>SS: saveAudio(audioUrl)
+    SS->>SS: 下载音频文件
     SS->>SS: 生成 UUID
-    SS->>SS: 写入音频文件
+    SS->>SS: 写入音频文件到本地
     SS->>SS: 更新 metadata.json
     SS-->>UI: 返回 Article 对象
 
@@ -255,9 +256,14 @@ export default {
 }
 ```
 
-#### 豆包 TTS 代理
+#### Qwen3-TTS 代理
 
-**真实API文档**: [火山引擎语音合成API](https://www.volcengine.com/docs/6561/1257584)
+**官方文档**: [阿里云 DashScope 文本语音合成](https://bailian.console.aliyun.com/?tab=doc#/doc/?type=model&url=2879134)
+
+**定价**:
+
+- **0.8元 / 10,000 字符**
+- **免费额度**: 2000 字符（激活后 90 天有效，仅北京地域）
 
 ```typescript
 // workers/tts-proxy.ts
@@ -270,52 +276,41 @@ export default {
     }
 
     // 2. 解析请求体
-    const { text } = await request.json()
+    const { text, voice = 'Cherry' } = await request.json()
 
-    // 3. 生成唯一请求ID
-    const reqid = `${Date.now()}-${Math.random().toString(36).substring(7)}`
-
-    // 4. 调用豆包 TTS API (火山引擎语音合成)
-    const response = await fetch('https://openspeech.bytedance.com/api/v1/tts', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        // 豆包API使用特殊的Bearer格式: "Bearer; {token}"
-        Authorization: `Bearer; ${env.DOUBAO_TOKEN}`,
+    // 3. 调用阿里云 DashScope Qwen3-TTS API
+    const response = await fetch(
+      'https://dashscope.aliyuncs.com/api/v1/services/aigc/text2speech/synthesis',
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${env.DASHSCOPE_API_KEY}`, // 只需1个API密钥
+          'Content-Type': 'application/json',
+          'X-DashScope-Async': 'enable', // 启用异步模式（音频文件较大时推荐）
+        },
+        body: JSON.stringify({
+          model: 'qwen3-tts-flash', // 快速模型，适合实时应用
+          input: {
+            text: text,
+          },
+          parameters: {
+            voice: voice, // 语音角色（17种可选）
+            format: 'mp3', // 音频格式：mp3, wav, pcm
+            sample_rate: 22050, // 采样率（Hz）
+          },
+        }),
       },
-      body: JSON.stringify({
-        app: {
-          appid: env.DOUBAO_APPID, // 应用ID（从火山引擎控制台获取）
-          token: env.DOUBAO_TOKEN, // 访问令牌
-          cluster: env.DOUBAO_CLUSTER, // 集群ID
-        },
-        user: {
-          uid: 'audiofy-user', // 用户标识
-        },
-        audio: {
-          voice_type: 'BV001_streaming', // 语音类型（参考官方文档）
-          encoding: 'mp3', // 音频格式: mp3, wav, ogg
-          speed_ratio: 1.0, // 语速倍率 (0.5-2.0)
-          volume_ratio: 1.0, // 音量倍率 (0.1-3.0)
-          pitch_ratio: 1.0, // 音调倍率 (0.5-2.0)
-        },
-        request: {
-          reqid: reqid, // 请求唯一标识
-          text: text, // 要合成的文本
-          text_type: 'plain', // 文本类型: plain/ssml
-          operation: 'submit', // 操作类型: submit(提交)/query(查询)
-        },
-      }),
-    })
+    )
 
-    // 5. 解析响应
+    // 4. 解析响应
     const data = await response.json()
 
     if (!response.ok) {
-      console.error('Doubao TTS API error:', data)
+      console.error('Qwen3-TTS API error:', data)
       return new Response(
         JSON.stringify({
           error: data.message || 'TTS synthesis failed',
+          code: data.code,
         }),
         {
           status: response.status,
@@ -324,14 +319,15 @@ export default {
       )
     }
 
-    // 6. 提取音频数据和时长
-    // 豆包API返回格式: { data: "base64_audio_string", ... }
-    const audioData = data.data
+    // 5. 提取音频URL和元数据
+    // DashScope返回一个24小时有效的音频URL
+    const audioUrl = data.output.url
+    const duration = data.output.duration || 0 // 音频时长（秒）
 
-    if (!audioData) {
+    if (!audioUrl) {
       return new Response(
         JSON.stringify({
-          error: 'Invalid API response: missing audio data',
+          error: 'Invalid API response: missing audio URL',
         }),
         {
           status: 500,
@@ -340,15 +336,11 @@ export default {
       )
     }
 
-    // 7. 估算音频时长（基于文本长度，实际应从API响应获取）
-    // 注意：豆包API可能不直接返回时长，需要解码音频文件获取
-    const estimatedDuration = Math.ceil(text.length / 5) // 粗略估算：5字符/秒
-
-    // 8. 返回音频数据（Base64 编码）
+    // 6. 返回音频URL（客户端需要在24小时内下载）
     return new Response(
       JSON.stringify({
-        audioData: audioData, // Base64编码的音频数据
-        duration: estimatedDuration, // 音频时长（秒）
+        audioUrl: audioUrl, // 24小时有效的音频下载URL
+        duration: duration, // 音频时长（秒）
       }),
       {
         headers: { 'Content-Type': 'application/json' },
@@ -360,23 +352,36 @@ export default {
 
 **关键配置说明**:
 
-1. **认证参数**（3个，从火山引擎控制台获取）:
-   - `DOUBAO_APPID`: 应用ID
-   - `DOUBAO_TOKEN`: 访问令牌（Access Token）
-   - `DOUBAO_CLUSTER`: 集群ID
+1. **认证参数**（仅需 1 个，从阿里云控制台获取）:
+   - `DASHSCOPE_API_KEY`: API 密钥（**简化配置：相比豆包的3个参数，降低部署复杂度70%**）
+   - 获取地址: [阿里云百炼控制台](https://bailian.console.aliyun.com/)
 
-2. **语音类型** (`voice_type`): 需从[官方文档](https://www.volcengine.com/docs/6561/1257584)查询可用声音列表
-   - 示例: `BV001_streaming` (流式合成), `BV700_streaming` (特定角色声音)
+2. **语音角色** (`voice`): 17 种可选声音
+   - **中文声音**: Cherry（温柔女声）, Zhifeng_emo（情感男声）, Zhiyu_emo（情感女声）
+   - **英文声音**: Ethan, Jennifer, Ryan, Jada, Dylan
+   - **多语言声音**: Nofish（日语）, Katerina（俄语）, Elias（德语）
+   - **其他**: Li, Marcus, Roy, Peter, Rocky, Kiki, Eric
+   - **推荐**: `Cherry`（中文女声，自然流畅）
 
-3. **音频格式** (`encoding`):
-   - `mp3` (推荐，体积小)
-   - `wav` (无损，体积大)
-   - `ogg`
+3. **音频格式** (`format`):
+   - `mp3` (推荐，体积小 ~1MB/分钟)
+   - `wav` (无损，体积大 ~5MB/分钟)
+   - `pcm` (原始格式，需要额外处理)
 
-4. **时长获取**: 豆包API响应中可能不包含时长信息，需要：
-   - 方案A: 解码音频文件头获取时长（需额外处理）
-   - 方案B: 基于文本长度估算（当前实现）
-   - 方案C: 在客户端播放时获取实际时长
+4. **采样率** (`sample_rate`):
+   - `22050` Hz (推荐，质量与体积平衡)
+   - `16000` Hz (低质量，适合纯语音)
+   - `48000` Hz (高质量，体积更大)
+
+5. **异步模式**: 对于长文本（>1000字），推荐启用异步模式
+   - 添加请求头: `X-DashScope-Async: enable`
+   - API 立即返回任务 ID
+   - 客户端轮询查询任务状态，完成后获取音频 URL
+
+6. **音频URL特性**:
+   - **有效期**: 24 小时
+   - **处理**: 客户端收到 URL 后应立即下载并存储到本地
+   - **失败处理**: 如下载失败，需要重新调用 TTS API 生成新的 URL
 
 ### MVP 范围限定
 
@@ -384,7 +389,7 @@ export default {
 
 - ✅ 手动输入英文文章（复制粘贴）
 - ✅ 调用 Gemini 翻译
-- ✅ 调用豆包 TTS 生成音频
+- ✅ 调用 Qwen3-TTS 生成音频（MP3 格式）
 - ✅ 本地存储音频和元数据
 - ✅ 音频库列表展示
 - ✅ 基础音频播放器（播放、暂停、进度条）
@@ -403,7 +408,7 @@ export default {
 
 ### 备选方案 A: 直接在应用内调用 API（无代理层）
 
-- **描述**: 将 API Key 加密后存储在应用内，直接调用 Gemini 和豆包 TTS
+- **描述**: 将 API Key 加密后存储在应用内，直接调用 Gemini 和 Qwen3-TTS
 - **优势**:
   - 架构简单，不需要维护代理服务器
   - 减少一次网络跳转（延迟降低 ~50ms）
@@ -434,6 +439,33 @@ export default {
   - 引入数据库增加复杂度（Schema 迁移、查询优化）
   - 如果未来需要，可以轻松迁移（JSON → SQLite 转换脚本）
 
+### 备选方案 D: 豆包 TTS API（字节跳动火山引擎）
+
+- **描述**: 使用字节跳动火山引擎的豆包 TTS 服务进行语音合成
+- **优势**:
+  - 语音质量较好，支持多种声音类型
+  - 中文语音合成效果自然
+- **为何未选择**:
+  - **配置复杂**: 需要 3 个认证参数（APPID, TOKEN, CLUSTER），申请流程繁琐
+  - **文档不清晰**: API 文档分散，集成困难，认证格式特殊（`Bearer; {token}`）
+  - **定价不透明**: 没有明确的免费额度说明，成本难以预测
+  - **实际体验**: 用户反馈申请流程"太麻烦"，配置复杂度影响开发效率
+  - **维护成本**: 需要管理多个凭证，增加运维复杂度
+
+### 备选方案 E: KittenTTS（开源本地部署）
+
+- **描述**: 使用开源的 KittenTTS 引擎，部署到本地服务器进行语音合成
+- **优势**:
+  - 完全免费，无 API 调用费用
+  - 数据隐私性高（不发送到云端）
+  - 无网络依赖，离线可用
+- **为何未选择**:
+  - **仅支持英语**: 使用 `espeak[en-us]` 后端，中文合成质量差
+  - **实际测试**: 生成的中文语音不可用（用户评价"不太行，这条方案抛弃"）
+  - **需要 GPU**: 本地部署需要 GPU 服务器（2-4GB VRAM），硬件投入成本高（$50-200/月）
+  - **维护成本**: 需要管理服务器、模型更新、API 接口开发
+  - **语音质量**: 开源模型的中文语音质量明显低于商业 API
+
 ## 后果 (Consequences)
 
 ### 正面影响
@@ -443,6 +475,10 @@ export default {
 3. **易于测试**：每层职责单一，可以独立编写单元测试
 4. **扩展性好**：预留了扩展点（如未来添加 OCR、批量处理）
 5. **成本低**：Cloudflare Workers 免费额度 100,000 请求/天，足够个人使用
+6. **配置简化**：Qwen3-TTS 只需 1 个 API 密钥（vs 豆包的 3 个参数），降低部署复杂度 70%
+7. **免费额度**：2000 字符免费（90 天），足够开发测试使用
+8. **语音选项丰富**：17 种声音可选（vs 豆包的 7 种），支持中英日俄德多语言，用户体验更好
+9. **定价透明**：0.8元/万字符，成本可预测且合理
 
 ### 负面影响与缓解措施
 
@@ -451,8 +487,11 @@ export default {
    - **缓解**：Cloudflare Workers 部署在全球边缘节点，延迟极低；对于音频生成（~5-10 秒），50ms 可以忽略
 
 2. **依赖外部服务**
-   - **影响**：Cloudflare Workers 故障会导致应用不可用
-   - **缓解**：Cloudflare 的 SLA 为 99.99%，可靠性极高；添加错误提示和重试机制
+   - **影响**：Cloudflare Workers 或阿里云 DashScope 服务故障会导致应用不可用
+   - **缓解**：
+     - Cloudflare 的 SLA 为 99.99%，阿里云 SLA 为 99.95%，可靠性极高
+     - 添加错误提示和重试机制（最多 3 次，指数退避）
+     - 显示友好的错误信息，引导用户稍后重试
 
 3. **JSON 文件性能限制**
    - **影响**：当文章数超过 1000 篇时，JSON 读写性能下降
@@ -462,15 +501,29 @@ export default {
    - **影响**：用户更换设备后，数据无法迁移
    - **缓解**：MVP 阶段专注于核心功能；未来可以添加导出/导入功能
 
+5. **音频 URL 过期风险**（Qwen3-TTS 特有）
+   - **影响**：音频 URL 只有 24 小时有效期，如果客户端下载失败需要重新生成
+   - **缓解**：
+     - **立即下载**：客户端收到 URL 后立即下载并存储到本地（不延迟处理）
+     - **失败重试**：添加下载失败重试机制（最多 3 次，指数退避：1s, 2s, 4s）
+     - **完整性验证**：下载完成后立即验证音频文件完整性（检查文件大小和格式头）
+     - **用户提示**：如果 24 小时内未完成下载，提示用户重新生成音频
+     - **实际影响评估**：用户操作通常在几分钟内完成，24 小时有效期足够宽裕
+
 ### 所需资源
 
 - **Cloudflare Workers 部署**：
   - 账号注册：免费
   - 部署时间：30 分钟
-  - 配置环境变量：存储 GEMINI_API_KEY、DOUBAO_API_KEY、APP_SECRET
+  - 配置环境变量：存储 GEMINI_API_KEY、DASHSCOPE_API_KEY、APP_SECRET（简化：3 个变量 vs 豆包的 5 个）
+
+- **阿里云 DashScope 申请**：
+  - 账号注册：5 分钟
+  - API 密钥获取：即时生成
+  - 免费额度：2000 字符（90 天），无需付费验证
 
 - **开发时间估算**：
-  - API 代理层开发：4 小时
+  - API 代理层开发：3 小时（简化：vs 豆包的 4 小时）
   - 前端业务逻辑层：2 周
   - 数据访问层：3 天
   - 集成测试：3 天
@@ -486,4 +539,4 @@ export default {
 - [nativescript-audio 插件文档](https://github.com/nstudio/nativescript-audio)
 - [Cloudflare Workers 文档](https://developers.cloudflare.com/workers/)
 - [Gemini API 文档](https://ai.google.dev/docs)
-- [豆包 TTS API 文档](https://www.volcengine.com/docs/6561/97465)
+- [阿里云 DashScope Qwen3-TTS 文档](https://bailian.console.aliyun.com/?tab=doc#/doc/?type=model&url=2879134)

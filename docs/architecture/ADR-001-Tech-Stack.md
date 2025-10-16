@@ -14,7 +14,7 @@ Audiofy 是一款移动应用，旨在将英文文章翻译成中文音频播客
 
 1. **跨平台移动应用**：支持 iOS 和 Android
 2. **AI 翻译**：调用 Gemini API 进行英译中
-3. **语音合成**：调用豆包 TTS API 生成高质量中文语音
+3. **语音合成**：调用 Qwen3-TTS API 生成高质量中文语音
 4. **本地存储**：音频文件存储在设备本地文件系统
 5. **音频播放**：支持后台播放、进度控制、锁屏控制
 
@@ -30,34 +30,39 @@ Audiofy 是一款移动应用，旨在将英文文章翻译成中文音频播客
 我们将采用 **NativeScript 8 + Vue 3 + TypeScript** 作为核心技术栈，因为：
 
 1. **真正的原生性能**：NativeScript 将 Vue 组件编译为原生 UI 组件（iOS UIKit / Android Material），性能接近 100% 原生应用
-2. **完整的原生 API 访问**：通过 @nativescript/* 插件完整访问文件系统、音频播放、通知等原生功能
+2. **完整的原生 API 访问**：通过 @nativescript/\* 插件完整访问文件系统、音频播放、通知等原生功能
 3. **Vue.js 生态复用**：开发者可以使用熟悉的 Vue 3 语法（Composition API、响应式系统）
 4. **TypeScript 类型安全**：提供完整的类型检查，减少运行时错误
 
 ### 完整技术栈清单
 
 **前端框架**：
+
 - NativeScript 8.x（移动端跨平台框架）
 - Vue 3.x（UI 组件框架）
 - TypeScript 5.x（类型系统）
 
 **API 集成**：
+
 - Google Gemini API（英译中翻译）
-- 豆包 TTS API（中文语音合成）
+- 阿里云 Qwen3-TTS API（中文语音合成）
 - Cloudflare Workers（API 密钥代理层，保护安全）
 
 **原生功能插件**：
+
 - @nativescript/core（核心模块）
 - nativescript-audio（音频播放和录制）
 - @nativescript/localstorage（数据持久化）
 - @nativescript/secure-storage（敏感信息加密存储）
 
 **状态管理与工具**：
+
 - Pinia（Vue 官方状态管理）
 - ofetch（现代化 HTTP 客户端）
 - dayjs（日期时间处理）
 
 **构建与开发**：
+
 - NativeScript CLI 8.x（命令行工具）
 - Vite 6.x（开发服务器和打包工具）
 - npm（包管理器）
@@ -159,7 +164,7 @@ Audiofy 是一款移动应用，旨在将英文文章翻译成中文音频播客
   - Google Play Developer: $25 一次性（上架 Google Play 必需）
 - **API 调用费用**：
   - Gemini API: 免费额度足够 MVP 阶段使用
-  - 豆包 TTS API: 预估 ¥18-30/月（个人使用量）
+  - Qwen3-TTS API: 0.8元/万字符，免费额度 2000 字符（90天），预估 ¥8-15/月（个人使用量）
   - Cloudflare Workers: 免费额度 100,000 请求/天（足够使用）
 
 ## 相关决策
@@ -173,4 +178,4 @@ Audiofy 是一款移动应用，旨在将英文文章翻译成中文音频播客
 - [NativeScript-Vue 文档](https://nativescript-vue.org/)
 - [Vue 3 官方文档](https://vuejs.org/)
 - [Gemini API 文档](https://ai.google.dev/docs)
-- [豆包 TTS API 文档](https://www.volcengine.com/docs/6561/97465)
+- [阿里云 DashScope Qwen3-TTS 文档](https://bailian.console.aliyun.com/?tab=doc#/doc/?type=model&url=2879134)
