@@ -3,14 +3,14 @@
  */
 
 import { createApp } from 'nativescript-vue'
-import InputView from './views/InputView.vue'
+import LibraryView from './views/LibraryView.vue'
 import store from './stores'
 
 declare let __DEV__: boolean
 
 // 创建Vue 3应用实例
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const app = createApp(InputView as any)
+const app = createApp(LibraryView as any)
 
 // 注册Vuex store
 app.use(store)
