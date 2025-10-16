@@ -93,7 +93,6 @@ export class TTSService {
 
         const response = await $fetch<ArrayBuffer>(audioUrl, {
           method: 'GET',
-          responseType: 'arrayBuffer',
           timeout: 30000, // 30秒超时
         })
 
@@ -103,11 +102,11 @@ export class TTSService {
         await file.write(uint8Array)
 
         // 验证文件完整性
-        const savedFile = File.fromPath(localPath)
-        if (!savedFile.exists) {
+        if (!File.exists(localPath)) {
           throw new Error('File save failed: file does not exist after writing')
         }
 
+        const savedFile = File.fromPath(localPath)
         const fileSize = savedFile.size
         if (fileSize === 0) {
           throw new Error('File save failed: file size is 0')
