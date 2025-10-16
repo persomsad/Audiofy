@@ -5,13 +5,13 @@
 
 import { createStore } from 'vuex'
 import { TranslateService } from '@/services/translate.service'
-import { TTSService } from '@/services/tts.service'
+import { useTTS } from '@/composables/useTTS'
 
 export interface AudioItem {
   id: string
   originalText: string
   translatedText: string
-  audioData: string // Base64 编码
+  audioPath: string // 本地音频文件路径（Qwen3-TTS）
   duration: number
   createdAt: string
 }
@@ -61,15 +61,16 @@ export default createStore<RootState>({
         // 步骤1: 调用翻译服务
         const translatedText = await TranslateService.translate(text)
 
-        // 步骤2: 调用 TTS 服务
-        const { audioData, duration } = await TTSService.textToSpeech(translatedText)
+        // 步骤2: 使用 useTTS composable 合成语音并下载
+        const { synthesize } = useTTS({ maxRetries: 1, voice: 'Cherry' })
+        const { audioPath, duration } = await synthesize(translatedText)
 
         // 步骤3: 保存音频项
         const audioItem: AudioItem = {
           id: Date.now().toString(),
           originalText: text,
           translatedText,
-          audioData,
+          audioPath, // 存储本地文件路径
           duration,
           createdAt: new Date().toISOString(),
         }

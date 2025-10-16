@@ -91,11 +91,14 @@ export function useTTS(options: UseTTSOptions = {}) {
           lastError = err instanceof Error ? err : new Error(String(err))
 
           // 不可重试的错误类型
-          if (err.message?.includes('Authentication failed')) {
+          if (lastError.message?.includes('Authentication failed')) {
             throw new Error('Authentication failed: invalid APP_SECRET')
           }
 
-          if (err.message?.includes('Disk space insufficient') || err.message?.includes('ENOSPC')) {
+          if (
+            lastError.message?.includes('Disk space insufficient') ||
+            lastError.message?.includes('ENOSPC')
+          ) {
             throw new Error('Disk space insufficient, please free up space')
           }
 
