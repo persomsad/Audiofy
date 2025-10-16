@@ -1,0 +1,18 @@
+# NativeScript
+platforms/
+node_modules/
+hooks/
+
+# Build artifacts
+*.js.map
+
+# Configuration files
+*.config.js
+*.config.ts
+webpack.config.js
+
+# Generated files
+App_Resources/
+
+# Testing
+coverage/
