@@ -87,7 +87,6 @@ describe('useStorage', () => {
 
     // Mock metadata file
     mockMetadataFile = {
-      readSync: true, // 默认 API 可用
       readText: vi.fn().mockResolvedValue('[]'),
       writeText: vi.fn().mockResolvedValue(undefined),
     }
@@ -101,7 +100,8 @@ describe('useStorage', () => {
 
   describe('initialize', () => {
     it('应该成功初始化存储目录和文件', async () => {
-      mockMetadataFile.readSync = false // 模拟文件不存在
+      // 模拟文件不存在（readText 抛出错误）
+      mockMetadataFile.readText.mockRejectedValueOnce(new Error('File not found'))
 
       const { initialize } = useStorage()
 
@@ -116,7 +116,8 @@ describe('useStorage', () => {
     })
 
     it('应该在 metadata.json 已存在时跳过创建', async () => {
-      mockMetadataFile.readSync = true // 文件已存在
+      // 模拟文件已存在（readText 成功返回）
+      mockMetadataFile.readText.mockResolvedValueOnce('[]')
 
       const { initialize } = useStorage()
       await expect(initialize()).resolves.toBeUndefined()

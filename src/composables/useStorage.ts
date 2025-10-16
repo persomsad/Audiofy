@@ -54,10 +54,6 @@ async function readMetadata(): Promise<Article[]> {
     const filePath = getMetadataFilePath()
     const file = File.fromPath(filePath)
 
-    if (!file.readSync) {
-      throw createStorageError('IO_ERROR', 'File system API not available')
-    }
-
     const content = await file.readText()
 
     if (!content || content.trim() === '') {
@@ -141,8 +137,12 @@ export function useStorage(): StorageService {
       const metadataPath = path.join(root.path, STORAGE_CONFIG.METADATA_FILE)
       const metadataFile = File.fromPath(metadataPath)
 
-      const exists = metadataFile.readSync ? true : false
-      if (!exists) {
+      // 检查文件是否存在（通过尝试读取）
+      try {
+        await metadataFile.readText()
+        // 文件存在，无需创建
+      } catch {
+        // 文件不存在，创建空数组
         await metadataFile.writeText('[]')
       }
 
@@ -252,7 +252,9 @@ export function useStorage(): StorageService {
     // 3. 删除音频文件（如果存在）
     try {
       const audiosFolder = getAudiosFolder()
-      const audioFile = audiosFolder.getFile(path.basename(article.audioPath))
+      // 从完整路径中提取文件名（最后一个 / 后的部分）
+      const fileName = article.audioPath.split('/').pop() || ''
+      const audioFile = audiosFolder.getFile(fileName)
       await audioFile.remove()
       console.log('[StorageService] Deleted audio file:', article.audioPath)
     } catch (error) {
