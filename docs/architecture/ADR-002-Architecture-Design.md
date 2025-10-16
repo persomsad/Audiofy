@@ -98,15 +98,15 @@ flowchart TB
 
 ```typescript
 interface Article {
-  id: string;                // UUID
-  title: string;             // 文章标题（用户输入或自动生成）
-  originalText: string;      // 原始英文文本
-  translatedText: string;    // 翻译后的中文文本
-  audioPath: string;         // 音频文件本地路径（相对路径）
-  createdAt: Date;           // 创建时间
-  duration: number;          // 音频时长（秒）
-  status: 'pending' | 'processing' | 'completed' | 'failed'; // 状态
-  errorMessage?: string;     // 错误信息（如果失败）
+  id: string // UUID
+  title: string // 文章标题（用户输入或自动生成）
+  originalText: string // 原始英文文本
+  translatedText: string // 翻译后的中文文本
+  audioPath: string // 音频文件本地路径（相对路径）
+  createdAt: Date // 创建时间
+  duration: number // 音频时长（秒）
+  status: 'pending' | 'processing' | 'completed' | 'failed' // 状态
+  errorMessage?: string // 错误信息（如果失败）
 }
 ```
 
@@ -122,6 +122,7 @@ interface Article {
 ```
 
 **为什么不用数据库？**
+
 - MVP 阶段预估文章数 < 100 篇
 - JSON 文件读写性能足够（~10ms）
 - 简化架构，避免引入 SQLite 的复杂度
@@ -209,87 +210,178 @@ sequenceDiagram
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     // 1. 验证请求来源（可选：添加 API Token）
-    const authHeader = request.headers.get('Authorization');
+    const authHeader = request.headers.get('Authorization')
     if (authHeader !== `Bearer ${env.APP_SECRET}`) {
-      return new Response('Unauthorized', { status: 401 });
+      return new Response('Unauthorized', { status: 401 })
     }
 
     // 2. 解析请求体
-    const { text } = await request.json();
+    const { text } = await request.json()
 
     // 3. 调用 Gemini API
-    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-goog-api-key': env.GEMINI_API_KEY, // 密钥安全存储
+    const response = await fetch(
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-goog-api-key': env.GEMINI_API_KEY, // 密钥安全存储
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                {
+                  text: `请将以下英文翻译成中文，保持专业术语准确，适合口语播报：\n\n${text}`,
+                },
+              ],
+            },
+          ],
+        }),
       },
-      body: JSON.stringify({
-        contents: [{
-          parts: [{
-            text: `请将以下英文翻译成中文，保持专业术语准确，适合口语播报：\n\n${text}`
-          }]
-        }]
-      }),
-    });
+    )
 
     // 4. 返回翻译结果
-    const data = await response.json();
-    return new Response(JSON.stringify({
-      translatedText: data.candidates[0].content.parts[0].text
-    }), {
-      headers: { 'Content-Type': 'application/json' }
-    });
-  }
-};
+    const data = await response.json()
+    return new Response(
+      JSON.stringify({
+        translatedText: data.candidates[0].content.parts[0].text,
+      }),
+      {
+        headers: { 'Content-Type': 'application/json' },
+      },
+    )
+  },
+}
 ```
 
 #### 豆包 TTS 代理
+
+**真实API文档**: [火山引擎语音合成API](https://www.volcengine.com/docs/6561/1257584)
 
 ```typescript
 // workers/tts-proxy.ts
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     // 1. 验证请求
-    const authHeader = request.headers.get('Authorization');
+    const authHeader = request.headers.get('Authorization')
     if (authHeader !== `Bearer ${env.APP_SECRET}`) {
-      return new Response('Unauthorized', { status: 401 });
+      return new Response('Unauthorized', { status: 401 })
     }
 
     // 2. 解析请求体
-    const { text } = await request.json();
+    const { text } = await request.json()
 
-    // 3. 调用豆包 TTS API
+    // 3. 生成唯一请求ID
+    const reqid = `${Date.now()}-${Math.random().toString(36).substring(7)}`
+
+    // 4. 调用豆包 TTS API (火山引擎语音合成)
     const response = await fetch('https://openspeech.bytedance.com/api/v1/tts', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${env.DOUBAO_API_KEY}`, // 密钥安全存储
+        // 豆包API使用特殊的Bearer格式: "Bearer; {token}"
+        Authorization: `Bearer; ${env.DOUBAO_TOKEN}`,
       },
       body: JSON.stringify({
-        text,
-        voice: 'zh_female_qingxin', // 使用清新女声
-        audio_format: 'wav',
+        app: {
+          appid: env.DOUBAO_APPID, // 应用ID（从火山引擎控制台获取）
+          token: env.DOUBAO_TOKEN, // 访问令牌
+          cluster: env.DOUBAO_CLUSTER, // 集群ID
+        },
+        user: {
+          uid: 'audiofy-user', // 用户标识
+        },
+        audio: {
+          voice_type: 'BV001_streaming', // 语音类型（参考官方文档）
+          encoding: 'mp3', // 音频格式: mp3, wav, ogg
+          speed_ratio: 1.0, // 语速倍率 (0.5-2.0)
+          volume_ratio: 1.0, // 音量倍率 (0.1-3.0)
+          pitch_ratio: 1.0, // 音调倍率 (0.5-2.0)
+        },
+        request: {
+          reqid: reqid, // 请求唯一标识
+          text: text, // 要合成的文本
+          text_type: 'plain', // 文本类型: plain/ssml
+          operation: 'submit', // 操作类型: submit(提交)/query(查询)
+        },
       }),
-    });
+    })
 
-    // 4. 返回音频数据（Base64 编码）
-    const audioBuffer = await response.arrayBuffer();
-    const base64Audio = btoa(String.fromCharCode(...new Uint8Array(audioBuffer)));
+    // 5. 解析响应
+    const data = await response.json()
 
-    return new Response(JSON.stringify({
-      audioData: base64Audio,
-      duration: response.headers.get('X-Audio-Duration'), // 假设 API 返回时长
-    }), {
-      headers: { 'Content-Type': 'application/json' }
-    });
-  }
-};
+    if (!response.ok) {
+      console.error('Doubao TTS API error:', data)
+      return new Response(
+        JSON.stringify({
+          error: data.message || 'TTS synthesis failed',
+        }),
+        {
+          status: response.status,
+          headers: { 'Content-Type': 'application/json' },
+        },
+      )
+    }
+
+    // 6. 提取音频数据和时长
+    // 豆包API返回格式: { data: "base64_audio_string", ... }
+    const audioData = data.data
+
+    if (!audioData) {
+      return new Response(
+        JSON.stringify({
+          error: 'Invalid API response: missing audio data',
+        }),
+        {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' },
+        },
+      )
+    }
+
+    // 7. 估算音频时长（基于文本长度，实际应从API响应获取）
+    // 注意：豆包API可能不直接返回时长，需要解码音频文件获取
+    const estimatedDuration = Math.ceil(text.length / 5) // 粗略估算：5字符/秒
+
+    // 8. 返回音频数据（Base64 编码）
+    return new Response(
+      JSON.stringify({
+        audioData: audioData, // Base64编码的音频数据
+        duration: estimatedDuration, // 音频时长（秒）
+      }),
+      {
+        headers: { 'Content-Type': 'application/json' },
+      },
+    )
+  },
+}
 ```
+
+**关键配置说明**:
+
+1. **认证参数**（3个，从火山引擎控制台获取）:
+   - `DOUBAO_APPID`: 应用ID
+   - `DOUBAO_TOKEN`: 访问令牌（Access Token）
+   - `DOUBAO_CLUSTER`: 集群ID
+
+2. **语音类型** (`voice_type`): 需从[官方文档](https://www.volcengine.com/docs/6561/1257584)查询可用声音列表
+   - 示例: `BV001_streaming` (流式合成), `BV700_streaming` (特定角色声音)
+
+3. **音频格式** (`encoding`):
+   - `mp3` (推荐，体积小)
+   - `wav` (无损，体积大)
+   - `ogg`
+
+4. **时长获取**: 豆包API响应中可能不包含时长信息，需要：
+   - 方案A: 解码音频文件头获取时长（需额外处理）
+   - 方案B: 基于文本长度估算（当前实现）
+   - 方案C: 在客户端播放时获取实际时长
 
 ### MVP 范围限定
 
 **包含的功能**：
+
 - ✅ 手动输入英文文章（复制粘贴）
 - ✅ 调用 Gemini 翻译
 - ✅ 调用豆包 TTS 生成音频
@@ -298,6 +390,7 @@ export default {
 - ✅ 基础音频播放器（播放、暂停、进度条）
 
 **不包含的功能**（未来扩展）：
+
 - ❌ OCR 拍照识别
 - ❌ 网页/RSS 抓取
 - ❌ 批量处理

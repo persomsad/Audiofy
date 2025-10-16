@@ -23,6 +23,10 @@ hooks/
 .env.local
 .env.*.local
 
+# Cloudflare Workers local development
+workers/**/.dev.vars
+workers/**/.wrangler/
+
 # Testing
 coverage/
 *.coveragerc

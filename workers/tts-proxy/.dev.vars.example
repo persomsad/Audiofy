@@ -1,0 +1,11 @@
+# 本地开发环境变量示例
+# 复制此文件为 .dev.vars 并填入真实值（.dev.vars 不会被提交到 Git）
+
+# Audiofy 应用密钥（用于保护代理访问）
+APP_SECRET=your-local-app-secret
+
+# 豆包 API 凭证（从火山引擎控制台获取）
+# 获取地址：https://console.volcengine.com/speech/app
+DOUBAO_APPID=your-doubao-appid
+DOUBAO_TOKEN=your-doubao-token
+DOUBAO_CLUSTER=your-doubao-cluster
