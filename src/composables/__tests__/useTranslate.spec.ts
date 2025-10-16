@@ -10,7 +10,6 @@ import { SecureStorage } from '@nativescript/secure-storage'
 
 // Mock dependencies
 vi.mock('ofetch')
-vi.mock('@nativescript/secure-storage')
 
 describe('useTranslate', () => {
   beforeEach(() => {
@@ -66,7 +65,8 @@ describe('useTranslate', () => {
       )
 
       const { translate } = useTranslate()
-      const text = 'Test text that is long enough to meet the minimum length requirement.'
+      const text =
+        'This is a test text that is long enough to meet the minimum 100 character length requirement for the translation API. It contains multiple sentences to ensure sufficient length.'
 
       const result = await translate(text)
 
@@ -118,7 +118,8 @@ describe('useTranslate', () => {
       })
 
       const { translate, error } = useTranslate({ maxRetries: 0 })
-      const text = 'Test text that is long enough to meet the minimum length requirement.'
+      const text =
+        'This is a test text that is long enough to meet the minimum 100 character length requirement for the translation API. It contains multiple sentences to ensure sufficient length.'
 
       await expect(translate(text)).rejects.toThrow('Authentication failed')
       expect(error.value).toContain('Authentication failed')
@@ -131,7 +132,8 @@ describe('useTranslate', () => {
       })
 
       const { translate, error } = useTranslate({ maxRetries: 1 })
-      const text = 'Test text that is long enough to meet the minimum length requirement.'
+      const text =
+        'This is a test text that is long enough to meet the minimum 100 character length requirement for the translation API. It contains multiple sentences to ensure sufficient length.'
 
       await expect(translate(text)).rejects.toThrow('API rate limit exceeded')
       expect(error.value).toContain('API rate limit exceeded')
@@ -145,7 +147,8 @@ describe('useTranslate', () => {
       })
 
       const { translate, error } = useTranslate({ maxRetries: 1 })
-      const text = 'Test text that is long enough to meet the minimum length requirement.'
+      const text =
+        'This is a test text that is long enough to meet the minimum 100 character length requirement for the translation API. It contains multiple sentences to ensure sufficient length.'
 
       await expect(translate(text)).rejects.toThrow('Server error')
       expect(error.value).toContain('Server error')
@@ -158,7 +161,8 @@ describe('useTranslate', () => {
       })
 
       const { translate, error } = useTranslate({ maxRetries: 0 })
-      const text = 'Test text that is long enough to meet the minimum length requirement.'
+      const text =
+        'This is a test text that is long enough to meet the minimum 100 character length requirement for the translation API. It contains multiple sentences to ensure sufficient length.'
 
       await expect(translate(text)).rejects.toThrow('Request timeout')
       expect(error.value).toContain('Request timeout')
@@ -170,7 +174,8 @@ describe('useTranslate', () => {
       })
 
       const { translate, error } = useTranslate({ maxRetries: 0 })
-      const text = 'Test text that is long enough to meet the minimum length requirement.'
+      const text =
+        'This is a test text that is long enough to meet the minimum 100 character length requirement for the translation API. It contains multiple sentences to ensure sufficient length.'
 
       await expect(translate(text)).rejects.toThrow('Invalid API response')
       expect(error.value).toContain('Invalid API response')
@@ -200,7 +205,8 @@ describe('useTranslate', () => {
         })
 
       const { translate } = useTranslate({ maxRetries: 2 })
-      const text = 'Test text that is long enough to meet the minimum length requirement.'
+      const text =
+        'This is a test text that is long enough to meet the minimum 100 character length requirement for the translation API. It contains multiple sentences to ensure sufficient length.'
 
       const result = await translate(text)
 
@@ -215,7 +221,8 @@ describe('useTranslate', () => {
       })
 
       const { translate } = useTranslate({ maxRetries: 2 })
-      const text = 'Test text that is long enough to meet the minimum length requirement.'
+      const text =
+        'This is a test text that is long enough to meet the minimum 100 character length requirement for the translation API. It contains multiple sentences to ensure sufficient length.'
 
       await expect(translate(text)).rejects.toThrow('Authentication failed')
       expect($fetch).toHaveBeenCalledTimes(1) // 只调用1次，不重试
@@ -228,11 +235,12 @@ describe('useTranslate', () => {
       })
 
       const { translate } = useTranslate({ maxRetries: 3 })
-      const text = 'Test text that is long enough to meet the minimum length requirement.'
+      const text =
+        'This is a test text that is long enough to meet the minimum 100 character length requirement for the translation API. It contains multiple sentences to ensure sufficient length.'
 
       await expect(translate(text)).rejects.toThrow('Server error')
       expect($fetch).toHaveBeenCalledTimes(4) // 初始请求 + 3次重试
-    })
+    }, 20000) // 20秒超时，足够处理 3 次重试（2s + 4s + 8s = 14s）
   })
 
   describe('响应式状态', () => {
@@ -259,7 +267,8 @@ describe('useTranslate', () => {
       )
 
       const { translate, isLoading } = useTranslate()
-      const text = 'Test text that is long enough to meet the minimum length requirement.'
+      const text =
+        'This is a test text that is long enough to meet the minimum 100 character length requirement for the translation API. It contains multiple sentences to ensure sufficient length.'
 
       expect(isLoading.value).toBe(false)
 
