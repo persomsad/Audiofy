@@ -38,96 +38,92 @@
   </Page>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
+import { ref, computed, watch } from 'vue'
 import { alert } from '@nativescript/core'
-import { mapGetters, mapActions } from 'vuex'
+import { useStore } from 'vuex'
+import type { RootState } from '@/stores'
 
-export default {
-  data() {
-    return {
-      inputText: '',
-      errorMessage: '',
-    }
-  },
+// Vuex store
+const store = useStore<RootState>()
 
-  computed: {
-    ...mapGetters(['isLoading', 'getError']),
+// 响应式状态
+const inputText = ref('')
+const errorMessage = ref('')
 
-    hintText(): string {
-      return '请粘贴 100-5000 字符的英文文章，我们将为您生成中文语音播客。'
-    },
+// 计算属性
+const isLoading = computed(() => store.getters.isLoading)
+const storeError = computed(() => store.getters.getError)
 
-    charCountText(): string {
-      const count = this.inputText.length
-      return `${count} / 5000 字符`
-    },
+const hintText = computed(() => {
+  return '请粘贴 100-5000 字符的英文文章，我们将为您生成中文语音播客。'
+})
 
-    isValidInput(): boolean {
-      const len = this.inputText.trim().length
-      return len >= 100 && len <= 5000
-    },
-  },
+const charCountText = computed(() => {
+  const count = inputText.value.length
+  return `${count} / 5000 字符`
+})
 
-  watch: {
-    getError(newError) {
-      if (newError) {
-        this.errorMessage = newError
-      }
-    },
-  },
+const isValidInput = computed(() => {
+  const len = inputText.value.trim().length
+  return len >= 100 && len <= 5000
+})
 
-  methods: {
-    ...mapActions(['generateAudio']),
+// 监听store错误
+watch(storeError, (newError) => {
+  if (newError) {
+    errorMessage.value = newError
+  }
+})
 
-    async handleGenerateAudio() {
-      // 清空之前的错误
-      this.errorMessage = ''
+// 方法
+async function handleGenerateAudio() {
+  // 清空之前的错误
+  errorMessage.value = ''
 
-      // 验证输入
-      const text = this.inputText.trim()
-      const len = text.length
+  // 验证输入
+  const text = inputText.value.trim()
+  const len = text.length
 
-      if (len === 0) {
-        this.errorMessage = '请输入文本'
-        return
-      }
+  if (len === 0) {
+    errorMessage.value = '请输入文本'
+    return
+  }
 
-      if (len < 100) {
-        this.errorMessage = `文本太短，最少需要 100 个字符（当前 ${len} 个）`
-        return
-      }
+  if (len < 100) {
+    errorMessage.value = `文本太短，最少需要 100 个字符（当前 ${len} 个）`
+    return
+  }
 
-      if (len > 5000) {
-        this.errorMessage = `文本太长，最多支持 5000 个字符（当前 ${len} 个）`
-        return
-      }
+  if (len > 5000) {
+    errorMessage.value = `文本太长，最多支持 5000 个字符（当前 ${len} 个）`
+    return
+  }
 
-      try {
-        // 调用 Vuex action 生成音频
-        await this.generateAudio(text)
+  try {
+    // 调用 Vuex action 生成音频
+    await store.dispatch('generateAudio', text)
 
-        // 成功提示
-        await alert({
-          title: '成功',
-          message: '音频已生成！',
-          okButtonText: '好的',
-        })
+    // 成功提示
+    await alert({
+      title: '成功',
+      message: '音频已生成！',
+      okButtonText: '好的',
+    })
 
-        // 清空输入
-        this.inputText = ''
+    // 清空输入
+    inputText.value = ''
 
-        // TODO: 跳转到音频库页面
-        // this.$navigateTo(AudioLibraryView)
-      } catch (error: any) {
-        // 错误已经在 store 中设置，这里只显示 alert
-        await alert({
-          title: '生成失败',
-          message: error.message || '未知错误，请重试',
-          okButtonText: '好的',
-        })
-      }
-    },
-  },
+    // TODO: 跳转到音频库页面
+    // this.$navigateTo(AudioLibraryView)
+  } catch (error: any) {
+    // 错误已经在 store 中设置，这里只显示 alert
+    await alert({
+      title: '生成失败',
+      message: error.message || '未知错误，请重试',
+      okButtonText: '好的',
+    })
+  }
 }
 </script>
 
