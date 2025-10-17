@@ -197,7 +197,7 @@ class GeminiServiceImpl : GeminiService {
          * Stage 1: Accurate Translation Prompt
          * Prioritize accuracy and completeness
          */
-        private const val STAGE_1_PROMPT_TEMPLATE = """
+        private val STAGE_1_PROMPT_TEMPLATE = """
 Translate the following English text to Chinese. Prioritize accuracy and completeness. Preserve the original meaning, tone, and structure.
 
 [INPUT_TEXT]
@@ -207,7 +207,7 @@ Translate the following English text to Chinese. Prioritize accuracy and complet
          * Stage 2: Polish Prompt
          * Make translation more natural while preserving meaning
          */
-        private const val STAGE_2_PROMPT_TEMPLATE = """
+        private val STAGE_2_PROMPT_TEMPLATE = """
 Polish the following Chinese translation to make it more natural and fluent while preserving the original meaning. Remove translation accent, adjust sentence structure to match Chinese language logic, and improve readability.
 
 [INPUT_TEXT]
