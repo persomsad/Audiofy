@@ -2,7 +2,9 @@
 
 ## 状态
 
-已接受 (Accepted)
+已替代 (Superseded by ADR-004) - 2025-10-17
+
+⚠️ **本决策已被废弃**：项目已迁移到 Kotlin Multiplatform，将采用全新的架构设计。详见 [ADR-004: Migration to Kotlin Multiplatform](./ADR-004-Migration-to-KMP.md)。
 
 ## 日期
 

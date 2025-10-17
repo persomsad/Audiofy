@@ -1,4 +1,4 @@
-# ADR-004: TTS API 集成方案
+# ADR-005: TTS API 集成方案
 
 ## 状态
 
@@ -59,31 +59,32 @@ Authorization: Bearer <DASHSCOPE_API_KEY>
 ```
 
 **关键点**：
+
 - ✅ `voice` 和 `language_type` 在 `input` 对象内部
 - ❌ 不是在 `parameters` 对象中（常见错误）
 - ❌ 不需要 `format` 和 `sample_rate` 参数
 
 #### 支持的语音角色
 
-| 语音名称 | 性别 | 语言 | 特点 |
-|---------|------|------|------|
-| Cherry | 女 | 中文 | 温柔女声（默认） |
-| Ethan | 男 | 英文 | 沉稳男声 |
-| Nofish | 女 | 中文 | 清新女声 |
-| Jennifer | 女 | 英文 | - |
-| Ryan | 男 | 英文 | - |
-| Katerina | 女 | 多语言 | - |
-| Elias | 男 | 多语言 | - |
-| Jada | 女 | 英文 | - |
-| Dylan | 男 | 英文 | - |
-| Sunny | 女 | 中文 | - |
-| Li | - | 中文 | - |
-| Marcus | 男 | 英文 | - |
-| Roy | 男 | 英文 | - |
-| Peter | 男 | 英文 | - |
-| Rocky | 男 | 英文 | - |
-| Kiki | 女 | 中文 | - |
-| Eric | 男 | 英文 | - |
+| 语音名称 | 性别 | 语言   | 特点             |
+| -------- | ---- | ------ | ---------------- |
+| Cherry   | 女   | 中文   | 温柔女声（默认） |
+| Ethan    | 男   | 英文   | 沉稳男声         |
+| Nofish   | 女   | 中文   | 清新女声         |
+| Jennifer | 女   | 英文   | -                |
+| Ryan     | 男   | 英文   | -                |
+| Katerina | 女   | 多语言 | -                |
+| Elias    | 男   | 多语言 | -                |
+| Jada     | 女   | 英文   | -                |
+| Dylan    | 男   | 英文   | -                |
+| Sunny    | 女   | 中文   | -                |
+| Li       | -    | 中文   | -                |
+| Marcus   | 男   | 英文   | -                |
+| Roy      | 男   | 英文   | -                |
+| Peter    | 男   | 英文   | -                |
+| Rocky    | 男   | 英文   | -                |
+| Kiki     | 女   | 中文   | -                |
+| Eric     | 男   | 英文   | -                |
 
 ### 3. 响应格式
 
@@ -107,6 +108,7 @@ Authorization: Bearer <DASHSCOPE_API_KEY>
 ```
 
 **关键点**：
+
 - ✅ 音频 URL 在 `output.audio.url`
 - ❌ 不是在 `output.url`（常见错误）
 - ⚠️ 音频 URL **有效期 24 小时**，需要及时下载
@@ -132,6 +134,7 @@ DASHSCOPE_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
 配置方式：
+
 ```bash
 npx wrangler secret put APP_SECRET
 npx wrangler secret put DASHSCOPE_API_KEY
@@ -164,12 +167,12 @@ curl -X POST https://audiofy-tts-proxy.luhuizhx.workers.dev \
 
 **错误处理**：
 
-| HTTP 状态码 | 错误场景 | 响应示例 |
-|------------|---------|---------|
-| 401 | APP_SECRET 无效 | `{"error": "Unauthorized"}` |
-| 400 | 空文本 | `{"error": "Invalid request: text is required"}` |
-| 400 | 无效语音角色 | `{"error": "Invalid voice: XXX. Valid options: Cherry, Ethan, ..."}` |
-| 500 | DashScope API 错误 | `{"error": "TTS synthesis failed", "code": "InvalidParameter"}` |
+| HTTP 状态码 | 错误场景           | 响应示例                                                             |
+| ----------- | ------------------ | -------------------------------------------------------------------- |
+| 401         | APP_SECRET 无效    | `{"error": "Unauthorized"}`                                          |
+| 400         | 空文本             | `{"error": "Invalid request: text is required"}`                     |
+| 400         | 无效语音角色       | `{"error": "Invalid voice: XXX. Valid options: Cherry, Ethan, ..."}` |
+| 500         | DashScope API 错误 | `{"error": "TTS synthesis failed", "code": "InvalidParameter"}`      |
 
 ### 5. 客户端集成示例
 
@@ -181,9 +184,9 @@ async function synthesizeSpeech(text: string, voice: string = 'Cherry'): Promise
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer yY2P4lQICBEZhHbNlDhm5NCWvOVJXXRVfAG9GWylcc4='
+      Authorization: 'Bearer yY2P4lQICBEZhHbNlDhm5NCWvOVJXXRVfAG9GWylcc4=',
     },
-    body: JSON.stringify({ text, voice })
+    body: JSON.stringify({ text, voice }),
   })
 
   if (!response.ok) {
@@ -308,14 +311,14 @@ def synthesize_speech(text: str, voice: str = 'Cherry') -> str:
 
 已于 2025-01-16 完成部署并通过全部测试：
 
-| 测试项 | 状态 | 响应时间 |
-|--------|------|---------|
-| 基本连通性（Cherry 语音） | ✅ 通过 | 2-3 秒 |
-| 认证失败测试（401） | ✅ 通过 | < 1 秒 |
-| 空文本验证（400） | ✅ 通过 | < 1 秒 |
-| 不同语音角色（Ethan） | ✅ 通过 | 2-3 秒 |
-| 无效语音角色（400） | ✅ 通过 | < 1 秒 |
-| 长文本处理（~100 字符） | ✅ 通过 | 5-6 秒 |
+| 测试项                    | 状态    | 响应时间 |
+| ------------------------- | ------- | -------- |
+| 基本连通性（Cherry 语音） | ✅ 通过 | 2-3 秒   |
+| 认证失败测试（401）       | ✅ 通过 | < 1 秒   |
+| 空文本验证（400）         | ✅ 通过 | < 1 秒   |
+| 不同语音角色（Ethan）     | ✅ 通过 | 2-3 秒   |
+| 无效语音角色（400）       | ✅ 通过 | < 1 秒   |
+| 长文本处理（~100 字符）   | ✅ 通过 | 5-6 秒   |
 
 **通过率: 100% (6/6)**
 

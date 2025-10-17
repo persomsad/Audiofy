@@ -2,7 +2,9 @@
 
 ## 状态
 
-已接受 (Accepted)
+已替代 (Superseded by ADR-004) - 2025-10-17
+
+⚠️ **本决策已被废弃**：项目已迁移到 Kotlin Multiplatform，将使用 Kotlin 生态的质量保障工具（Gradle, ktlint, detekt 等）。详见 [ADR-004: Migration to Kotlin Multiplatform](./ADR-004-Migration-to-KMP.md)。
 
 ## 日期
 
@@ -84,7 +86,7 @@ module.exports = {
     '@typescript-eslint/no-explicit-any': 'warn',
     'vue/multi-word-component-names': 'off',
   },
-};
+}
 ```
 
 **tsconfig.json**
@@ -113,12 +115,14 @@ module.exports = {
 #### 实用主义 TDD 原则
 
 **必须测试的场景**：
+
 - ✅ 核心业务逻辑（翻译、TTS、音频存储）
 - ✅ 复杂算法（如音频文件路径生成、元数据更新）
 - ✅ 边界条件（空输入、网络失败、存储空间不足）
 - ✅ 错误处理（API 限流、文件读写失败）
 
 **可以不测试的场景**：
+
 - ❌ 简单的数据模型（Article 接口定义）
 - ❌ 纯展示组件（只有模板、无逻辑）
 - ❌ 第三方库的功能（假设 nativescript-audio 已测试）
@@ -136,55 +140,55 @@ module.exports = {
 
 ```typescript
 // src/services/__tests__/TranslateService.spec.ts
-import { describe, it, expect, vi } from 'vitest';
-import { TranslateService } from '../TranslateService';
+import { describe, it, expect, vi } from 'vitest'
+import { TranslateService } from '../TranslateService'
 
 describe('TranslateService', () => {
   it('should translate English to Chinese', async () => {
     // Arrange
-    const service = new TranslateService();
-    const originalText = 'Hello world';
+    const service = new TranslateService()
+    const originalText = 'Hello world'
 
     // Act
-    const translatedText = await service.translate(originalText);
+    const translatedText = await service.translate(originalText)
 
     // Assert
-    expect(translatedText).toBe('你好世界');
-  });
+    expect(translatedText).toBe('你好世界')
+  })
 
   it('should handle API errors gracefully', async () => {
     // Arrange
-    const service = new TranslateService();
-    vi.spyOn(global, 'fetch').mockRejectedValueOnce(new Error('Network error'));
+    const service = new TranslateService()
+    vi.spyOn(global, 'fetch').mockRejectedValueOnce(new Error('Network error'))
 
     // Act & Assert
-    await expect(service.translate('test')).rejects.toThrow('翻译失败，请检查网络连接');
-  });
+    await expect(service.translate('test')).rejects.toThrow('翻译失败，请检查网络连接')
+  })
 
   it('should handle empty input', async () => {
     // Arrange
-    const service = new TranslateService();
+    const service = new TranslateService()
 
     // Act & Assert
-    await expect(service.translate('')).rejects.toThrow('输入文本不能为空');
-  });
-});
+    await expect(service.translate('')).rejects.toThrow('输入文本不能为空')
+  })
+})
 ```
 
 **单元测试：StorageService**
 
 ```typescript
 // src/services/__tests__/StorageService.spec.ts
-import { describe, it, expect, beforeEach } from 'vitest';
-import { StorageService } from '../StorageService';
+import { describe, it, expect, beforeEach } from 'vitest'
+import { StorageService } from '../StorageService'
 
 describe('StorageService', () => {
-  let service: StorageService;
+  let service: StorageService
 
   beforeEach(() => {
-    service = new StorageService();
-    service.clear(); // 清空测试数据
-  });
+    service = new StorageService()
+    service.clear() // 清空测试数据
+  })
 
   it('should save article metadata', async () => {
     // Arrange
@@ -197,30 +201,30 @@ describe('StorageService', () => {
       createdAt: new Date(),
       duration: 10,
       status: 'completed' as const,
-    };
+    }
 
     // Act
-    await service.saveArticle(article);
-    const savedArticle = await service.getArticle('test-uuid');
+    await service.saveArticle(article)
+    const savedArticle = await service.getArticle('test-uuid')
 
     // Assert
-    expect(savedArticle).toEqual(article);
-  });
+    expect(savedArticle).toEqual(article)
+  })
 
   it('should return all articles sorted by creation time', async () => {
     // Arrange
-    const article1 = { /* ... */ createdAt: new Date('2025-01-15') };
-    const article2 = { /* ... */ createdAt: new Date('2025-01-16') };
-    await service.saveArticle(article1);
-    await service.saveArticle(article2);
+    const article1 = { /* ... */ createdAt: new Date('2025-01-15') }
+    const article2 = { /* ... */ createdAt: new Date('2025-01-16') }
+    await service.saveArticle(article1)
+    await service.saveArticle(article2)
 
     // Act
-    const articles = await service.getAllArticles();
+    const articles = await service.getAllArticles()
 
     // Assert
-    expect(articles[0].createdAt).toEqual(article2.createdAt); // 最新的在前
-  });
-});
+    expect(articles[0].createdAt).toEqual(article2.createdAt) // 最新的在前
+  })
+})
 ```
 
 ### 本地质量门槛（Git Hooks）
@@ -251,14 +255,8 @@ npx husky install
     "type-check": "tsc --noEmit"
   },
   "lint-staged": {
-    "*.{ts,vue}": [
-      "eslint --fix",
-      "prettier --write",
-      "vitest related --run"
-    ],
-    "*.{json,md}": [
-      "prettier --write"
-    ]
+    "*.{ts,vue}": ["eslint --fix", "prettier --write", "vitest related --run"],
+    "*.{json,md}": ["prettier --write"]
   }
 }
 ```
