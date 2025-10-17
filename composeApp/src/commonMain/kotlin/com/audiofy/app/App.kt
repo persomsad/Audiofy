@@ -1,16 +1,20 @@
 package com.audiofy.app
 
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.audiofy.app.data.AppConfig
 import com.audiofy.app.repository.createConfigRepository
 import com.audiofy.app.service.TTSServiceImpl
-import com.audiofy.app.ui.screens.InputScreen
-import com.audiofy.app.ui.screens.ProcessingScreen
-import com.audiofy.app.ui.screens.SettingsScreen
+import com.audiofy.app.ui.components.AudiofyBottomNavigationBar
+import com.audiofy.app.ui.navigation.NavigationRoutes
+import com.audiofy.app.ui.screens.*
 import com.audiofy.app.ui.theme.AudiofyTheme
 import com.audiofy.app.viewmodel.InputViewModel
 import com.audiofy.app.viewmodel.ProcessingViewModel
@@ -25,38 +29,95 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 fun App() {
     AudiofyTheme {
         val navController = rememberNavController()
+        
+        // 获取当前路由
+        val navBackStackEntry by navController.currentBackStackEntryAsState()
+        val currentRoute = navBackStackEntry?.destination?.route
 
         // Global config (will be loaded from SettingsViewModel)
         val config = remember { mutableStateOf(AppConfig()) }
 
         // Create ConfigRepository once
         val configRepository = remember { createConfigRepository() }
-
-        NavHost(
-            navController = navController,
-            startDestination = "home"
-        ) {
-            // Home Screen - Input Interface
-            composable("home") {
+        
+        // 判断是否显示底部导航栏
+        val showBottomBar = currentRoute in listOf(
+            NavigationRoutes.HOME,
+            NavigationRoutes.LIBRARY,
+            NavigationRoutes.DISCOVER,
+            NavigationRoutes.AUDIOBOOKS,
+            NavigationRoutes.PROFILE
+        )
+        
+        Scaffold(
+            bottomBar = {
+                if (showBottomBar) {
+                    AudiofyBottomNavigationBar(
+                        currentRoute = currentRoute ?: NavigationRoutes.HOME,
+                        onNavigate = { route ->
+                            navController.navigate(route) {
+                                popUpTo(NavigationRoutes.HOME) { saveState = true }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
+                    )
+                }
+            }
+        ) { paddingValues ->
+            NavHost(
+                navController = navController,
+                startDestination = NavigationRoutes.HOME,
+                modifier = Modifier.padding(paddingValues)
+            ) {
+            // 主页
+            composable(NavigationRoutes.HOME) {
+                HomeScreen()
+            }
+            
+            // 书架
+            composable(NavigationRoutes.LIBRARY) {
+                LibraryScreen()
+            }
+            
+            // 发现
+            composable(NavigationRoutes.DISCOVER) {
+                DiscoverScreen()
+            }
+            
+            // 有声书
+            composable(NavigationRoutes.AUDIOBOOKS) {
+                AudiobooksScreen()
+            }
+            
+            // 我的
+            composable(NavigationRoutes.PROFILE) {
+                ProfileScreen(
+                    onNavigateToSettings = {
+                        navController.navigate(NavigationRoutes.SETTINGS)
+                    }
+                )
+            }
+            
+            // 创建播客（旧的InputScreen）
+            composable(NavigationRoutes.CREATE_PODCAST) {
                 val inputViewModel: InputViewModel = viewModel { InputViewModel() }
 
                 InputScreen(
                     viewModel = inputViewModel,
                     onNavigateToSettings = {
-                        navController.navigate("settings")
+                        navController.navigate(NavigationRoutes.SETTINGS)
                     },
                     onNavigateToProcessing = { inputText ->
-                        // Pass input text as navigation argument
-                        navController.navigate("processing") {
-                            // Store input text in saved state
+                        navController.navigate(NavigationRoutes.PROCESSING) {
                             navController.currentBackStackEntry?.savedStateHandle?.set("inputText", inputText)
                         }
                     }
                 )
             }
 
-            // Processing Screen - TTS
-            composable("processing") { backStackEntry ->
+            // 生成进度
+            composable(NavigationRoutes.PROCESSING) { backStackEntry ->
                 // Get input text from previous screen's saved state
                 val previousBackStackEntry = navController.previousBackStackEntry
                 val inputText = previousBackStackEntry?.savedStateHandle?.get<String>("inputText") ?: ""
@@ -77,8 +138,8 @@ fun App() {
                 )
             }
 
-            // Settings Screen
-            composable("settings") {
+            // 设置
+            composable(NavigationRoutes.SETTINGS) {
                 val settingsViewModel: SettingsViewModel = viewModel {
                     SettingsViewModel(configRepository)
                 }
@@ -96,6 +157,7 @@ fun App() {
                         navController.popBackStack()
                     }
                 )
+            }
             }
         }
     }

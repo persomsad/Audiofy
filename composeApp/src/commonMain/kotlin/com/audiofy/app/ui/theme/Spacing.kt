@@ -1,39 +1,39 @@
 package com.audiofy.app.ui.theme
 
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 /**
  * Audiofy 间距系统
- * 基于设计文档 docs/design/design-system.md
- *
- * 基于 8px 网格系统（基础单位为 4px）
- * 用于控制布局、内边距和外边距，确保界面元素的和谐统一
+ * 基于8px网格系统（基础单位4px）
+ * 参考设计系统文档：docs/design/design-system.md
  */
-
-object Spacing {
-    val space1 = 4.dp   // 0.25rem
-    val space2 = 8.dp   // 0.5rem
-    val space3 = 12.dp  // 0.75rem
-    val space4 = 16.dp  // 1rem - 基础单位
-    val space5 = 24.dp  // 1.5rem
-    val space6 = 32.dp  // 2rem
-    val space7 = 48.dp  // 3rem
-    val space8 = 64.dp  // 4rem
+object AudiofySpacing {
+    val Space1 = 4.dp    // 0.25rem
+    val Space2 = 8.dp    // 0.5rem
+    val Space3 = 12.dp   // 0.75rem
+    val Space4 = 16.dp   // 1rem
+    val Space5 = 24.dp   // 1.5rem
+    val Space6 = 32.dp   // 2rem
+    val Space7 = 48.dp   // 3rem
+    val Space8 = 64.dp   // 4rem
+    
+    // 常用别名
+    val ExtraSmall = Space1
+    val Small = Space2
+    val Medium = Space4
+    val Large = Space6
+    val ExtraLarge = Space8
 }
 
 /**
- * 语义化间距别名（可选，用于提高代码可读性）
+ * 扩展属性，方便使用
  */
-object SemanticSpacing {
-    // 组件内部间距
-    val extraSmall = Spacing.space1  // 4dp
-    val small = Spacing.space2       // 8dp
-    val medium = Spacing.space3      // 12dp
-    val large = Spacing.space4       // 16dp
-
-    // 布局间距
-    val sectionPadding = Spacing.space5    // 24dp - 区块内边距
-    val screenPadding = Spacing.space6     // 32dp - 屏幕边距
-    val sectionGap = Spacing.space7        // 48dp - 大区块间距
-    val extraLargeGap = Spacing.space8     // 64dp - 特大间距
-}
+val Dp.Companion.space1: Dp get() = AudiofySpacing.Space1
+val Dp.Companion.space2: Dp get() = AudiofySpacing.Space2
+val Dp.Companion.space3: Dp get() = AudiofySpacing.Space3
+val Dp.Companion.space4: Dp get() = AudiofySpacing.Space4
+val Dp.Companion.space5: Dp get() = AudiofySpacing.Space5
+val Dp.Companion.space6: Dp get() = AudiofySpacing.Space6
+val Dp.Companion.space7: Dp get() = AudiofySpacing.Space7
+val Dp.Companion.space8: Dp get() = AudiofySpacing.Space8
