@@ -4,6 +4,12 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -12,10 +18,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.audiofy.app.theme.*
+import com.audiofy.app.ui.theme.AudiofyShapes
+import com.audiofy.app.ui.theme.AudiofyTypography
+import com.audiofy.app.ui.theme.Spacing
 import com.audiofy.app.viewmodel.SettingsViewModel
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
 
 /**
  * 设置页面
@@ -58,14 +64,14 @@ fun SettingsScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = AudiofyColors.Primary,
-                    titleContentColor = AudiofyColors.OnPrimary,
-                    navigationIconContentColor = AudiofyColors.OnPrimary
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
                 )
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        containerColor = AudiofyColors.Background
+        containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
         if (uiState.isLoading) {
             Box(
@@ -74,7 +80,7 @@ fun SettingsScreen(
                     .padding(paddingValues),
                 contentAlignment = Alignment.Center
             ) {
-                CircularProgressIndicator(color = AudiofyColors.Primary)
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
             }
         } else {
             Column(
@@ -82,11 +88,11 @@ fun SettingsScreen(
                     .fillMaxSize()
                     .padding(paddingValues)
                     .verticalScroll(rememberScrollState())
-                    .padding(AudiofySpacing.Large)
+                    .padding(Spacing.space6)
             ) {
                 // Gemini API Section
                 SectionTitle("Gemini API 配置")
-                Spacer(Modifier.height(AudiofySpacing.Medium))
+                Spacer(Modifier.height(Spacing.space4))
 
                 ApiKeyTextField(
                     value = uiState.geminiApiKey,
@@ -94,7 +100,7 @@ fun SettingsScreen(
                     label = "Gemini API Key",
                     isRequired = true
                 )
-                Spacer(Modifier.height(AudiofySpacing.Medium))
+                Spacer(Modifier.height(Spacing.space4))
 
                 ConfigTextField(
                     value = uiState.geminiModelId,
@@ -102,7 +108,7 @@ fun SettingsScreen(
                     label = "Gemini Model ID",
                     placeholder = "gemini-2.0-flash-exp"
                 )
-                Spacer(Modifier.height(AudiofySpacing.Medium))
+                Spacer(Modifier.height(Spacing.space4))
 
                 ConfigTextField(
                     value = uiState.geminiBaseUrl,
@@ -112,11 +118,11 @@ fun SettingsScreen(
                     keyboardType = KeyboardType.Uri
                 )
 
-                Spacer(Modifier.height(AudiofySpacing.ExtraLarge))
+                Spacer(Modifier.height(Spacing.space7))
 
                 // ElevenLabs API Section
                 SectionTitle("ElevenLabs TTS API 配置")
-                Spacer(Modifier.height(AudiofySpacing.Medium))
+                Spacer(Modifier.height(Spacing.space4))
 
                 ApiKeyTextField(
                     value = uiState.elevenLabsApiKey,
@@ -124,7 +130,7 @@ fun SettingsScreen(
                     label = "ElevenLabs API Key",
                     isRequired = true
                 )
-                Spacer(Modifier.height(AudiofySpacing.Medium))
+                Spacer(Modifier.height(Spacing.space4))
 
                 ConfigTextField(
                     value = uiState.elevenLabsVoiceId,
@@ -132,7 +138,7 @@ fun SettingsScreen(
                     label = "ElevenLabs Voice ID",
                     isRequired = true
                 )
-                Spacer(Modifier.height(AudiofySpacing.Medium))
+                Spacer(Modifier.height(Spacing.space4))
 
                 ConfigTextField(
                     value = uiState.elevenLabsModelId,
@@ -141,12 +147,12 @@ fun SettingsScreen(
                     placeholder = "eleven_multilingual_v2"
                 )
 
-                Spacer(Modifier.height(AudiofySpacing.ExtraLarge))
+                Spacer(Modifier.height(Spacing.space7))
 
                 // Action Buttons
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(AudiofySpacing.Medium)
+                    horizontalArrangement = Arrangement.spacedBy(Spacing.space4)
                 ) {
                     // Reset Button
                     OutlinedButton(
@@ -154,16 +160,16 @@ fun SettingsScreen(
                         modifier = Modifier.weight(1f),
                         enabled = !uiState.isSaving,
                         colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = AudiofyColors.Error
+                            contentColor = MaterialTheme.colorScheme.error
                         ),
                         shape = AudiofyShapes.medium
                     ) {
                         Icon(
                             Icons.Default.Delete,
                             contentDescription = null,
-                            modifier = Modifier.size(AudiofySpacing.Medium)
+                            modifier = Modifier.size(Spacing.space4)
                         )
-                        Spacer(Modifier.width(AudiofySpacing.Small))
+                        Spacer(Modifier.width(Spacing.space2))
                         Text("重置", style = AudiofyTypography.labelLarge)
                     }
 
@@ -173,37 +179,37 @@ fun SettingsScreen(
                         modifier = Modifier.weight(1f),
                         enabled = !uiState.isSaving,
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = AudiofyColors.Primary,
-                            contentColor = AudiofyColors.OnPrimary
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
                         ),
                         shape = AudiofyShapes.medium
                     ) {
                         if (uiState.isSaving) {
                             CircularProgressIndicator(
-                                modifier = Modifier.size(AudiofySpacing.Medium),
-                                color = AudiofyColors.OnPrimary,
-                                strokeWidth = AudiofySpacing.ExtraSmall
+                                modifier = Modifier.size(Spacing.space4),
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                strokeWidth = Spacing.space1
                             )
                         } else {
                             Icon(
                                 Icons.Default.Check,
                                 contentDescription = null,
-                                modifier = Modifier.size(AudiofySpacing.Medium)
+                                modifier = Modifier.size(Spacing.space4)
                             )
                         }
-                        Spacer(Modifier.width(AudiofySpacing.Small))
+                        Spacer(Modifier.width(Spacing.space2))
                         Text("保存", style = AudiofyTypography.labelLarge)
                     }
                 }
 
-                Spacer(Modifier.height(AudiofySpacing.Large))
+                Spacer(Modifier.height(Spacing.space6))
 
                 // Help Text
                 Text(
                     text = "* 必填项",
                     style = AudiofyTypography.bodySmall,
-                    color = AudiofyColors.OnSurfaceVariant,
-                    modifier = Modifier.padding(horizontal = AudiofySpacing.Small)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(horizontal = Spacing.space2)
                 )
             }
         }
@@ -215,7 +221,7 @@ private fun SectionTitle(text: String) {
     Text(
         text = text,
         style = AudiofyTypography.titleMedium,
-        color = AudiofyColors.Primary
+        color = MaterialTheme.colorScheme.primary
     )
 }
 
@@ -254,10 +260,10 @@ private fun ApiKeyTextField(
         singleLine = true,
         shape = AudiofyShapes.medium,
         colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = AudiofyColors.Primary,
-            unfocusedBorderColor = AudiofyColors.Outline,
-            focusedLabelColor = AudiofyColors.Primary,
-            unfocusedLabelColor = AudiofyColors.OnSurfaceVariant
+            focusedBorderColor = MaterialTheme.colorScheme.primary,
+            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+            focusedLabelColor = MaterialTheme.colorScheme.primary,
+            unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
         )
     )
 }
@@ -275,16 +281,16 @@ private fun ConfigTextField(
         value = value,
         onValueChange = onValueChange,
         label = { Text(label + if (isRequired) " *" else "") },
-        placeholder = { Text(placeholder, color = AudiofyColors.OnSurfaceVariant) },
+        placeholder = { Text(placeholder, color = MaterialTheme.colorScheme.onSurfaceVariant) },
         modifier = Modifier.fillMaxWidth(),
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
         singleLine = true,
         shape = AudiofyShapes.medium,
         colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = AudiofyColors.Primary,
-            unfocusedBorderColor = AudiofyColors.Outline,
-            focusedLabelColor = AudiofyColors.Primary,
-            unfocusedLabelColor = AudiofyColors.OnSurfaceVariant
+            focusedBorderColor = MaterialTheme.colorScheme.primary,
+            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+            focusedLabelColor = MaterialTheme.colorScheme.primary,
+            unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
         )
     )
 }
