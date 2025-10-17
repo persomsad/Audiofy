@@ -77,7 +77,14 @@ fun App() {
             
             // 书架
             composable(NavigationRoutes.LIBRARY) {
-                LibraryScreen()
+                LibraryScreen(
+                    onNavigateToPodcastDetail = { podcastId ->
+                        navController.navigate("podcast_detail/$podcastId")
+                    },
+                    onNavigateToPlayer = { podcastId ->
+                        navController.navigate("player/$podcastId")
+                    }
+                )
             }
             
             // 发现
@@ -134,6 +141,11 @@ fun App() {
                     inputText = inputText,
                     onNavigateBack = {
                         navController.popBackStack()
+                    },
+                    onNavigateToLibrary = {
+                        navController.navigate(NavigationRoutes.LIBRARY) {
+                            popUpTo(NavigationRoutes.HOME) { inclusive = false }
+                        }
                     }
                 )
             }
@@ -153,6 +165,18 @@ fun App() {
 
                 SettingsScreen(
                     viewModel = settingsViewModel,
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+            
+            // 播放器
+            composable("player/{podcastId}") { backStackEntry ->
+                val podcastId = backStackEntry.arguments?.getString("podcastId") ?: return@composable
+                
+                PlayerScreen(
+                    podcastId = podcastId,
                     onNavigateBack = {
                         navController.popBackStack()
                     }

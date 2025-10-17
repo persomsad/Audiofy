@@ -31,6 +31,7 @@ fun ProcessingScreen(
     viewModel: ProcessingViewModel,
     inputText: String,
     onNavigateBack: () -> Unit = {},
+    onNavigateToLibrary: () -> Unit = {},
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -75,7 +76,8 @@ fun ProcessingScreen(
                     CompletedView(
                         inputText = uiState.inputText,
                         audioData = uiState.audioData ?: ByteArray(0),
-                        onNavigateBack = onNavigateBack
+                        onNavigateBack = onNavigateBack,
+                        onNavigateToLibrary = onNavigateToLibrary
                     )
                 }
 
@@ -136,6 +138,7 @@ private fun CompletedView(
     inputText: String,
     audioData: ByteArray,
     onNavigateBack: () -> Unit,
+    onNavigateToLibrary: () -> Unit,
 ) {
     // Create PlayerViewModel instance
     val playerViewModel: PlayerViewModel = viewModel { PlayerViewModel() }
@@ -198,11 +201,24 @@ private fun CompletedView(
 
         Spacer(modifier = Modifier.height(AudiofySpacing.Space2))
 
-        Button(
-            onClick = onNavigateBack,
-            modifier = Modifier.fillMaxWidth(0.7f)
+        // 操作按钮
+        Column(
+            modifier = Modifier.fillMaxWidth(0.7f),
+            verticalArrangement = Arrangement.spacedBy(AudiofySpacing.Space2)
         ) {
-            Text("返回主页")
+            Button(
+                onClick = onNavigateToLibrary,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("查看书架")
+            }
+            
+            OutlinedButton(
+                onClick = onNavigateBack,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("返回主页")
+            }
         }
     }
 }

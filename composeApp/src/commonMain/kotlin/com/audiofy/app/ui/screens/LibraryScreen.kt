@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.audiofy.app.data.Podcast
 import com.audiofy.app.data.PodcastFilter
@@ -32,13 +33,14 @@ import com.audiofy.app.ui.theme.AudiofySpacing
  */
 @Composable
 fun LibraryScreen(
+    viewModel: com.audiofy.app.viewmodel.LibraryViewModel = androidx.lifecycle.viewmodel.compose.viewModel { com.audiofy.app.viewmodel.LibraryViewModel() },
     onNavigateToPodcastDetail: (String) -> Unit = {},
+    onNavigateToPlayer: (String) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    var selectedFilter by remember { mutableStateOf(PodcastFilter.ALL) }
-    
-    // TODO: 从Repository获取真实数据
-    val podcasts = remember { emptyList<Podcast>() }
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val podcasts = uiState.podcasts
+    val selectedFilter = uiState.selectedFilter
     
     Column(
         modifier = modifier
@@ -82,28 +84,28 @@ fun LibraryScreen(
             item {
                 FilterChip(
                     selected = selectedFilter == PodcastFilter.ALL,
-                    onClick = { selectedFilter = PodcastFilter.ALL },
+                    onClick = { viewModel.selectFilter(PodcastFilter.ALL) },
                     label = { Text("全部") }
                 )
             }
             item {
                 FilterChip(
                     selected = selectedFilter == PodcastFilter.RECENT,
-                    onClick = { selectedFilter = PodcastFilter.RECENT },
+                    onClick = { viewModel.selectFilter(PodcastFilter.RECENT) },
                     label = { Text("最近添加") }
                 )
             }
             item {
                 FilterChip(
                     selected = selectedFilter == PodcastFilter.UNFINISHED,
-                    onClick = { selectedFilter = PodcastFilter.UNFINISHED },
+                    onClick = { viewModel.selectFilter(PodcastFilter.UNFINISHED) },
                     label = { Text("未完成") }
                 )
             }
             item {
                 FilterChip(
                     selected = selectedFilter == PodcastFilter.FAVORITE,
-                    onClick = { selectedFilter = PodcastFilter.FAVORITE },
+                    onClick = { viewModel.selectFilter(PodcastFilter.FAVORITE) },
                     label = { Text("已收藏") }
                 )
             }
@@ -118,7 +120,7 @@ fun LibraryScreen(
             PodcastList(
                 podcasts = podcasts,
                 onPodcastClick = onNavigateToPodcastDetail,
-                onPlayClick = { /* TODO: 直接播放 */ }
+                onPlayClick = onNavigateToPlayer
             )
         }
     }

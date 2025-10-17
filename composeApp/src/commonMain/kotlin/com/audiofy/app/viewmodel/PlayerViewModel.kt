@@ -2,8 +2,13 @@ package com.audiofy.app.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.audiofy.app.data.Podcast
 import com.audiofy.app.player.AudioPlayer
 import com.audiofy.app.player.PlayerState
+import com.audiofy.app.repository.PodcastRepository
+import com.audiofy.app.repository.createPodcastRepository
+import com.audiofy.app.service.FileStorageService
+import com.audiofy.app.service.createFileStorageService
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,13 +27,17 @@ data class PlayerUiState(
     val duration: Long = 0L,
     val errorMessage: String? = null,
     val isUserSeeking: Boolean = false, // User is dragging slider
+    val currentPodcast: Podcast? = null
 )
 
 /**
  * Audio Player ViewModel
  * Manages player state and provides UI-level control
  */
-class PlayerViewModel : ViewModel() {
+class PlayerViewModel(
+    private val podcastRepository: PodcastRepository = createPodcastRepository(),
+    private val fileStorageService: FileStorageService = createFileStorageService()
+) : ViewModel() {
 
     private val player = AudioPlayer()
 
@@ -56,8 +65,41 @@ class PlayerViewModel : ViewModel() {
     }
 
     /**
-     * Load audio file
+     * Load audio file by podcast ID
      */
+    fun loadPodcast(podcastId: String) {
+        viewModelScope.launch {
+            try {
+                val podcast = podcastRepository.getPodcastById(podcastId)
+                if (podcast == null) {
+                    _uiState.update { it.copy(errorMessage = "播客不存在") }
+                    return@launch
+                }
+                
+                val currentVersion = podcast.audioVersions.find { it.versionId == podcast.currentVersionId }
+                if (currentVersion == null) {
+                    _uiState.update { it.copy(errorMessage = "音频版本不存在") }
+                    return@launch
+                }
+                
+                val audioPath = fileStorageService.getDataDirectory() + "/" + currentVersion.audioPath
+                player.loadAudio(audioPath)
+                updateDuration()
+                
+                _uiState.update { it.copy(currentPodcast = podcast) }
+                
+                // Update last played timestamp
+                podcastRepository.updateLastPlayedAt(podcastId, System.currentTimeMillis())
+            } catch (e: Exception) {
+                _uiState.update { it.copy(errorMessage = e.message ?: "加载失败") }
+            }
+        }
+    }
+    
+    /**
+     * Load audio file directly by path (deprecated, use loadPodcast)
+     */
+    @Deprecated("Use loadPodcast(podcastId) instead")
     fun loadAudio(filePath: String) {
         player.loadAudio(filePath)
         updateDuration()

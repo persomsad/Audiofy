@@ -3,7 +3,13 @@ package com.audiofy.app.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.audiofy.app.data.AppConfig
+import com.audiofy.app.data.AudioVersion
+import com.audiofy.app.data.Podcast
+import com.audiofy.app.repository.PodcastRepository
+import com.audiofy.app.repository.createPodcastRepository
+import com.audiofy.app.service.FileStorageService
 import com.audiofy.app.service.TTSService
+import com.audiofy.app.service.createFileStorageService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -72,10 +78,14 @@ data class ProcessingUiState(
 class ProcessingViewModel(
     private val ttsService: TTSService,
     private val config: AppConfig,
+    private val podcastRepository: PodcastRepository = createPodcastRepository(),
+    private val fileStorageService: FileStorageService = createFileStorageService()
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ProcessingUiState())
     val uiState: StateFlow<ProcessingUiState> = _uiState.asStateFlow()
+    
+    private var currentPodcastId: String? = null
 
     /**
      * Start processing pipeline
@@ -97,6 +107,12 @@ class ProcessingViewModel(
                 }
 
                 val audioData = ttsResult.getOrThrow()
+                
+                // 保存音频文件和播客元数据
+                _uiState.update { it.copy(progress = 0.7f) }
+                val podcastId = savePodcastWithAudio(inputText, audioData)
+                currentPodcastId = podcastId
+                
                 _uiState.update {
                     it.copy(
                         currentStep = ProcessingStep.Completed(audioData),
@@ -112,6 +128,67 @@ class ProcessingViewModel(
             }
         }
     }
+    
+    /**
+     * Save podcast with audio file
+     * Returns the podcast ID
+     */
+    private suspend fun savePodcastWithAudio(textContent: String, audioData: ByteArray): String {
+        // Generate IDs
+        val podcastId = generateUUID()
+        val versionId = generateUUID()
+        val timestamp = currentTimeMillis()
+        
+        // Save audio file
+        val relativePath = "audios/$podcastId/$versionId.wav"
+        fileStorageService.saveAudio(relativePath, audioData)
+        
+        // Calculate audio duration (estimate: ~150 bytes per character for Chinese TTS)
+        val estimatedDuration = (audioData.size / 24000).coerceAtLeast(1) // seconds
+        
+        // Create audio version
+        val audioVersion = AudioVersion(
+            versionId = versionId,
+            voice = config.qwen3Voice,
+            languageType = config.qwen3LanguageType,
+            audioPath = relativePath,
+            duration = estimatedDuration,
+            fileSize = audioData.size.toLong(),
+            createdAt = timestamp
+        )
+        
+        // Generate title from first 30 characters of text
+        val title = if (textContent.length > 30) {
+            textContent.substring(0, 30) + "..."
+        } else {
+            textContent
+        }
+        
+        // Create podcast
+        val podcast = Podcast(
+            id = podcastId,
+            title = title,
+            author = null,
+            textContent = textContent,
+            coverUrl = null,
+            audioVersions = listOf(audioVersion),
+            currentVersionId = versionId,
+            createdAt = timestamp,
+            lastPlayedAt = null,
+            playProgress = 0f,
+            isFavorite = false
+        )
+        
+        // Save to repository
+        podcastRepository.savePodcast(podcast)
+        
+        return podcastId
+    }
+    
+    /**
+     * Get the saved podcast ID
+     */
+    fun getPodcastId(): String? = currentPodcastId
 
     /**
      * Retry processing
@@ -128,5 +205,20 @@ class ProcessingViewModel(
      */
     fun reset() {
         _uiState.value = ProcessingUiState()
+        currentPodcastId = null
+    }
+    
+    /**
+     * Generate UUID (platform-specific implementation needed)
+     */
+    private fun generateUUID(): String {
+        return java.util.UUID.randomUUID().toString()
+    }
+    
+    /**
+     * Get current time in milliseconds
+     */
+    private fun currentTimeMillis(): Long {
+        return System.currentTimeMillis()
     }
 }
