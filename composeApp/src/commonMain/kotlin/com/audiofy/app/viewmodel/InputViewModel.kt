@@ -19,7 +19,9 @@ class InputViewModel : ViewModel() {
 
     companion object {
         const val MIN_INPUT_LENGTH = 10
-        const val MAX_INPUT_LENGTH = 5000
+        // 提高字数限制到 20000（约 20 篇文章的长度）
+        // TTS 服务会自动分段处理（每段最多 5000 字）
+        const val MAX_INPUT_LENGTH = 20000
     }
 
     /**

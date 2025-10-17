@@ -66,9 +66,18 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+    signingConfigs {
+        // 使用 debug 签名配置（临时方案，适合测试版本）
+        // 生产环境应使用独立的 release keystore
+        getByName("debug") {
+            // Android Gradle Plugin 自动提供 debug 签名
+        }
+    }
     buildTypes {
         getByName("release") {
             isMinifyEnabled = false
+            // 使用 debug 签名（临时方案）
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
     compileOptions {
