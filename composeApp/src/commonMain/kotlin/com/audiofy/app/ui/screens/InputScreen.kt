@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -23,7 +25,8 @@ import com.audiofy.app.viewmodel.InputViewModel
 @Composable
 fun InputScreen(
     viewModel: InputViewModel,
-    onNavigateToProcessing: () -> Unit = {},
+    onNavigateToSettings: () -> Unit = {},
+    onNavigateToProcessing: (String) -> Unit = {},
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -35,6 +38,14 @@ fun InputScreen(
                         text = "Audiofy",
                         style = AudiofyTypography.headlineMedium
                     )
+                },
+                actions = {
+                    IconButton(onClick = onNavigateToSettings) {
+                        Icon(
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = "设置"
+                        )
+                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surface,
@@ -93,7 +104,7 @@ fun InputScreen(
                 isProcessing = uiState.isProcessing,
                 onStartConversion = {
                     viewModel.startConversion()
-                    onNavigateToProcessing()
+                    onNavigateToProcessing(uiState.inputText)
                 },
                 onClear = viewModel::clearInput
             )
