@@ -58,12 +58,15 @@ class TTSServiceImpl : TTSService {
                 throw IllegalStateException("Qwen3 TTS API 配置不完整")
             }
 
-            // Validate text length (Qwen3 limit ~5000 characters)
-            if (text.length > MAX_TEXT_LENGTH) {
-                throw IllegalArgumentException("文本长度超过限制 ($MAX_TEXT_LENGTH 字符),请分段处理")
+            // 判断是否需要分片处理
+            val audioData = if (text.length <= MAX_TEXT_LENGTH) {
+                // 短文本：直接调用API
+                callQwen3API(text, config)
+            } else {
+                // 长文本：分片处理并合并音频
+                synthesizeLongText(text, config)
             }
 
-            val audioData = callQwen3API(text, config)
             Result.success(audioData)
         } catch (e: Exception) {
             Result.failure(translateException(e))
@@ -80,11 +83,6 @@ class TTSServiceImpl : TTSService {
                 throw IllegalStateException("Qwen3 TTS API 配置不完整")
             }
 
-            // Validate text length
-            if (text.length > MAX_TEXT_LENGTH) {
-                throw IllegalArgumentException("文本长度超过限制 ($MAX_TEXT_LENGTH 字符),请分段处理")
-            }
-
             // Preparing
             emit(
                 TTSProgress(
@@ -94,24 +92,31 @@ class TTSServiceImpl : TTSService {
                 )
             )
 
-            // Generating
-            emit(
-                TTSProgress(
-                    stage = TTSStage.GENERATING,
-                    progress = 0.2f,
-                    message = "生成语音中..."
-                )
-            )
-
-            // Call API and download audio stream
-            val audioData = callQwen3APIWithProgress(text, config) { progress ->
+            // 判断是否需要分片处理
+            if (text.length <= MAX_TEXT_LENGTH) {
+                // 短文本：直接调用API
                 emit(
                     TTSProgress(
-                        stage = TTSStage.DOWNLOADING,
-                        progress = 0.2f + progress * 0.8f, // 20% - 100%
-                        message = "下载音频... ${(progress * 100).toInt()}%"
+                        stage = TTSStage.GENERATING,
+                        progress = 0.2f,
+                        message = "生成语音中..."
                     )
                 )
+
+                val audioData = callQwen3APIWithProgress(text, config) { progress ->
+                    emit(
+                        TTSProgress(
+                            stage = TTSStage.DOWNLOADING,
+                            progress = 0.2f + progress * 0.8f, // 20% - 100%
+                            message = "下载音频... ${(progress * 100).toInt()}%"
+                        )
+                    )
+                }
+            } else {
+                // 长文本：分片处理并合并音频
+                synthesizeLongTextWithProgress(text, config) { progress ->
+                    emit(progress)
+                }
             }
 
             // Completed
@@ -261,6 +266,112 @@ class TTSServiceImpl : TTSService {
         }
 
         return Exception(message, e)
+    }
+
+    /**
+     * 处理长文本(>600字符)
+     * 使用智能分片 + 音频拼接
+     */
+    private suspend fun synthesizeLongText(text: String, config: AppConfig): ByteArray {
+        // 1. 智能分片
+        val chunks = TextChunker.smartChunk(text, MAX_TEXT_LENGTH)
+        val totalChunks = chunks.size
+
+        println("长文本分片: $totalChunks 片")
+        println(TextChunker.getChunkStats(text, MAX_TEXT_LENGTH))
+
+        // 2. 逐个生成音频
+        val audioChunks = mutableListOf<ByteArray>()
+
+        for ((index, chunk) in chunks.withIndex()) {
+            val chunkNumber = index + 1
+
+            println("生成第 $chunkNumber/$totalChunks 片...")
+
+            try {
+                // 生成音频
+                val audioData = callQwen3API(chunk, config)
+                audioChunks.add(audioData)
+
+                // 速率限制保护: 片段间延迟500ms
+                if (chunkNumber < totalChunks) {
+                    kotlinx.coroutines.delay(500)
+                }
+            } catch (e: Exception) {
+                throw Exception("第 $chunkNumber 片生成失败: ${e.message}", e)
+            }
+        }
+
+        // 3. 合并音频
+        println("合并 $totalChunks 个音频片段...")
+        val mergedAudio = WavMerger.mergeWavFiles(audioChunks, insertSilence = true)
+        println(WavMerger.getWavInfo(mergedAudio))
+
+        return mergedAudio
+    }
+
+    /**
+     * 处理长文本(>600字符) - 带进度反馈
+     */
+    private suspend fun synthesizeLongTextWithProgress(
+        text: String,
+        config: AppConfig,
+        onProgress: suspend (TTSProgress) -> Unit
+    ): ByteArray {
+        // 1. 智能分片
+        val chunks = TextChunker.smartChunk(text, MAX_TEXT_LENGTH)
+        val totalChunks = chunks.size
+
+        onProgress(
+            TTSProgress(
+                stage = TTSStage.GENERATING,
+                progress = 0.1f,
+                message = "文本分片: $totalChunks 片"
+            )
+        )
+
+        // 2. 逐个生成音频
+        val audioChunks = mutableListOf<ByteArray>()
+
+        for ((index, chunk) in chunks.withIndex()) {
+            val chunkNumber = index + 1
+            val chunkProgress = chunkNumber.toFloat() / totalChunks
+
+            // 更新进度
+            onProgress(
+                TTSProgress(
+                    stage = TTSStage.GENERATING,
+                    progress = 0.1f + chunkProgress * 0.8f, // 10% - 90%
+                    message = "生成中...(第 $chunkNumber/$totalChunks 片)"
+                )
+            )
+
+            try {
+                // 生成音频（不带进度，否则会干扰整体进度显示）
+                val audioData = callQwen3API(chunk, config)
+                audioChunks.add(audioData)
+
+                // 速率限制保护: 片段间延迟500ms
+                if (chunkNumber < totalChunks) {
+                    kotlinx.coroutines.delay(500)
+                }
+            } catch (e: Exception) {
+                throw Exception("第 $chunkNumber 片生成失败: ${e.message}", e)
+            }
+        }
+
+        // 3. 合并音频
+        onProgress(
+            TTSProgress(
+                stage = TTSStage.DOWNLOADING,
+                progress = 0.95f,
+                message = "合并 $totalChunks 个音频片段..."
+            )
+        )
+
+        val mergedAudio = WavMerger.mergeWavFiles(audioChunks, insertSilence = true)
+
+        return mergedAudio
     }
 
     companion object {
