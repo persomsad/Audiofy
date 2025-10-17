@@ -28,7 +28,7 @@ import com.audiofy.app.viewmodel.SettingsViewModel
 
 /**
  * 设置页面
- * 允许用户配置 Gemini API 和 Qwen3 TTS API
+ * 允许用户配置 Qwen3 TTS API
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -93,36 +93,6 @@ fun SettingsScreen(
                     .verticalScroll(rememberScrollState())
                     .padding(Spacing.space6)
             ) {
-                // Gemini API Section
-                SectionTitle("Gemini API 配置")
-                Spacer(Modifier.height(Spacing.space4))
-
-                ApiKeyTextField(
-                    value = uiState.geminiApiKey,
-                    onValueChange = viewModel::updateGeminiApiKey,
-                    label = "Gemini API Key",
-                    isRequired = true
-                )
-                Spacer(Modifier.height(Spacing.space4))
-
-                ConfigTextField(
-                    value = uiState.geminiModelId,
-                    onValueChange = viewModel::updateGeminiModelId,
-                    label = "Gemini Model ID",
-                    placeholder = "gemini-2.0-flash-exp"
-                )
-                Spacer(Modifier.height(Spacing.space4))
-
-                ConfigTextField(
-                    value = uiState.geminiBaseUrl,
-                    onValueChange = viewModel::updateGeminiBaseUrl,
-                    label = "Gemini Base URL",
-                    placeholder = "https://generativelanguage.googleapis.com/v1beta",
-                    keyboardType = KeyboardType.Uri
-                )
-
-                Spacer(Modifier.height(Spacing.space7))
-
                 // Qwen3 TTS API Section
                 SectionTitle("Qwen3 TTS API 配置")
                 Spacer(Modifier.height(Spacing.space4))

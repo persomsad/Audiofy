@@ -3,7 +3,6 @@ package com.audiofy.app.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.audiofy.app.data.AppConfig
-import com.audiofy.app.service.GeminiService
 import com.audiofy.app.service.TTSService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,8 +14,6 @@ import kotlinx.coroutines.launch
  * Processing Steps
  */
 sealed class ProcessingStep {
-    object TranslatingStage1 : ProcessingStep()
-    object TranslatingStage2 : ProcessingStep()
     object GeneratingSpeech : ProcessingStep()
     data class Completed(val audioData: ByteArray) : ProcessingStep() {
         override fun equals(other: Any?): Boolean {
@@ -37,10 +34,9 @@ sealed class ProcessingStep {
  * Processing UI State
  */
 data class ProcessingUiState(
-    val currentStep: ProcessingStep = ProcessingStep.TranslatingStage1,
+    val currentStep: ProcessingStep = ProcessingStep.GeneratingSpeech,
     val progress: Float = 0f,
     val inputText: String = "",
-    val translatedText: String? = null,
     val audioData: ByteArray? = null,
 ) {
     override fun equals(other: Any?): Boolean {
@@ -50,7 +46,6 @@ data class ProcessingUiState(
         if (currentStep != other.currentStep) return false
         if (progress != other.progress) return false
         if (inputText != other.inputText) return false
-        if (translatedText != other.translatedText) return false
         if (audioData != null) {
             if (other.audioData == null) return false
             if (!audioData.contentEquals(other.audioData)) return false
@@ -63,7 +58,6 @@ data class ProcessingUiState(
         var result = currentStep.hashCode()
         result = 31 * result + progress.hashCode()
         result = 31 * result + inputText.hashCode()
-        result = 31 * result + (translatedText?.hashCode() ?: 0)
         result = 31 * result + (audioData?.contentHashCode() ?: 0)
         return result
     }
@@ -71,10 +65,11 @@ data class ProcessingUiState(
 
 /**
  * Processing ViewModel
- * Orchestrates translation and TTS services
+ * 直接调用 TTS 服务将文本转为语音
+ *
+ * 注意：应用只负责 TTS，不进行翻译。用户应在 Gemini 网页版自行翻译文本后粘贴到应用。
  */
 class ProcessingViewModel(
-    private val geminiService: GeminiService,
     private val ttsService: TTSService,
     private val config: AppConfig,
 ) : ViewModel() {
@@ -84,36 +79,16 @@ class ProcessingViewModel(
 
     /**
      * Start processing pipeline
-     * 1. Translate (Stage 1 + Stage 2)
-     * 2. Generate speech
+     * 直接调用 TTS 生成语音
      */
     fun startProcessing(inputText: String) {
         viewModelScope.launch {
             try {
                 _uiState.update { it.copy(inputText = inputText, progress = 0f) }
 
-                // Step 1: Translation
-                _uiState.update { it.copy(currentStep = ProcessingStep.TranslatingStage1, progress = 0.1f) }
-                val translationResult = geminiService.translateTwoStage(inputText, config)
-
-                if (translationResult.isFailure) {
-                    val errorMessage = translationResult.exceptionOrNull()?.message ?: "翻译失败"
-                    _uiState.update { it.copy(currentStep = ProcessingStep.Error(errorMessage)) }
-                    return@launch
-                }
-
-                val translatedText = translationResult.getOrThrow()
-                _uiState.update {
-                    it.copy(
-                        currentStep = ProcessingStep.TranslatingStage2,
-                        translatedText = translatedText,
-                        progress = 0.5f
-                    )
-                }
-
-                // Step 2: TTS
-                _uiState.update { it.copy(currentStep = ProcessingStep.GeneratingSpeech, progress = 0.7f) }
-                val ttsResult = ttsService.synthesizeSpeech(translatedText, config)
+                // TTS 生成语音
+                _uiState.update { it.copy(currentStep = ProcessingStep.GeneratingSpeech, progress = 0.3f) }
+                val ttsResult = ttsService.synthesizeSpeech(inputText, config)
 
                 if (ttsResult.isFailure) {
                     val errorMessage = ttsResult.exceptionOrNull()?.message ?: "语音生成失败"

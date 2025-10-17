@@ -7,7 +7,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.audiofy.app.data.AppConfig
 import com.audiofy.app.repository.createConfigRepository
-import com.audiofy.app.service.GeminiServiceImpl
 import com.audiofy.app.service.TTSServiceImpl
 import com.audiofy.app.ui.screens.InputScreen
 import com.audiofy.app.ui.screens.ProcessingScreen
@@ -56,7 +55,7 @@ fun App() {
                 )
             }
 
-            // Processing Screen - Translation + TTS
+            // Processing Screen - TTS
             composable("processing") { backStackEntry ->
                 // Get input text from previous screen's saved state
                 val previousBackStackEntry = navController.previousBackStackEntry
@@ -64,7 +63,6 @@ fun App() {
 
                 val processingViewModel: ProcessingViewModel = viewModel {
                     ProcessingViewModel(
-                        geminiService = GeminiServiceImpl(),
                         ttsService = TTSServiceImpl(),
                         config = config.value
                     )
@@ -108,9 +106,6 @@ fun App() {
  */
 private fun com.audiofy.app.viewmodel.SettingsUiState.toAppConfig(): AppConfig {
     return AppConfig(
-        geminiApiKey = geminiApiKey,
-        geminiBaseUrl = geminiBaseUrl,
-        geminiModelId = geminiModelId,
         qwen3ApiKey = qwen3ApiKey,
         qwen3Voice = qwen3Voice,
         qwen3LanguageType = qwen3LanguageType
