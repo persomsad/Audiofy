@@ -72,7 +72,7 @@ fun DiscoverScreen(
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Crop
                         )
-                        AsyncImage(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(0.6f)))))
+                        Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(0.6f)))))
                         Column(Modifier.align(Alignment.BottomStart).padding(AudiofySpacing.Space4)) {
                             Text("AI时代的思考", color = Color.White, style = MaterialTheme.typography.titleLarge)
                             Text("探索AI如何改变生活", color = Color.White.copy(0.8f), style = MaterialTheme.typography.bodySmall)
