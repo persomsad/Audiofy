@@ -1,9 +1,24 @@
 package com.audiofy.app.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
+import com.audiofy.app.ui.theme.AudiofyRadius
+import com.audiofy.app.ui.theme.AudiofySpacing
 import com.audiofy.app.ui.theme.AudiofySpacing
 
 /**
@@ -52,16 +67,17 @@ fun DiscoverScreen(
                     modifier = Modifier.fillMaxWidth().height(200.dp)
                 ) {
                     Box {
-                        coil3.compose.AsyncImage(
+                        AsyncImage(
+                            model =
                             "https://source.unsplash.com/random/800x400?technology",
-                            null,
-                            Modifier.fillMaxSize(),
-                            contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
                         )
-                        Box(Modifier.fillMaxSize().background(androidx.compose.ui.graphics.Brush.verticalGradient(listOf(androidx.compose.ui.graphics.Color.Transparent, androidx.compose.ui.graphics.Color.Black.copy(0.6f)))))
+                        Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(0.6f)))))
                         Column(Modifier.align(Alignment.BottomStart).padding(AudiofySpacing.Space4)) {
-                            Text("AI时代的思考", color = androidx.compose.ui.graphics.Color.White, style = MaterialTheme.typography.titleLarge)
-                            Text("探索AI如何改变生活", color = androidx.compose.ui.graphics.Color.White.copy(0.8f), style = MaterialTheme.typography.bodySmall)
+                            Text("AI时代的思考", color = Color.White, style = MaterialTheme.typography.titleLarge)
+                            Text("探索AI如何改变生活", color = Color.White.copy(0.8f), style = MaterialTheme.typography.bodySmall)
                         }
                     }
                 }

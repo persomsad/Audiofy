@@ -247,10 +247,10 @@ private fun PodcastListItem(
                     maxLines = 1
                 )
                 
-                if (podcast.author != null) {
+                podcast.author?.let { author ->
                     Spacer(modifier = Modifier.height(AudiofySpacing.Space1))
                     Text(
-                        text = podcast.author,
+                        text = author,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1
