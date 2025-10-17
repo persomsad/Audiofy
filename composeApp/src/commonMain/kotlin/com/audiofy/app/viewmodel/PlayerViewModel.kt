@@ -162,7 +162,7 @@ class PlayerViewModel : ViewModel() {
         val seconds = milliseconds / 1000
         val minutes = seconds / 60
         val remainingSeconds = seconds % 60
-        return "%02d:%02d".format(minutes, remainingSeconds)
+        return "${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}"
     }
 
     override fun onCleared() {
