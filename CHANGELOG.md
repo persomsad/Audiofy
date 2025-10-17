@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.3] - 2025-10-17
+
+### Fixed
+- **修复网络安全配置导致音频下载失败** (P0 - 阻塞问题)
+  - 错误：Cleartext HTTP traffic to dashscope-result-bj.oss-cn-beijing.aliyuncs.com not permitted
+  - 原因：网络安全配置只允许oss-cn-shanghai.aliyuncs.com（上海OSS）
+  - 修复：改为允许aliyuncs.com（包含所有子域名和OSS区域）
+  - 现在支持北京、上海、杭州等所有OSS区域的音频下载
+
+### Technical Details
+- 修复文件: composeApp/src/androidMain/res/xml/network_security_config.xml
+- 代码变更: 2行新增，1行删除
+
+### Related
+- Issue: #53
+
+---
+
 ## [1.3.2] - 2025-10-17
 
 ### Fixed
