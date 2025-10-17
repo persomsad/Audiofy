@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
+    kotlin("plugin.serialization") version "2.2.20"
 }
 
 kotlin {
@@ -19,8 +20,29 @@ kotlin {
     
     sourceSets {
         commonMain.dependencies {
-            // put your Multiplatform dependencies here
+            // Ktor Client
+            implementation(libs.ktor.clientCore)
+            implementation(libs.ktor.clientContentNegotiation)
+            implementation(libs.ktor.clientJson)
+            implementation(libs.ktor.clientLogging)
+
+            // Kotlinx Serialization
+            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
         }
+
+        androidMain.dependencies {
+            // Ktor Client for Android
+            implementation(libs.ktor.clientAndroid)
+
+            // DataStore for Android
+            implementation(libs.androidx.datastore.preferences)
+        }
+
+        iosMain.dependencies {
+            // Ktor Client for iOS
+            implementation(libs.ktor.clientDarwin)
+        }
+
         commonTest.dependencies {
             implementation(libs.kotlin.test)
         }
