@@ -13,18 +13,17 @@ data class AppConfig(
     val geminiModelId: String = "gemini-2.0-flash-exp",
     val geminiBaseUrl: String = "https://generativelanguage.googleapis.com/v1beta",
 
-    // ElevenLabs TTS API 配置
-    val elevenLabsApiKey: String = "",
-    val elevenLabsVoiceId: String = "",
-    val elevenLabsModelId: String = "eleven_multilingual_v2",
+    // Qwen3 TTS API 配置
+    val qwen3ApiKey: String = "",
+    val qwen3Voice: String = "cherry",
+    val qwen3LanguageType: String = "Chinese",
 ) {
     /**
      * 检查配置是否完整（所有必填项都已填写）
      */
     fun isComplete(): Boolean =
         geminiApiKey.isNotBlank() &&
-        elevenLabsApiKey.isNotBlank() &&
-        elevenLabsVoiceId.isNotBlank()
+        qwen3ApiKey.isNotBlank()
 
     /**
      * 检查 Gemini 配置是否完整
@@ -33,11 +32,10 @@ data class AppConfig(
         geminiApiKey.isNotBlank()
 
     /**
-     * 检查 ElevenLabs 配置是否完整
+     * 检查 Qwen3 TTS 配置是否完整
      */
-    fun isElevenLabsConfigured(): Boolean =
-        elevenLabsApiKey.isNotBlank() &&
-        elevenLabsVoiceId.isNotBlank()
+    fun isQwen3Configured(): Boolean =
+        qwen3ApiKey.isNotBlank()
 
     companion object {
         /**

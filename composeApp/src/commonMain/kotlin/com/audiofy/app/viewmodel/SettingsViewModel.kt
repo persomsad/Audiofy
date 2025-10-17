@@ -38,9 +38,9 @@ class SettingsViewModel(
                         geminiApiKey = config.geminiApiKey,
                         geminiModelId = config.geminiModelId,
                         geminiBaseUrl = config.geminiBaseUrl,
-                        elevenLabsApiKey = config.elevenLabsApiKey,
-                        elevenLabsVoiceId = config.elevenLabsVoiceId,
-                        elevenLabsModelId = config.elevenLabsModelId,
+                        qwen3ApiKey = config.qwen3ApiKey,
+                        qwen3Voice = config.qwen3Voice,
+                        qwen3LanguageType = config.qwen3LanguageType,
                         isLoading = false,
                     )
                 }
@@ -75,24 +75,24 @@ class SettingsViewModel(
     }
 
     /**
-     * 更新 ElevenLabs API Key
+     * 更新 Qwen3 API Key
      */
-    fun updateElevenLabsApiKey(value: String) {
-        _uiState.value = _uiState.value.copy(elevenLabsApiKey = value)
+    fun updateQwen3ApiKey(value: String) {
+        _uiState.value = _uiState.value.copy(qwen3ApiKey = value)
     }
 
     /**
-     * 更新 ElevenLabs Voice ID
+     * 更新 Qwen3 Voice
      */
-    fun updateElevenLabsVoiceId(value: String) {
-        _uiState.value = _uiState.value.copy(elevenLabsVoiceId = value)
+    fun updateQwen3Voice(value: String) {
+        _uiState.value = _uiState.value.copy(qwen3Voice = value)
     }
 
     /**
-     * 更新 ElevenLabs Model ID
+     * 更新 Qwen3 Language Type
      */
-    fun updateElevenLabsModelId(value: String) {
-        _uiState.value = _uiState.value.copy(elevenLabsModelId = value)
+    fun updateQwen3LanguageType(value: String) {
+        _uiState.value = _uiState.value.copy(qwen3LanguageType = value)
     }
 
     /**
@@ -108,12 +108,8 @@ class SettingsViewModel(
                     _uiState.value = state.copy(errorMessage = "Gemini API Key 不能为空")
                     return@launch
                 }
-                if (state.elevenLabsApiKey.isBlank()) {
-                    _uiState.value = state.copy(errorMessage = "ElevenLabs API Key 不能为空")
-                    return@launch
-                }
-                if (state.elevenLabsVoiceId.isBlank()) {
-                    _uiState.value = state.copy(errorMessage = "ElevenLabs Voice ID 不能为空")
+                if (state.qwen3ApiKey.isBlank()) {
+                    _uiState.value = state.copy(errorMessage = "Qwen3 API Key 不能为空")
                     return@launch
                 }
 
@@ -123,9 +119,9 @@ class SettingsViewModel(
                     geminiApiKey = state.geminiApiKey,
                     geminiModelId = state.geminiModelId,
                     geminiBaseUrl = state.geminiBaseUrl,
-                    elevenLabsApiKey = state.elevenLabsApiKey,
-                    elevenLabsVoiceId = state.elevenLabsVoiceId,
-                    elevenLabsModelId = state.elevenLabsModelId,
+                    qwen3ApiKey = state.qwen3ApiKey,
+                    qwen3Voice = state.qwen3Voice,
+                    qwen3LanguageType = state.qwen3LanguageType,
                 )
 
                 configRepository.saveConfig(config)
@@ -184,10 +180,10 @@ data class SettingsUiState(
     val geminiModelId: String = "gemini-2.0-flash-exp",
     val geminiBaseUrl: String = "https://generativelanguage.googleapis.com/v1beta",
 
-    // ElevenLabs TTS API
-    val elevenLabsApiKey: String = "",
-    val elevenLabsVoiceId: String = "",
-    val elevenLabsModelId: String = "eleven_multilingual_v2",
+    // Qwen3 TTS API
+    val qwen3ApiKey: String = "",
+    val qwen3Voice: String = "cherry",
+    val qwen3LanguageType: String = "Chinese",
 
     // 加载状态
     val isLoading: Boolean = false,
