@@ -177,33 +177,14 @@ class TTSServiceImpl : TTSService {
                 setBody(request)
             }
 
-            // Stream download with progress
-            val contentLength = response.contentLength() ?: 0L
-            val channel: ByteReadChannel = response.bodyAsChannel()
-            val buffer = mutableListOf<Byte>()
-            var downloadedBytes = 0L
+            // Download audio data
+            // Note: Progress tracking for streaming is complex in Ktor
+            // For now, we'll download the entire response at once
+            onProgress(0.5f) // Halfway through (started download)
+            val audioData = response.readBytes()
+            onProgress(1.0f) // Completed
 
-            while (!channel.isClosedForRead) {
-                val packet = channel.readRemaining(DEFAULT_BUFFER_SIZE.toLong())
-                while (!packet.isEmpty) {
-                    val byte = packet.readByte()
-                    buffer.add(byte)
-                    downloadedBytes++
-
-                    // Update progress every 10KB
-                    if (contentLength > 0 && downloadedBytes % 10_000 == 0L) {
-                        val progress = downloadedBytes.toFloat() / contentLength.toFloat()
-                        onProgress(progress.coerceIn(0f, 1f))
-                    }
-                }
-            }
-
-            // Final progress update
-            if (contentLength > 0) {
-                onProgress(1.0f)
-            }
-
-            return buffer.toByteArray()
+            return audioData
         } finally {
             client.close()
         }
