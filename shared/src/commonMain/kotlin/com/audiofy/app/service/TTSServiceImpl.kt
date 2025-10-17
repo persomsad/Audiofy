@@ -280,13 +280,20 @@ class TTSServiceImpl : TTSService {
         println("长文本分片: $totalChunks 片")
         println(TextChunker.getChunkStats(text, MAX_TEXT_LENGTH))
 
-        // 2. 逐个生成音频
+        // 2. 验证所有分片长度（安全检查）
+        chunks.forEachIndexed { index, chunk ->
+            if (chunk.length > MAX_TEXT_LENGTH) {
+                throw IllegalStateException("分片${index + 1}长度${chunk.length}超过限制${MAX_TEXT_LENGTH}字符")
+            }
+        }
+
+        // 3. 逐个生成音频
         val audioChunks = mutableListOf<ByteArray>()
 
         for ((index, chunk) in chunks.withIndex()) {
             val chunkNumber = index + 1
 
-            println("生成第 $chunkNumber/$totalChunks 片...")
+            println("生成第 $chunkNumber/$totalChunks 片... (长度: ${chunk.length})")
 
             try {
                 // 生成音频
@@ -330,7 +337,14 @@ class TTSServiceImpl : TTSService {
             )
         )
 
-        // 2. 逐个生成音频
+        // 2. 验证所有分片长度（安全检查）
+        chunks.forEachIndexed { index, chunk ->
+            if (chunk.length > MAX_TEXT_LENGTH) {
+                throw IllegalStateException("分片${index + 1}长度${chunk.length}超过限制${MAX_TEXT_LENGTH}字符")
+            }
+        }
+
+        // 3. 逐个生成音频
         val audioChunks = mutableListOf<ByteArray>()
 
         for ((index, chunk) in chunks.withIndex()) {

@@ -35,8 +35,12 @@ object TextChunker {
         for (sentence in sentences) {
             val trimmedSentence = sentence.trim()
 
-            // 如果当前句子加上现有chunk超过限制
-            if (currentChunk.length + trimmedSentence.length > maxLength) {
+            // 计算添加这个句子后的总长度（包括可能的空格）
+            val spaceLength = if (currentChunk.isNotEmpty()) 1 else 0
+            val totalLength = currentChunk.length + spaceLength + trimmedSentence.length
+
+            // 如果超过限制
+            if (totalLength > maxLength) {
                 // 保存当前chunk
                 if (currentChunk.isNotEmpty()) {
                     chunks.add(currentChunk.toString().trim())
@@ -83,7 +87,9 @@ object TextChunker {
         val currentChunk = StringBuilder()
 
         for (subSentence in subSentences) {
-            if (currentChunk.length + subSentence.length > maxLength) {
+            val totalLength = currentChunk.length + subSentence.length
+            
+            if (totalLength > maxLength) {
                 if (currentChunk.isNotEmpty()) {
                     chunks.add(currentChunk.toString().trim())
                     currentChunk.clear()
