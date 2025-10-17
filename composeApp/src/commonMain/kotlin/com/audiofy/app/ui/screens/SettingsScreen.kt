@@ -6,6 +6,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Visibility
@@ -18,6 +19,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.audiofy.app.data.Qwen3LanguageType
+import com.audiofy.app.data.Qwen3Voice
 import com.audiofy.app.ui.theme.AudiofyShapes
 import com.audiofy.app.ui.theme.AudiofyTypography
 import com.audiofy.app.ui.theme.Spacing
@@ -25,7 +28,7 @@ import com.audiofy.app.viewmodel.SettingsViewModel
 
 /**
  * 设置页面
- * 允许用户配置 Gemini API 和 ElevenLabs API
+ * 允许用户配置 Gemini API 和 Qwen3 TTS API
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -120,31 +123,29 @@ fun SettingsScreen(
 
                 Spacer(Modifier.height(Spacing.space7))
 
-                // ElevenLabs API Section
-                SectionTitle("ElevenLabs TTS API 配置")
+                // Qwen3 TTS API Section
+                SectionTitle("Qwen3 TTS API 配置")
                 Spacer(Modifier.height(Spacing.space4))
 
                 ApiKeyTextField(
-                    value = uiState.elevenLabsApiKey,
-                    onValueChange = viewModel::updateElevenLabsApiKey,
-                    label = "ElevenLabs API Key",
+                    value = uiState.qwen3ApiKey,
+                    onValueChange = viewModel::updateQwen3ApiKey,
+                    label = "Qwen3 API Key",
                     isRequired = true
                 )
                 Spacer(Modifier.height(Spacing.space4))
 
-                ConfigTextField(
-                    value = uiState.elevenLabsVoiceId,
-                    onValueChange = viewModel::updateElevenLabsVoiceId,
-                    label = "ElevenLabs Voice ID",
-                    isRequired = true
+                // Voice Selector
+                VoiceDropdown(
+                    selectedVoice = uiState.qwen3Voice,
+                    onVoiceChange = viewModel::updateQwen3Voice
                 )
                 Spacer(Modifier.height(Spacing.space4))
 
-                ConfigTextField(
-                    value = uiState.elevenLabsModelId,
-                    onValueChange = viewModel::updateElevenLabsModelId,
-                    label = "ElevenLabs Model ID",
-                    placeholder = "eleven_multilingual_v2"
+                // Language Type Selector
+                LanguageTypeDropdown(
+                    selectedLanguage = uiState.qwen3LanguageType,
+                    onLanguageChange = viewModel::updateQwen3LanguageType
                 )
 
                 Spacer(Modifier.height(Spacing.space7))
@@ -293,4 +294,108 @@ private fun ConfigTextField(
             unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
         )
     )
+}
+
+/**
+ * Voice Dropdown Selector
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun VoiceDropdown(
+    selectedVoice: String,
+    onVoiceChange: (String) -> Unit,
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded }
+    ) {
+        OutlinedTextField(
+            value = Qwen3Voice.fromName(selectedVoice)?.displayName ?: selectedVoice,
+            onValueChange = {},
+            readOnly = true,
+            label = { Text("语音角色") },
+            trailingIcon = {
+                Icon(Icons.Default.ArrowDropDown, contentDescription = "展开")
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .menuAnchor(),
+            shape = AudiofyShapes.medium,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                focusedLabelColor = MaterialTheme.colorScheme.primary,
+                unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        )
+
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            Qwen3Voice.entries.forEach { voice ->
+                DropdownMenuItem(
+                    text = { Text(voice.displayName) },
+                    onClick = {
+                        onVoiceChange(voice.voiceName)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Language Type Dropdown Selector
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun LanguageTypeDropdown(
+    selectedLanguage: String,
+    onLanguageChange: (String) -> Unit,
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded }
+    ) {
+        OutlinedTextField(
+            value = Qwen3LanguageType.fromName(selectedLanguage)?.displayName ?: selectedLanguage,
+            onValueChange = {},
+            readOnly = true,
+            label = { Text("语言类型") },
+            trailingIcon = {
+                Icon(Icons.Default.ArrowDropDown, contentDescription = "展开")
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .menuAnchor(),
+            shape = AudiofyShapes.medium,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                focusedLabelColor = MaterialTheme.colorScheme.primary,
+                unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        )
+
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            Qwen3LanguageType.entries.forEach { language ->
+                DropdownMenuItem(
+                    text = { Text(language.displayName) },
+                    onClick = {
+                        onLanguageChange(language.typeName)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
 }
