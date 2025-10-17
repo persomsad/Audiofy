@@ -19,6 +19,7 @@ import com.audiofy.app.viewmodel.InputViewModel
  * Input Screen - Main entry point for content input
  * Allows users to paste text or enter URL for podcast conversion
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InputScreen(
     viewModel: InputViewModel,
@@ -46,11 +47,11 @@ fun InputScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(horizontal = Spacing.medium)
+                .padding(horizontal = Spacing.space4)
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(Spacing.medium)
+            verticalArrangement = Arrangement.spacedBy(Spacing.space4)
         ) {
-            Spacer(modifier = Modifier.height(Spacing.medium))
+            Spacer(modifier = Modifier.height(Spacing.space4))
 
             // Header Section
             Text(
@@ -65,7 +66,7 @@ fun InputScreen(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            Spacer(modifier = Modifier.height(Spacing.small))
+            Spacer(modifier = Modifier.height(Spacing.space2))
 
             // Text Input Section
             TextInputSection(
@@ -75,7 +76,7 @@ fun InputScreen(
                 onTextChange = viewModel::updateInputText
             )
 
-            Spacer(modifier = Modifier.height(Spacing.small))
+            Spacer(modifier = Modifier.height(Spacing.space2))
 
             // URL Input Section (Disabled for v2.0)
             UrlInputSection(
@@ -84,7 +85,7 @@ fun InputScreen(
                 onUrlChange = viewModel::updateUrlInput
             )
 
-            Spacer(modifier = Modifier.height(Spacing.large))
+            Spacer(modifier = Modifier.height(Spacing.space5))
 
             // Action Buttons
             ActionButtons(
@@ -97,7 +98,7 @@ fun InputScreen(
                 onClear = viewModel::clearInput
             )
 
-            Spacer(modifier = Modifier.height(Spacing.medium))
+            Spacer(modifier = Modifier.height(Spacing.space4))
         }
     }
 }
@@ -110,7 +111,7 @@ private fun TextInputSection(
     onTextChange: (String) -> Unit,
 ) {
     Column(
-        verticalArrangement = Arrangement.spacedBy(Spacing.small)
+        verticalArrangement = Arrangement.spacedBy(Spacing.space2)
     ) {
         Text(
             text = "文本输入",
@@ -177,11 +178,11 @@ private fun UrlInputSection(
     onUrlChange: (String) -> Unit,
 ) {
     Column(
-        verticalArrangement = Arrangement.spacedBy(Spacing.small)
+        verticalArrangement = Arrangement.spacedBy(Spacing.space2)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(Spacing.small)
+            horizontalArrangement = Arrangement.spacedBy(Spacing.space2)
         ) {
             Text(
                 text = "或输入文章链接",
@@ -235,7 +236,7 @@ private fun ActionButtons(
     onClear: () -> Unit,
 ) {
     Column(
-        verticalArrangement = Arrangement.spacedBy(Spacing.medium)
+        verticalArrangement = Arrangement.spacedBy(Spacing.space4)
     ) {
         // Primary Action: Start Conversion
         Button(
@@ -257,7 +258,7 @@ private fun ActionButtons(
                     color = MaterialTheme.colorScheme.onPrimary,
                     strokeWidth = 2.dp
                 )
-                Spacer(modifier = Modifier.width(Spacing.small))
+                Spacer(modifier = Modifier.width(Spacing.space2))
                 Text(
                     text = "处理中...",
                     style = AudiofyTypography.labelLarge
