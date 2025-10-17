@@ -58,8 +58,9 @@ class TTSServiceImpl : TTSService {
                 throw IllegalStateException("Qwen3 TTS API 配置不完整")
             }
 
-            // 判断是否需要分片处理
-            val audioData = if (text.length <= MAX_TEXT_LENGTH) {
+            // 判断是否需要分片处理（按UTF-8字节数）
+            val textBytes = text.encodeToByteArray().size
+            val audioData = if (textBytes <= MAX_TEXT_BYTES) {
                 // 短文本：直接调用API
                 callQwen3API(text, config)
             } else {
@@ -92,8 +93,9 @@ class TTSServiceImpl : TTSService {
                 )
             )
 
-            // 判断是否需要分片处理
-            if (text.length <= MAX_TEXT_LENGTH) {
+            // 判断是否需要分片处理（按UTF-8字节数）
+            val textBytes = text.encodeToByteArray().size
+            if (textBytes <= MAX_TEXT_BYTES) {
                 // 短文本：直接调用API
                 emit(
                     TTSProgress(
@@ -273,17 +275,18 @@ class TTSServiceImpl : TTSService {
      * 使用智能分片 + 音频拼接
      */
     private suspend fun synthesizeLongText(text: String, config: AppConfig): ByteArray {
-        // 1. 智能分片
-        val chunks = TextChunker.smartChunk(text, MAX_TEXT_LENGTH)
+        // 1. 智能分片（按UTF-8字节数）
+        val chunks = TextChunker.smartChunk(text, MAX_TEXT_BYTES)
         val totalChunks = chunks.size
 
         println("长文本分片: $totalChunks 片")
-        println(TextChunker.getChunkStats(text, MAX_TEXT_LENGTH))
+        println(TextChunker.getChunkStats(text, MAX_TEXT_BYTES))
 
-        // 2. 验证所有分片长度（安全检查）
+        // 2. 验证所有分片字节数（安全检查）
         chunks.forEachIndexed { index, chunk ->
-            if (chunk.length > MAX_TEXT_LENGTH) {
-                throw IllegalStateException("分片${index + 1}长度${chunk.length}超过限制${MAX_TEXT_LENGTH}字符")
+            val chunkBytes = chunk.encodeToByteArray().size
+            if (chunkBytes > MAX_TEXT_BYTES) {
+                throw IllegalStateException("分片${index + 1}长度${chunkBytes}字节超过限制${MAX_TEXT_BYTES}字节")
             }
         }
 
@@ -292,8 +295,9 @@ class TTSServiceImpl : TTSService {
 
         for ((index, chunk) in chunks.withIndex()) {
             val chunkNumber = index + 1
+            val chunkBytes = chunk.encodeToByteArray().size
 
-            println("生成第 $chunkNumber/$totalChunks 片... (长度: ${chunk.length})")
+            println("生成第 $chunkNumber/$totalChunks 片... (${chunk.length}字符 / ${chunkBytes}字节)")
 
             try {
                 // 生成音频
@@ -325,8 +329,8 @@ class TTSServiceImpl : TTSService {
         config: AppConfig,
         onProgress: suspend (TTSProgress) -> Unit
     ): ByteArray {
-        // 1. 智能分片
-        val chunks = TextChunker.smartChunk(text, MAX_TEXT_LENGTH)
+        // 1. 智能分片（按UTF-8字节数）
+        val chunks = TextChunker.smartChunk(text, MAX_TEXT_BYTES)
         val totalChunks = chunks.size
 
         onProgress(
@@ -337,10 +341,11 @@ class TTSServiceImpl : TTSService {
             )
         )
 
-        // 2. 验证所有分片长度（安全检查）
+        // 2. 验证所有分片字节数（安全检查）
         chunks.forEachIndexed { index, chunk ->
-            if (chunk.length > MAX_TEXT_LENGTH) {
-                throw IllegalStateException("分片${index + 1}长度${chunk.length}超过限制${MAX_TEXT_LENGTH}字符")
+            val chunkBytes = chunk.encodeToByteArray().size
+            if (chunkBytes > MAX_TEXT_BYTES) {
+                throw IllegalStateException("分片${index + 1}长度${chunkBytes}字节超过限制${MAX_TEXT_BYTES}字节")
             }
         }
 
@@ -390,6 +395,11 @@ class TTSServiceImpl : TTSService {
 
     companion object {
         private const val QWEN3_BASE_URL = "https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation"
-        private const val MAX_TEXT_LENGTH = 600  // Qwen3 TTS Flash官方限制: [0, 600]字符
+        
+        // ⚠️ 重要：Qwen3 TTS Flash限制是600字节（UTF-8编码），不是600字符！
+        // - 英文: 1字符 = 1字节 → 最多600字符
+        // - 中文: 1字符 = 3字节 → 最多200字符
+        // - 混合文本: 按实际UTF-8字节数计算
+        private const val MAX_TEXT_BYTES = 600
     }
 }
