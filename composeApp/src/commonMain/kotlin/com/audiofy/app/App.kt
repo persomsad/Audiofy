@@ -44,7 +44,6 @@ fun App() {
         val showBottomBar = currentRoute in listOf(
             NavigationRoutes.HOME,
             NavigationRoutes.LIBRARY,
-            NavigationRoutes.DISCOVER,
             NavigationRoutes.AUDIOBOOKS,
             NavigationRoutes.PROFILE
         )
@@ -85,11 +84,6 @@ fun App() {
                         navController.navigate("player/$podcastId")
                     }
                 )
-            }
-            
-            // 发现
-            composable(NavigationRoutes.DISCOVER) {
-                DiscoverScreen()
             }
             
             // 有声书

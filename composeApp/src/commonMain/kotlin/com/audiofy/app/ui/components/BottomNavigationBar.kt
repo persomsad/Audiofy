@@ -17,7 +17,7 @@ import com.audiofy.app.ui.theme.AudiofyColors
  * 底部导航栏
  * 参考设计: docs/prototype/ui.html - 底部导航栏
  * 
- * 5个Tab: 阅读、书架、发现、有声书、我的
+ * 4个Tab: 阅读、书架、有声书、我的（已移除"发现"Tab，专注个人化工具）
  */
 
 data class BottomNavItem(
@@ -39,12 +39,6 @@ val bottomNavItems = listOf(
         label = "书架",
         icon = Icons.Outlined.Bookmarks,
         selectedIcon = Icons.Filled.Bookmarks
-    ),
-    BottomNavItem(
-        route = NavigationRoutes.DISCOVER,
-        label = "发现",
-        icon = Icons.Outlined.Explore,
-        selectedIcon = Icons.Filled.Explore
     ),
     BottomNavItem(
         route = NavigationRoutes.AUDIOBOOKS,
