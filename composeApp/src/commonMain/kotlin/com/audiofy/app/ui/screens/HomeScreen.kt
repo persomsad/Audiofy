@@ -10,7 +10,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Headset
 import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.outlined.BoltOutlined
+import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -135,7 +135,7 @@ private fun StreakCard(
                 horizontalArrangement = Arrangement.spacedBy(AudiofySpacing.Space2)
             ) {
                 Icon(
-                    imageVector = Icons.Outlined.BoltOutlined,
+                    imageVector = Icons.Filled.Bolt,
                     contentDescription = null,
                     tint = AudiofyColors.Primary500,
                     modifier = Modifier.size(20.dp)
