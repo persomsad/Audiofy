@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.audiofy.app.repository.initializeContext
+import com.audiofy.app.util.initializeFileUtilContext
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -15,6 +16,9 @@ class MainActivity : ComponentActivity() {
 
         // Initialize context for ConfigRepository
         initializeContext(this)
+
+        // Initialize context for FileUtil
+        initializeFileUtilContext(this)
 
         setContent {
             App()
