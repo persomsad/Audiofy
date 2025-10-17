@@ -19,6 +19,7 @@ import com.audiofy.app.util.saveAudioToTempFile
 import com.audiofy.app.viewmodel.PlayerViewModel
 import com.audiofy.app.viewmodel.ProcessingStep
 import com.audiofy.app.viewmodel.ProcessingViewModel
+import kotlinx.datetime.Clock
 
 /**
  * Processing Screen
@@ -160,7 +161,7 @@ private fun CompletedView(
         if (audioData.isNotEmpty()) {
             val audioPath = saveAudioToTempFile(
                 audioData,
-                "tts_audio_${System.currentTimeMillis()}.mp3"
+                "tts_audio_${Clock.System.now().toEpochMilliseconds()}.mp3"
             )
             playerViewModel.loadAudio(audioPath)
         }

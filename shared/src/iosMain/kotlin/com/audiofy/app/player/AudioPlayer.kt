@@ -8,6 +8,7 @@ import platform.Foundation.NSURL
 /**
  * iOS Audio Player Implementation using AVAudioPlayer
  */
+@OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
 actual class AudioPlayer actual constructor() {
     private var audioPlayer: AVAudioPlayer? = null
     private var currentState: PlayerState = PlayerState.IDLE
