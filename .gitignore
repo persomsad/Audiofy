@@ -1,22 +1,32 @@
-# NativeScript
-platforms/
+# Kotlin Multiplatform
+*.iml
+.kotlin
+.gradle
+**/build/
+xcuserdata
+!src/**/build/
+local.properties
+.idea
+.DS_Store
+captures
+.externalNativeBuild
+.cxx
+
+# Xcode
+*.xcodeproj/*
+!*.xcodeproj/project.pbxproj
+!*.xcodeproj/xcshareddata/
+!*.xcodeproj/project.xcworkspace/
+!*.xcworkspace/contents.xcworkspacedata
+**/xcshareddata/WorkspaceSettings.xcsettings
+
+# Node.js (for potential future use)
 node_modules/
-hooks/
-*.js.map
-*.log
 
 # Build artifacts
 *.apk
 *.ipa
 *.aab
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-.DS_Store
 
 # Environment variables
 .env
@@ -36,13 +46,11 @@ tmp/
 temp/
 *.tmp
 
-# NativeScript specific
-.nativescript/
-
 # TypeScript
 *.tsbuildinfo
 
 # Logs
+*.log
 logs/
 npm-debug.log*
 yarn-debug.log*
@@ -57,9 +65,11 @@ Thumbs.db
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
-.idea
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+*.swp
+*.swo
+*~
