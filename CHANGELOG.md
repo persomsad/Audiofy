@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.1] - 2025-10-17
+
+### Fixed
+- **紧急修复：TextChunker分片长度计算bug** (P0 - 阻塞问题)
+  - 修复smartChunk()方法在拼接句子时未计入空格的长度
+  - 修复hardChunk()方法的相同问题
+  - 问题导致部分片段超过600字符限制，触发Qwen3 API 400错误
+  - 添加分片长度安全检查，确保所有片段严格<=600字符
+  - 增强日志输出，显示每个分片的实际长度
+
+### Technical Details
+- 修复文件: TextChunker.kt, TTSServiceImpl.kt
+- 代码变更: 26行新增，6行删除
+- CI/CD: 全部检查通过
+
+### Related
+- Issue: #53
+- Pull Request: #54
+
+---
+
 ## [1.3] - 2025-10-17
 
 ### Added
