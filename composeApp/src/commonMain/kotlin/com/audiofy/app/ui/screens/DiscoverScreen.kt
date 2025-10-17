@@ -16,7 +16,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import coil3.compose.AsyncImage
 import com.audiofy.app.ui.theme.AudiofyRadius
 import com.audiofy.app.ui.theme.AudiofySpacing
 
@@ -66,7 +65,7 @@ fun DiscoverScreen(
                     modifier = Modifier.fillMaxWidth().height(200.dp)
                 ) {
                     Box {
-                        AsyncImage(
+                        Box(
                             model =
                             "https://source.unsplash.com/random/800x400?technology",
                             contentDescription = null,

@@ -15,7 +15,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil3.compose.AsyncImage
 import com.audiofy.app.data.Podcast
 import com.audiofy.app.ui.theme.AudiofyColors
 import com.audiofy.app.ui.theme.AudiofyRadius
@@ -115,7 +114,7 @@ fun PodcastDetailScreen(
                     .clip(RoundedCornerShape(AudiofyRadius.Medium)),
                 shadowElevation = 8.dp
             ) {
-                AsyncImage(
+                Box(
                     model = mockPodcast?.coverUrl ?: "https://source.unsplash.com/random/400x600?book",
                     contentDescription = mockPodcast?.title,
                     contentScale = ContentScale.Crop
