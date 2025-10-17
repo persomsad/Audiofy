@@ -155,7 +155,12 @@ class TTSServiceImpl : TTSService {
             }
 
             if (!response.status.isSuccess()) {
-                throw Exception("Qwen3 API 调用失败: ${response.status}")
+                val errorBody = try {
+                    response.bodyAsText()
+                } catch (e: Exception) {
+                    "无法读取错误响应"
+                }
+                throw Exception("Qwen3 API 调用失败: ${response.status} - $errorBody")
             }
 
             val ttsResponse: Qwen3TTSResponse = response.body()
@@ -206,7 +211,12 @@ class TTSServiceImpl : TTSService {
             }
 
             if (!response.status.isSuccess()) {
-                throw Exception("Qwen3 API 调用失败: ${response.status}")
+                val errorBody = try {
+                    response.bodyAsText()
+                } catch (e: Exception) {
+                    "无法读取错误响应"
+                }
+                throw Exception("Qwen3 API 调用失败: ${response.status} - $errorBody")
             }
 
             onProgress(0.3f) // API call completed, got audio URL
@@ -223,7 +233,7 @@ class TTSServiceImpl : TTSService {
                 throw Exception("音频下载失败: ${audioResponse.status}")
             }
 
-            val audioData = audioResponse.readBytes()
+            val audioData = audioResponse.readRawBytes()
             onProgress(1.0f) // Download completed
 
             return audioData
@@ -238,6 +248,7 @@ class TTSServiceImpl : TTSService {
     private fun translateException(e: Exception): Exception {
         val message = when {
             e is HttpRequestTimeoutException -> "请求超时,请重试"
+            e.message?.contains("400") == true -> "请求参数错误 (400): ${e.message}\n请检查：\n1. API Key 是否正确\n2. 文本内容是否包含特殊字符\n3. 语音设置是否正确"
             e.message?.contains("401") == true -> "Qwen3 API Key 无效,请在设置中重新配置"
             e.message?.contains("403") == true -> "TTS 配额已用尽,请稍后再试"
             e.message?.contains("404") == true -> "API 端点无效,请检查配置"
