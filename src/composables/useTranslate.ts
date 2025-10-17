@@ -5,7 +5,7 @@
  */
 
 import { ref } from 'vue'
-import { $fetch } from 'ofetch'
+import { Http } from '@nativescript/core'
 import { SecureStorage } from '@nativescript/secure-storage'
 import { API_CONFIG } from '@/services/config'
 
@@ -62,23 +62,30 @@ export function useTranslate(options: UseTranslateOptions = {}) {
    * @returns 中文翻译结果
    */
   async function translateOnce(text: string, appSecret: string): Promise<string> {
-    const response = await $fetch<TranslateResponse>(API_CONFIG.GEMINI_PROXY_URL, {
+    const response = await Http.request({
+      url: API_CONFIG.GEMINI_PROXY_URL,
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${appSecret}`,
       },
-      body: {
+      content: JSON.stringify({
         text: text.trim(),
-      },
+      }),
       timeout,
     })
 
-    if (!response.translatedText) {
+    if (response.statusCode !== 200) {
+      throw new Error(`HTTP ${response.statusCode}: ${response.content?.toString()}`)
+    }
+
+    const result = response.content?.toJSON() as TranslateResponse
+
+    if (!result || !result.translatedText) {
       throw new Error('Invalid API response: missing translatedText')
     }
 
-    return response.translatedText
+    return result.translatedText
   }
 
   /**
@@ -118,7 +125,7 @@ export function useTranslate(options: UseTranslateOptions = {}) {
           lastError = err
 
           // 不可重试的错误类型
-          if (err.status === 401) {
+          if (err.message?.includes('HTTP 401')) {
             throw new Error('Authentication failed: invalid APP_SECRET')
           }
 
@@ -137,9 +144,9 @@ export function useTranslate(options: UseTranslateOptions = {}) {
       }
 
       // 所有重试都失败，处理最终错误
-      if (lastError.status === 429) {
+      if (lastError.message?.includes('HTTP 429')) {
         throw new Error('API rate limit exceeded, please try again later')
-      } else if (lastError.status >= 500) {
+      } else if (lastError.message?.includes('HTTP 5')) {
         throw new Error('Server error, please try again later')
       } else if (lastError.message?.includes('timeout')) {
         throw new Error('Request timeout, please check your network connection')

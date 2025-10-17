@@ -5,11 +5,15 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { useTranslate } from '../useTranslate'
-import { $fetch } from 'ofetch'
+import { Http } from '@nativescript/core'
 import { SecureStorage } from '@nativescript/secure-storage'
 
 // Mock dependencies
-vi.mock('ofetch')
+vi.mock('@nativescript/core', () => ({
+  Http: {
+    request: vi.fn(),
+  },
+}))
 
 describe('useTranslate', () => {
   beforeEach(() => {
@@ -23,9 +27,14 @@ describe('useTranslate', () => {
   describe('成功场景', () => {
     it('应该成功翻译文本', async () => {
       // Mock API response
-      vi.mocked($fetch).mockResolvedValueOnce({
-        translatedText: '这是翻译后的中文',
-      })
+      vi.mocked(Http.request).mockResolvedValueOnce({
+        statusCode: 200,
+        content: {
+          toJSON: () => ({
+            translatedText: '这是翻译后的中文',
+          }),
+        },
+      } as any)
 
       // Mock SecureStorage
       const mockGet = vi.fn().mockResolvedValue('test-secret')
@@ -51,9 +60,14 @@ describe('useTranslate', () => {
 
     it('应该在安全存储失败时使用默认APP_SECRET', async () => {
       // Mock API response
-      vi.mocked($fetch).mockResolvedValueOnce({
-        translatedText: '翻译结果',
-      })
+      vi.mocked(Http.request).mockResolvedValueOnce({
+        statusCode: 200,
+        content: {
+          toJSON: () => ({
+            translatedText: '翻译结果',
+          }),
+        },
+      } as any)
 
       // Mock SecureStorage 抛出错误
       const mockGet = vi.fn().mockRejectedValue(new Error('Storage error'))
@@ -71,7 +85,7 @@ describe('useTranslate', () => {
       const result = await translate(text)
 
       expect(result).toBe('翻译结果')
-      expect($fetch).toHaveBeenCalled()
+      expect(Http.request).toHaveBeenCalled()
     })
   })
 
@@ -112,9 +126,8 @@ describe('useTranslate', () => {
     })
 
     it('应该处理401 Unauthorized错误', async () => {
-      vi.mocked($fetch).mockRejectedValueOnce({
-        status: 401,
-        message: 'Unauthorized',
+      vi.mocked(Http.request).mockRejectedValueOnce({
+        message: 'HTTP 401: Unauthorized',
       })
 
       const { translate, error } = useTranslate({ maxRetries: 0 })
@@ -126,9 +139,8 @@ describe('useTranslate', () => {
     })
 
     it('应该在429错误时重试并最终失败', async () => {
-      vi.mocked($fetch).mockRejectedValue({
-        status: 429,
-        message: 'Rate limit exceeded',
+      vi.mocked(Http.request).mockRejectedValue({
+        message: 'HTTP 429: Rate limit exceeded',
       })
 
       const { translate, error } = useTranslate({ maxRetries: 1 })
@@ -137,13 +149,12 @@ describe('useTranslate', () => {
 
       await expect(translate(text)).rejects.toThrow('API rate limit exceeded')
       expect(error.value).toContain('API rate limit exceeded')
-      expect($fetch).toHaveBeenCalledTimes(2) // 初始请求 + 1次重试
+      expect(Http.request).toHaveBeenCalledTimes(2) // 初始请求 + 1次重试
     })
 
     it('应该在500错误时重试并最终失败', async () => {
-      vi.mocked($fetch).mockRejectedValue({
-        status: 500,
-        message: 'Internal server error',
+      vi.mocked(Http.request).mockRejectedValue({
+        message: 'HTTP 500: Internal server error',
       })
 
       const { translate, error } = useTranslate({ maxRetries: 1 })
@@ -152,11 +163,11 @@ describe('useTranslate', () => {
 
       await expect(translate(text)).rejects.toThrow('Server error')
       expect(error.value).toContain('Server error')
-      expect($fetch).toHaveBeenCalledTimes(2) // 初始请求 + 1次重试
+      expect(Http.request).toHaveBeenCalledTimes(2) // 初始请求 + 1次重试
     })
 
     it('应该处理timeout错误', async () => {
-      vi.mocked($fetch).mockRejectedValue({
+      vi.mocked(Http.request).mockRejectedValue({
         message: 'timeout of 30000ms exceeded',
       })
 
@@ -169,9 +180,14 @@ describe('useTranslate', () => {
     })
 
     it('应该处理无效的API响应', async () => {
-      vi.mocked($fetch).mockResolvedValueOnce({
-        // 缺少 translatedText 字段
-      })
+      vi.mocked(Http.request).mockResolvedValueOnce({
+        statusCode: 200,
+        content: {
+          toJSON: () => ({
+            // 缺少 translatedText 字段
+          }),
+        },
+      } as any)
 
       const { translate, error } = useTranslate({ maxRetries: 0 })
       const text =
@@ -195,14 +211,18 @@ describe('useTranslate', () => {
     })
 
     it('应该在第二次重试时成功', async () => {
-      vi.mocked($fetch)
+      vi.mocked(Http.request)
         .mockRejectedValueOnce({
-          status: 500,
-          message: 'Server error',
+          message: 'HTTP 500: Server error',
         })
         .mockResolvedValueOnce({
-          translatedText: '最终成功的翻译',
-        })
+          statusCode: 200,
+          content: {
+            toJSON: () => ({
+              translatedText: '最终成功的翻译',
+            }),
+          },
+        } as any)
 
       const { translate } = useTranslate({ maxRetries: 2 })
       const text =
@@ -211,13 +231,12 @@ describe('useTranslate', () => {
       const result = await translate(text)
 
       expect(result).toBe('最终成功的翻译')
-      expect($fetch).toHaveBeenCalledTimes(2) // 第1次失败，第2次成功
+      expect(Http.request).toHaveBeenCalledTimes(2) // 第1次失败，第2次成功
     })
 
     it('应该不重试401错误', async () => {
-      vi.mocked($fetch).mockRejectedValue({
-        status: 401,
-        message: 'Unauthorized',
+      vi.mocked(Http.request).mockRejectedValue({
+        message: 'HTTP 401: Unauthorized',
       })
 
       const { translate } = useTranslate({ maxRetries: 2 })
@@ -225,13 +244,12 @@ describe('useTranslate', () => {
         'This is a test text that is long enough to meet the minimum 100 character length requirement for the translation API. It contains multiple sentences to ensure sufficient length.'
 
       await expect(translate(text)).rejects.toThrow('Authentication failed')
-      expect($fetch).toHaveBeenCalledTimes(1) // 只调用1次，不重试
+      expect(Http.request).toHaveBeenCalledTimes(1) // 只调用1次，不重试
     })
 
     it('应该遵守maxRetries配置', async () => {
-      vi.mocked($fetch).mockRejectedValue({
-        status: 500,
-        message: 'Server error',
+      vi.mocked(Http.request).mockRejectedValue({
+        message: 'HTTP 500: Server error',
       })
 
       const { translate } = useTranslate({ maxRetries: 3 })
@@ -239,20 +257,25 @@ describe('useTranslate', () => {
         'This is a test text that is long enough to meet the minimum 100 character length requirement for the translation API. It contains multiple sentences to ensure sufficient length.'
 
       await expect(translate(text)).rejects.toThrow('Server error')
-      expect($fetch).toHaveBeenCalledTimes(4) // 初始请求 + 3次重试
+      expect(Http.request).toHaveBeenCalledTimes(4) // 初始请求 + 3次重试
     }, 20000) // 20秒超时，足够处理 3 次重试（2s + 4s + 8s = 14s）
   })
 
   describe('响应式状态', () => {
     it('应该在加载期间更新isLoading状态', async () => {
-      vi.mocked($fetch).mockImplementation(
+      vi.mocked(Http.request).mockImplementation(
         () =>
           new Promise((resolve) => {
             setTimeout(
               () =>
                 resolve({
-                  translatedText: '翻译结果',
-                }),
+                  statusCode: 200,
+                  content: {
+                    toJSON: () => ({
+                      translatedText: '翻译结果',
+                    }),
+                  },
+                } as any),
               100,
             )
           }),
