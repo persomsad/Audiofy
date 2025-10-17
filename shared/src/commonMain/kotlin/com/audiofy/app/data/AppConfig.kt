@@ -12,7 +12,7 @@ import kotlinx.serialization.Serializable
 data class AppConfig(
     // Qwen3 TTS API 配置
     val qwen3ApiKey: String = "",
-    val qwen3Voice: String = "cherry",
+    val qwen3Voice: String = "Cherry",  // 官方文档使用首字母大写
     val qwen3LanguageType: String = "Chinese",
 ) {
     /**

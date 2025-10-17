@@ -265,6 +265,6 @@ class TTSServiceImpl : TTSService {
 
     companion object {
         private const val QWEN3_BASE_URL = "https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation"
-        private const val MAX_TEXT_LENGTH = 5000
+        private const val MAX_TEXT_LENGTH = 600  // Qwen3 TTS Flash官方限制: [0, 600]字符
     }
 }
