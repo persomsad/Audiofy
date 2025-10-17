@@ -1,0 +1,30 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues></ManuallySuppressedIssues>
+  <CurrentIssues>
+    <ID>FinalNewline:Application.kt$com.audiofy.app.Application.kt</ID>
+    <ID>FinalNewline:ApplicationTest.kt$com.audiofy.app.ApplicationTest.kt</ID>
+    <ID>NewLineAtEndOfFile:Application.kt$com.audiofy.app.Application.kt</ID>
+    <ID>NewLineAtEndOfFile:ApplicationTest.kt$com.audiofy.app.ApplicationTest.kt</ID>
+    <ID>NoWildcardImports:Application.kt$import io.ktor.server.application.*</ID>
+    <ID>NoWildcardImports:Application.kt$import io.ktor.server.engine.*</ID>
+    <ID>NoWildcardImports:Application.kt$import io.ktor.server.netty.*</ID>
+    <ID>NoWildcardImports:Application.kt$import io.ktor.server.response.*</ID>
+    <ID>NoWildcardImports:Application.kt$import io.ktor.server.routing.*</ID>
+    <ID>NoWildcardImports:ApplicationTest.kt$import io.ktor.client.request.*</ID>
+    <ID>NoWildcardImports:ApplicationTest.kt$import io.ktor.client.statement.*</ID>
+    <ID>NoWildcardImports:ApplicationTest.kt$import io.ktor.http.*</ID>
+    <ID>NoWildcardImports:ApplicationTest.kt$import io.ktor.server.testing.*</ID>
+    <ID>NoWildcardImports:ApplicationTest.kt$import kotlin.test.*</ID>
+    <ID>WildcardImport:Application.kt$import io.ktor.server.application.*</ID>
+    <ID>WildcardImport:Application.kt$import io.ktor.server.engine.*</ID>
+    <ID>WildcardImport:Application.kt$import io.ktor.server.netty.*</ID>
+    <ID>WildcardImport:Application.kt$import io.ktor.server.response.*</ID>
+    <ID>WildcardImport:Application.kt$import io.ktor.server.routing.*</ID>
+    <ID>WildcardImport:ApplicationTest.kt$import io.ktor.client.request.*</ID>
+    <ID>WildcardImport:ApplicationTest.kt$import io.ktor.client.statement.*</ID>
+    <ID>WildcardImport:ApplicationTest.kt$import io.ktor.http.*</ID>
+    <ID>WildcardImport:ApplicationTest.kt$import io.ktor.server.testing.*</ID>
+    <ID>WildcardImport:ApplicationTest.kt$import kotlin.test.*</ID>
+  </CurrentIssues>
+</SmellBaseline>
