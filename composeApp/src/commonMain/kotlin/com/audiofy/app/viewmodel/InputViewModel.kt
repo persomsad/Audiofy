@@ -46,6 +46,24 @@ class InputViewModel : ViewModel() {
     }
 
     /**
+     * Update podcast title
+     */
+    fun updateTitle(title: String) {
+        _uiState.update { currentState ->
+            currentState.copy(title = title)
+        }
+    }
+    
+    /**
+     * Update cover URL
+     */
+    fun updateCoverUrl(url: String) {
+        _uiState.update { currentState ->
+            currentState.copy(coverUrl = url)
+        }
+    }
+    
+    /**
      * Update URL input (reserved for v2.1)
      */
     fun updateUrlInput(url: String) {
@@ -111,6 +129,8 @@ class InputViewModel : ViewModel() {
  */
 data class InputUiState(
     val inputText: String = "",
+    val title: String = "",
+    val coverUrl: String = "",
     val urlInput: String = "",
     val characterCount: Int = 0,
     val isValid: Boolean = false,

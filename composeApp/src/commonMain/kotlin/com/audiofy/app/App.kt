@@ -115,9 +115,13 @@ fun App() {
                     onNavigateToSettings = {
                         navController.navigate(NavigationRoutes.SETTINGS)
                     },
-                    onNavigateToProcessing = { inputText ->
+                    onNavigateToProcessing = { inputText, title, coverUrl ->
                         navController.navigate(NavigationRoutes.PROCESSING) {
-                            navController.currentBackStackEntry?.savedStateHandle?.set("inputText", inputText)
+                            navController.currentBackStackEntry?.savedStateHandle?.apply {
+                                set("inputText", inputText)
+                                set("title", title)
+                                set("coverUrl", coverUrl)
+                            }
                         }
                     }
                 )
@@ -125,9 +129,11 @@ fun App() {
 
             // 生成进度
             composable(NavigationRoutes.PROCESSING) { backStackEntry ->
-                // Get input text from previous screen's saved state
+                // Get data from previous screen's saved state
                 val previousBackStackEntry = navController.previousBackStackEntry
                 val inputText = previousBackStackEntry?.savedStateHandle?.get<String>("inputText") ?: ""
+                val title = previousBackStackEntry?.savedStateHandle?.get<String>("title") ?: ""
+                val coverUrl = previousBackStackEntry?.savedStateHandle?.get<String>("coverUrl") ?: ""
 
                 val processingViewModel: ProcessingViewModel = viewModel {
                     ProcessingViewModel(
@@ -139,6 +145,8 @@ fun App() {
                 ProcessingScreen(
                     viewModel = processingViewModel,
                     inputText = inputText,
+                    title = title,
+                    coverUrl = coverUrl,
                     onNavigateBack = {
                         navController.popBackStack()
                     },

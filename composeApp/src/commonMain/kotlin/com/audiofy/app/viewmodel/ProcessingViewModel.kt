@@ -91,7 +91,7 @@ class ProcessingViewModel(
      * Start processing pipeline
      * 直接调用 TTS 生成语音
      */
-    fun startProcessing(inputText: String) {
+    fun startProcessing(inputText: String, customTitle: String = "", customCoverUrl: String = "") {
         viewModelScope.launch {
             try {
                 _uiState.update { it.copy(inputText = inputText, progress = 0f) }
@@ -110,7 +110,7 @@ class ProcessingViewModel(
                 
                 // 保存音频文件和播客元数据
                 _uiState.update { it.copy(progress = 0.7f) }
-                val podcastId = savePodcastWithAudio(inputText, audioData)
+                val podcastId = savePodcastWithAudio(inputText, audioData, customTitle, customCoverUrl)
                 currentPodcastId = podcastId
                 
                 _uiState.update {
@@ -133,7 +133,12 @@ class ProcessingViewModel(
      * Save podcast with audio file
      * Returns the podcast ID
      */
-    private suspend fun savePodcastWithAudio(textContent: String, audioData: ByteArray): String {
+    private suspend fun savePodcastWithAudio(
+        textContent: String, 
+        audioData: ByteArray,
+        customTitle: String = "",
+        customCoverUrl: String = ""
+    ): String {
         // Generate IDs
         val podcastId = generateUUID()
         val versionId = generateUUID()
@@ -157,12 +162,17 @@ class ProcessingViewModel(
             createdAt = timestamp
         )
         
-        // Generate title from first 30 characters of text
-        val title = if (textContent.length > 30) {
+        // Use custom title or generate from text
+        val title = if (customTitle.isNotBlank()) {
+            customTitle
+        } else if (textContent.length > 30) {
             textContent.substring(0, 30) + "..."
         } else {
             textContent
         }
+        
+        // Use custom cover URL if provided
+        val coverUrl = if (customCoverUrl.isNotBlank()) customCoverUrl else null
         
         // Create podcast
         val podcast = Podcast(
@@ -170,7 +180,7 @@ class ProcessingViewModel(
             title = title,
             author = null,
             textContent = textContent,
-            coverUrl = null,
+            coverUrl = coverUrl,
             audioVersions = listOf(audioVersion),
             currentVersionId = versionId,
             createdAt = timestamp,

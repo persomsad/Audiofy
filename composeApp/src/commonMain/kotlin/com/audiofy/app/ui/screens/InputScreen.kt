@@ -26,7 +26,7 @@ import com.audiofy.app.viewmodel.InputViewModel
 fun InputScreen(
     viewModel: InputViewModel,
     onNavigateToSettings: () -> Unit = {},
-    onNavigateToProcessing: (String) -> Unit = {},
+    onNavigateToProcessing: (inputText: String, title: String, coverUrl: String) -> Unit = { _, _, _ -> },
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -79,6 +79,22 @@ fun InputScreen(
 
             Spacer(modifier = Modifier.height(AudiofySpacing.Space2))
 
+            // Title Input Section
+            TitleInputSection(
+                title = uiState.title,
+                onTitleChange = viewModel::updateTitle
+            )
+
+            Spacer(modifier = Modifier.height(AudiofySpacing.Space3))
+
+            // Cover URL Input Section
+            CoverUrlInputSection(
+                coverUrl = uiState.coverUrl,
+                onCoverUrlChange = viewModel::updateCoverUrl
+            )
+
+            Spacer(modifier = Modifier.height(AudiofySpacing.Space3))
+
             // Text Input Section
             TextInputSection(
                 inputText = uiState.inputText,
@@ -104,7 +120,7 @@ fun InputScreen(
                 isProcessing = uiState.isProcessing,
                 onStartConversion = {
                     viewModel.startConversion()
-                    onNavigateToProcessing(uiState.inputText)
+                    onNavigateToProcessing(uiState.inputText, uiState.title, uiState.coverUrl)
                 },
                 onClear = viewModel::clearInput
             )
@@ -298,5 +314,66 @@ private fun ActionButtons(
                 style = AudiofyTypography.labelLarge
             )
         }
+    }
+}
+
+@Composable
+private fun TitleInputSection(
+    title: String,
+    onTitleChange: (String) -> Unit,
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(AudiofySpacing.Space2)
+    ) {
+        Text(
+            text = "播客标题（可选）",
+            style = AudiofyTypography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+
+        OutlinedTextField(
+            value = title,
+            onValueChange = onTitleChange,
+            modifier = Modifier.fillMaxWidth(),
+            placeholder = {
+                Text(
+                    text = "不填写则自动从内容生成标题",
+                    style = AudiofyTypography.bodyMedium
+                )
+            },
+            textStyle = AudiofyTypography.bodyMedium,
+            singleLine = true
+        )
+    }
+}
+
+@Composable
+private fun CoverUrlInputSection(
+    coverUrl: String,
+    onCoverUrlChange: (String) -> Unit,
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(AudiofySpacing.Space2)
+    ) {
+        Text(
+            text = "封面图片URL（可选）",
+            style = AudiofyTypography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+
+        OutlinedTextField(
+            value = coverUrl,
+            onValueChange = onCoverUrlChange,
+            modifier = Modifier.fillMaxWidth(),
+            placeholder = {
+                Text(
+                    text = "例如：https://example.com/cover.jpg",
+                    style = AudiofyTypography.bodyMedium
+                )
+            },
+            textStyle = AudiofyTypography.bodyMedium,
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri)
+        )
     }
 }

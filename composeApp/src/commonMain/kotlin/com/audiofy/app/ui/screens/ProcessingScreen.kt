@@ -30,6 +30,8 @@ import kotlinx.datetime.Clock
 fun ProcessingScreen(
     viewModel: ProcessingViewModel,
     inputText: String,
+    title: String = "",
+    coverUrl: String = "",
     onNavigateBack: () -> Unit = {},
     onNavigateToLibrary: () -> Unit = {},
 ) {
@@ -37,7 +39,7 @@ fun ProcessingScreen(
 
     // Start processing when screen is first shown
     LaunchedEffect(inputText) {
-        viewModel.startProcessing(inputText)
+        viewModel.startProcessing(inputText, title, coverUrl)
     }
 
     Scaffold(
