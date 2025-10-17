@@ -104,20 +104,21 @@ class IosFileStorageService : FileStorageService {
     override suspend fun getTotalStorageUsed(): Long {
         val audiosPath = "${getDataDirectory()}/audios"
         
-        // 递归计算目录大小
+        // 递归计算目录大小（简化实现，避免C-interop复杂性）
         fun calculateDirectorySize(path: String): Long {
             val contents = fileManager.contentsOfDirectoryAtPath(path, null) as? List<*> ?: return 0L
             var total = 0L
             
             for (item in contents) {
                 val itemPath = "$path/${item as String}"
-                var isDir = false
-                fileManager.fileExistsAtPath(itemPath, isDirectory = &isDir)
+                // 检查是否是目录（简化版本）
+                val isDirectory = fileManager.fileExistsAtPath("$itemPath/")
                 
-                total += if (isDir) {
+                total += if (isDirectory) {
                     calculateDirectorySize(itemPath)
                 } else {
-                    getFileSize(itemPath.removePrefix(getDataDirectory() + "/"))
+                    val attrs = fileManager.attributesOfItemAtPath(itemPath, null)
+                    (attrs?.get(NSFileSize) as? NSNumber)?.longValue ?: 0L
                 }
             }
             
