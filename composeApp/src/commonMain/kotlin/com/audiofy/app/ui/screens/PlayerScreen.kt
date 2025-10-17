@@ -57,7 +57,7 @@ fun PlayerScreen(
         }
         
         // 封面
-        AsyncImage(
+        Box(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth(),
@@ -70,6 +70,7 @@ fun PlayerScreen(
                 AsyncImage(
                     model = "https://source.unsplash.com/random/600x600?book",
                     contentDescription = null,
+                    modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
                 )
             }

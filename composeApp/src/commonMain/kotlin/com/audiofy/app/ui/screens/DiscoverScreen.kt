@@ -67,8 +67,7 @@ fun DiscoverScreen(
                 ) {
                     Box {
                         AsyncImage(
-                            model =
-                            "https://source.unsplash.com/random/800x400?technology",
+                            model = "https://source.unsplash.com/random/800x400?technology",
                             contentDescription = null,
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Crop
