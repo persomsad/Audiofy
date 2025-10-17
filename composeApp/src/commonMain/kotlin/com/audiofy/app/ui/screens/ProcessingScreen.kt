@@ -14,7 +14,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.audiofy.app.ui.components.AudioPlayerView
 import com.audiofy.app.ui.theme.AudiofyTypography
-import com.audiofy.app.ui.theme.Spacing
+import com.audiofy.app.ui.theme.AudiofySpacing
 import com.audiofy.app.util.saveAudioToTempFile
 import com.audiofy.app.viewmodel.PlayerViewModel
 import com.audiofy.app.viewmodel.ProcessingStep
@@ -58,7 +58,7 @@ fun ProcessingScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(Spacing.space4),
+                .padding(AudiofySpacing.space4),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -99,7 +99,7 @@ private fun StepProgress(
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(Spacing.space4)
+        verticalArrangement = Arrangement.spacedBy(AudiofySpacing.space4)
     ) {
         Text(
             text = title,
@@ -112,11 +112,11 @@ private fun StepProgress(
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
-        Spacer(modifier = Modifier.height(Spacing.space4))
+        Spacer(modifier = Modifier.height(AudiofySpacing.space4))
 
         CircularProgressIndicator()
 
-        Spacer(modifier = Modifier.height(Spacing.space2))
+        Spacer(modifier = Modifier.height(AudiofySpacing.space2))
 
         LinearProgressIndicator(
             progress = { progress },
@@ -153,13 +153,13 @@ private fun CompletedView(
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(Spacing.space4)
+        verticalArrangement = Arrangement.spacedBy(AudiofySpacing.space4)
     ) {
         Icon(
             imageVector = Icons.Default.CheckCircle,
             contentDescription = "完成",
             tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(Spacing.space8)
+            modifier = Modifier.size(AudiofySpacing.space8)
         )
 
         Text(
@@ -170,10 +170,10 @@ private fun CompletedView(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = Spacing.space4)
+                .padding(vertical = AudiofySpacing.space4)
         ) {
             Column(
-                modifier = Modifier.padding(Spacing.space4)
+                modifier = Modifier.padding(AudiofySpacing.space4)
             ) {
                 Text(
                     text = "输入文本:",
@@ -181,7 +181,7 @@ private fun CompletedView(
                     color = MaterialTheme.colorScheme.primary
                 )
 
-                Spacer(modifier = Modifier.height(Spacing.space2))
+                Spacer(modifier = Modifier.height(AudiofySpacing.space2))
 
                 Text(
                     text = inputText,
@@ -193,10 +193,10 @@ private fun CompletedView(
         // Audio Player
         AudioPlayerView(
             viewModel = playerViewModel,
-            modifier = Modifier.padding(vertical = Spacing.space2)
+            modifier = Modifier.padding(vertical = AudiofySpacing.space2)
         )
 
-        Spacer(modifier = Modifier.height(Spacing.space2))
+        Spacer(modifier = Modifier.height(AudiofySpacing.space2))
 
         Button(
             onClick = onNavigateBack,
@@ -215,13 +215,13 @@ private fun ErrorView(
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(Spacing.space4)
+        verticalArrangement = Arrangement.spacedBy(AudiofySpacing.space4)
     ) {
         Icon(
             imageVector = Icons.Default.Error,
             contentDescription = "错误",
             tint = MaterialTheme.colorScheme.error,
-            modifier = Modifier.size(Spacing.space8)
+            modifier = Modifier.size(AudiofySpacing.space8)
         )
 
         Text(
@@ -233,7 +233,7 @@ private fun ErrorView(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = Spacing.space4),
+                .padding(vertical = AudiofySpacing.space4),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.errorContainer
             )
@@ -242,13 +242,13 @@ private fun ErrorView(
                 text = errorMessage,
                 style = AudiofyTypography.bodyMedium,
                 color = MaterialTheme.colorScheme.onErrorContainer,
-                modifier = Modifier.padding(Spacing.space4),
+                modifier = Modifier.padding(AudiofySpacing.space4),
                 textAlign = TextAlign.Center
             )
         }
 
         Row(
-            horizontalArrangement = Arrangement.spacedBy(Spacing.space2),
+            horizontalArrangement = Arrangement.spacedBy(AudiofySpacing.space2),
             modifier = Modifier.fillMaxWidth(0.8f)
         ) {
             OutlinedButton(

@@ -12,7 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.audiofy.app.player.PlayerState
 import com.audiofy.app.ui.theme.AudiofyTypography
-import com.audiofy.app.ui.theme.Spacing
+import com.audiofy.app.ui.theme.AudiofySpacing
 import com.audiofy.app.viewmodel.PlayerViewModel
 
 /**
@@ -35,8 +35,8 @@ fun AudioPlayerView(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(AudiofySpacing.space4),
-            verticalArrangement = Arrangement.spacedBy(AudiofySpacing.space3)
+                .padding(AudiofyAudiofySpacing.space4),
+            verticalArrangement = Arrangement.spacedBy(AudiofyAudiofySpacing.space3)
         ) {
             // Title
             Text(
@@ -53,10 +53,10 @@ fun AudioPlayerView(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     CircularProgressIndicator(
-                        modifier = Modifier.size(AudiofySpacing.space5),
+                        modifier = Modifier.size(AudiofyAudiofySpacing.space5),
                         color = MaterialTheme.colorScheme.primary
                     )
-                    Spacer(modifier = Modifier.width(AudiofySpacing.space2))
+                    Spacer(modifier = Modifier.width(AudiofyAudiofySpacing.space2))
                     Text(
                         text = "加载中...",
                         style = AudiofyTypography.bodyMedium,
@@ -78,7 +78,7 @@ fun AudioPlayerView(
             if (uiState.state in listOf(PlayerState.READY, PlayerState.PLAYING, PlayerState.PAUSED)) {
                 // Progress slider
                 Column(
-                    verticalArrangement = Arrangement.spacedBy(AudiofySpacing.space1)
+                    verticalArrangement = Arrangement.spacedBy(AudiofyAudiofySpacing.space1)
                 ) {
                     Slider(
                         value = uiState.currentPosition.toFloat(),
@@ -137,12 +137,12 @@ fun AudioPlayerView(
                         )
                     }
 
-                    Spacer(modifier = Modifier.width(AudiofySpacing.space4))
+                    Spacer(modifier = Modifier.width(AudiofyAudiofySpacing.space4))
 
                     // Play/Pause button
                     FilledIconButton(
                         onClick = { viewModel.togglePlayPause() },
-                        modifier = Modifier.size(AudiofySpacing.space8),
+                        modifier = Modifier.size(AudiofyAudiofySpacing.space8),
                         colors = IconButtonDefaults.filledIconButtonColors(
                             containerColor = MaterialTheme.colorScheme.primary,
                             contentColor = MaterialTheme.colorScheme.onPrimary
@@ -159,7 +159,7 @@ fun AudioPlayerView(
                             } else {
                                 "播放"
                             },
-                            modifier = Modifier.size(AudiofySpacing.space6)
+                            modifier = Modifier.size(AudiofyAudiofySpacing.space6)
                         )
                     }
                 }

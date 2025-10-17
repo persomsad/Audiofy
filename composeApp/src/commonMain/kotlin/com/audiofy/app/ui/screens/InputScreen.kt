@@ -14,7 +14,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.audiofy.app.ui.theme.AudiofyTypography
-import com.audiofy.app.ui.theme.Spacing
+import com.audiofy.app.ui.theme.AudiofySpacing
 import com.audiofy.app.viewmodel.InputViewModel
 
 /**
@@ -58,11 +58,11 @@ fun InputScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(horizontal = Spacing.space4)
+                .padding(horizontal = AudiofySpacing.space4)
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(Spacing.space4)
+            verticalArrangement = Arrangement.spacedBy(AudiofySpacing.space4)
         ) {
-            Spacer(modifier = Modifier.height(Spacing.space4))
+            Spacer(modifier = Modifier.height(AudiofySpacing.space4))
 
             // Header Section
             Text(
@@ -77,7 +77,7 @@ fun InputScreen(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            Spacer(modifier = Modifier.height(Spacing.space2))
+            Spacer(modifier = Modifier.height(AudiofySpacing.space2))
 
             // Text Input Section
             TextInputSection(
@@ -87,7 +87,7 @@ fun InputScreen(
                 onTextChange = viewModel::updateInputText
             )
 
-            Spacer(modifier = Modifier.height(Spacing.space2))
+            Spacer(modifier = Modifier.height(AudiofySpacing.space2))
 
             // URL Input Section (Disabled for v2.0)
             UrlInputSection(
@@ -96,7 +96,7 @@ fun InputScreen(
                 onUrlChange = viewModel::updateUrlInput
             )
 
-            Spacer(modifier = Modifier.height(Spacing.space5))
+            Spacer(modifier = Modifier.height(AudiofySpacing.space5))
 
             // Action Buttons
             ActionButtons(
@@ -109,7 +109,7 @@ fun InputScreen(
                 onClear = viewModel::clearInput
             )
 
-            Spacer(modifier = Modifier.height(Spacing.space4))
+            Spacer(modifier = Modifier.height(AudiofySpacing.space4))
         }
     }
 }
@@ -122,7 +122,7 @@ private fun TextInputSection(
     onTextChange: (String) -> Unit,
 ) {
     Column(
-        verticalArrangement = Arrangement.spacedBy(Spacing.space2)
+        verticalArrangement = Arrangement.spacedBy(AudiofySpacing.space2)
     ) {
         Text(
             text = "文本输入",
@@ -189,11 +189,11 @@ private fun UrlInputSection(
     onUrlChange: (String) -> Unit,
 ) {
     Column(
-        verticalArrangement = Arrangement.spacedBy(Spacing.space2)
+        verticalArrangement = Arrangement.spacedBy(AudiofySpacing.space2)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(Spacing.space2)
+            horizontalArrangement = Arrangement.spacedBy(AudiofySpacing.space2)
         ) {
             Text(
                 text = "或输入文章链接",
@@ -247,7 +247,7 @@ private fun ActionButtons(
     onClear: () -> Unit,
 ) {
     Column(
-        verticalArrangement = Arrangement.spacedBy(Spacing.space4)
+        verticalArrangement = Arrangement.spacedBy(AudiofySpacing.space4)
     ) {
         // Primary Action: Start Conversion
         Button(
@@ -269,7 +269,7 @@ private fun ActionButtons(
                     color = MaterialTheme.colorScheme.onPrimary,
                     strokeWidth = 2.dp
                 )
-                Spacer(modifier = Modifier.width(Spacing.space2))
+                Spacer(modifier = Modifier.width(AudiofySpacing.space2))
                 Text(
                     text = "处理中...",
                     style = AudiofyTypography.labelLarge
