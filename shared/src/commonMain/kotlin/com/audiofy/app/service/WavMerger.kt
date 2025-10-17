@@ -141,6 +141,9 @@ object WavMerger {
         val totalSize = wavData.size
         val pcmDataSize = wavData.size - WAV_HEADER_SIZE
         val durationSec = pcmDataSize.toDouble() / (SAMPLE_RATE * (BITS_PER_SAMPLE / 8) * NUM_CHANNELS)
+        
+        // 格式化时长为两位小数（跨平台兼容）
+        val durationStr = (durationSec * 100).toInt() / 100.0
 
         return """
             |WAV文件信息:
@@ -149,7 +152,7 @@ object WavMerger {
             |  采样率: $SAMPLE_RATE Hz
             |  位深度: $BITS_PER_SAMPLE bit
             |  声道数: $NUM_CHANNELS (mono)
-            |  时长: %.2f 秒
-        """.trimMargin().format(durationSec)
+            |  时长: $durationStr 秒
+        """.trimMargin()
     }
 }
