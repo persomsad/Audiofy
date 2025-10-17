@@ -11,10 +11,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.audiofy.app.ui.components.AudioPlayerView
 import com.audiofy.app.ui.theme.AudiofyTypography
 import com.audiofy.app.ui.theme.Spacing
+import com.audiofy.app.util.saveAudioToTempFile
+import com.audiofy.app.viewmodel.PlayerViewModel
 import com.audiofy.app.viewmodel.ProcessingStep
 import com.audiofy.app.viewmodel.ProcessingViewModel
+import kotlinx.datetime.Clock
 
 /**
  * Processing Screen
@@ -85,6 +90,7 @@ fun ProcessingScreen(
                 is ProcessingStep.Completed -> {
                     CompletedView(
                         translatedText = uiState.translatedText ?: "",
+                        audioData = uiState.audioData ?: ByteArray(0),
                         onNavigateBack = onNavigateBack
                     )
                 }
@@ -144,8 +150,23 @@ private fun StepProgress(
 @Composable
 private fun CompletedView(
     translatedText: String,
+    audioData: ByteArray,
     onNavigateBack: () -> Unit,
 ) {
+    // Create PlayerViewModel instance
+    val playerViewModel: PlayerViewModel = viewModel { PlayerViewModel() }
+
+    // Load audio when audioData is available
+    LaunchedEffect(audioData) {
+        if (audioData.isNotEmpty()) {
+            val audioPath = saveAudioToTempFile(
+                audioData,
+                "tts_audio_${Clock.System.now().toEpochMilliseconds()}.mp3"
+            )
+            playerViewModel.loadAudio(audioPath)
+        }
+    }
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(Spacing.space4)
@@ -185,14 +206,13 @@ private fun CompletedView(
             }
         }
 
-        Text(
-            text = "音频播放器功能将在后续版本中实现",
-            style = AudiofyTypography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center
+        // Audio Player
+        AudioPlayerView(
+            viewModel = playerViewModel,
+            modifier = Modifier.padding(vertical = Spacing.space2)
         )
 
-        Spacer(modifier = Modifier.height(Spacing.space4))
+        Spacer(modifier = Modifier.height(Spacing.space2))
 
         Button(
             onClick = onNavigateBack,
