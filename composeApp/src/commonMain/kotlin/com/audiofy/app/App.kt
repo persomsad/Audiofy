@@ -111,8 +111,8 @@ private fun com.audiofy.app.viewmodel.SettingsUiState.toAppConfig(): AppConfig {
         geminiApiKey = geminiApiKey,
         geminiBaseUrl = geminiBaseUrl,
         geminiModelId = geminiModelId,
-        elevenLabsApiKey = elevenLabsApiKey,
-        elevenLabsVoiceId = elevenLabsVoiceId,
-        elevenLabsModelId = elevenLabsModelId
+        qwen3ApiKey = qwen3ApiKey,
+        qwen3Voice = qwen3Voice,
+        qwen3LanguageType = qwen3LanguageType
     )
 }
