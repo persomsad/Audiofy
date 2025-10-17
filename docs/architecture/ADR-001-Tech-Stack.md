@@ -2,7 +2,9 @@
 
 ## 状态
 
-已接受 (Accepted)
+已替代 (Superseded by ADR-004) - 2025-10-17
+
+⚠️ **本决策已被废弃**：由于 NativeScript 存在严重的技术限制（npm 包兼容性、Node.js API 缺失、构建稳定性问题），项目已迁移到 Kotlin Multiplatform。详见 [ADR-004: Migration to Kotlin Multiplatform](./ADR-004-Migration-to-KMP.md)。
 
 ## 日期
 
