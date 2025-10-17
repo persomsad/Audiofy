@@ -19,7 +19,7 @@ import com.audiofy.app.viewmodel.InputViewModel
 
 /**
  * Input Screen - Main entry point for content input
- * Allows users to paste text or enter URL for podcast conversion
+ * Allows users to paste text for TTS conversion
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -66,13 +66,13 @@ fun InputScreen(
 
             // Header Section
             Text(
-                text = "将英文文章转为中文播客",
+                text = "将文本转为语音播客",
                 style = AudiofyTypography.titleLarge,
                 color = MaterialTheme.colorScheme.onSurface
             )
 
             Text(
-                text = "输入英文文本，我们将为您翻译并生成专业的中文语音播客",
+                text = "输入文本，我们将为您生成专业的中文语音播客",
                 style = AudiofyTypography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -138,7 +138,7 @@ private fun TextInputSection(
                 .height(240.dp),
             placeholder = {
                 Text(
-                    text = "请输入英文文本...\n\n例如：粘贴新闻文章、博客内容、论文摘要等",
+                    text = "请输入文本...\n\n例如：粘贴文章、博客内容、论文摘要等",
                     style = AudiofyTypography.bodyMedium
                 )
             },

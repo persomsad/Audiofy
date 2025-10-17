@@ -23,7 +23,7 @@ import kotlinx.datetime.Clock
 
 /**
  * Processing Screen
- * Shows translation and TTS progress
+ * Shows TTS progress
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -63,25 +63,9 @@ fun ProcessingScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             when (val step = uiState.currentStep) {
-                is ProcessingStep.TranslatingStage1 -> {
-                    StepProgress(
-                        title = "步骤 1/3: 翻译中...",
-                        description = "正在进行准确翻译",
-                        progress = uiState.progress
-                    )
-                }
-
-                is ProcessingStep.TranslatingStage2 -> {
-                    StepProgress(
-                        title = "步骤 2/3: 润色中...",
-                        description = "正在优化译文",
-                        progress = uiState.progress
-                    )
-                }
-
                 is ProcessingStep.GeneratingSpeech -> {
                     StepProgress(
-                        title = "步骤 3/3: 生成语音...",
+                        title = "生成语音...",
                         description = "正在生成音频",
                         progress = uiState.progress
                     )
@@ -89,7 +73,7 @@ fun ProcessingScreen(
 
                 is ProcessingStep.Completed -> {
                     CompletedView(
-                        translatedText = uiState.translatedText ?: "",
+                        inputText = uiState.inputText,
                         audioData = uiState.audioData ?: ByteArray(0),
                         onNavigateBack = onNavigateBack
                     )
@@ -149,7 +133,7 @@ private fun StepProgress(
 
 @Composable
 private fun CompletedView(
-    translatedText: String,
+    inputText: String,
     audioData: ByteArray,
     onNavigateBack: () -> Unit,
 ) {
@@ -192,7 +176,7 @@ private fun CompletedView(
                 modifier = Modifier.padding(Spacing.space4)
             ) {
                 Text(
-                    text = "译文:",
+                    text = "输入文本:",
                     style = AudiofyTypography.titleSmall,
                     color = MaterialTheme.colorScheme.primary
                 )
@@ -200,7 +184,7 @@ private fun CompletedView(
                 Spacer(modifier = Modifier.height(Spacing.space2))
 
                 Text(
-                    text = translatedText,
+                    text = inputText,
                     style = AudiofyTypography.bodyMedium
                 )
             }
