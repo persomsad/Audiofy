@@ -91,11 +91,11 @@ fun SettingsScreen(
                     .fillMaxSize()
                     .padding(paddingValues)
                     .verticalScroll(rememberScrollState())
-                    .padding(AudiofySpacing.space6)
+                    .padding(AudiofySpacing.Space6)
             ) {
                 // Qwen3 TTS API Section
                 SectionTitle("Qwen3 TTS API 配置")
-                Spacer(Modifier.height(AudiofySpacing.space4))
+                Spacer(Modifier.height(AudiofySpacing.Space4))
 
                 ApiKeyTextField(
                     value = uiState.qwen3ApiKey,
@@ -103,14 +103,14 @@ fun SettingsScreen(
                     label = "Qwen3 API Key",
                     isRequired = true
                 )
-                Spacer(Modifier.height(AudiofySpacing.space4))
+                Spacer(Modifier.height(AudiofySpacing.Space4))
 
                 // Voice Selector
                 VoiceDropdown(
                     selectedVoice = uiState.qwen3Voice,
                     onVoiceChange = viewModel::updateQwen3Voice
                 )
-                Spacer(Modifier.height(AudiofySpacing.space4))
+                Spacer(Modifier.height(AudiofySpacing.Space4))
 
                 // Language Type Selector
                 LanguageTypeDropdown(
@@ -118,12 +118,12 @@ fun SettingsScreen(
                     onLanguageChange = viewModel::updateQwen3LanguageType
                 )
 
-                Spacer(Modifier.height(AudiofySpacing.space7))
+                Spacer(Modifier.height(AudiofySpacing.Space7))
 
                 // Action Buttons
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(AudiofySpacing.space4)
+                    horizontalArrangement = Arrangement.spacedBy(AudiofySpacing.Space4)
                 ) {
                     // Reset Button
                     OutlinedButton(
@@ -138,9 +138,9 @@ fun SettingsScreen(
                         Icon(
                             Icons.Default.Delete,
                             contentDescription = null,
-                            modifier = Modifier.size(AudiofySpacing.space4)
+                            modifier = Modifier.size(AudiofySpacing.Space4)
                         )
-                        Spacer(Modifier.width(AudiofySpacing.space2))
+                        Spacer(Modifier.width(AudiofySpacing.Space2))
                         Text("重置", style = AudiofyTypography.labelLarge)
                     }
 
@@ -157,30 +157,30 @@ fun SettingsScreen(
                     ) {
                         if (uiState.isSaving) {
                             CircularProgressIndicator(
-                                modifier = Modifier.size(AudiofySpacing.space4),
+                                modifier = Modifier.size(AudiofySpacing.Space4),
                                 color = MaterialTheme.colorScheme.onPrimary,
-                                strokeWidth = AudiofySpacing.space1
+                                strokeWidth = AudiofySpacing.Space1
                             )
                         } else {
                             Icon(
                                 Icons.Default.Check,
                                 contentDescription = null,
-                                modifier = Modifier.size(AudiofySpacing.space4)
+                                modifier = Modifier.size(AudiofySpacing.Space4)
                             )
                         }
-                        Spacer(Modifier.width(AudiofySpacing.space2))
+                        Spacer(Modifier.width(AudiofySpacing.Space2))
                         Text("保存", style = AudiofyTypography.labelLarge)
                     }
                 }
 
-                Spacer(Modifier.height(AudiofySpacing.space6))
+                Spacer(Modifier.height(AudiofySpacing.Space6))
 
                 // Help Text
                 Text(
                     text = "* 必填项",
                     style = AudiofyTypography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(horizontal = AudiofySpacing.space2)
+                    modifier = Modifier.padding(horizontal = AudiofySpacing.Space2)
                 )
             }
         }

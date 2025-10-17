@@ -29,11 +29,11 @@ object AudiofySpacing {
 /**
  * 扩展属性，方便使用
  */
-val Dp.Companion.space1: Dp get() = AudiofySpacing.Space1
-val Dp.Companion.space2: Dp get() = AudiofySpacing.Space2
-val Dp.Companion.space3: Dp get() = AudiofySpacing.Space3
-val Dp.Companion.space4: Dp get() = AudiofySpacing.Space4
-val Dp.Companion.space5: Dp get() = AudiofySpacing.Space5
-val Dp.Companion.space6: Dp get() = AudiofySpacing.Space6
-val Dp.Companion.space7: Dp get() = AudiofySpacing.Space7
-val Dp.Companion.space8: Dp get() = AudiofySpacing.Space8
+val Dp.Companion.Space1: Dp get() = AudiofySpacing.Space1
+val Dp.Companion.Space2: Dp get() = AudiofySpacing.Space2
+val Dp.Companion.Space3: Dp get() = AudiofySpacing.Space3
+val Dp.Companion.Space4: Dp get() = AudiofySpacing.Space4
+val Dp.Companion.Space5: Dp get() = AudiofySpacing.Space5
+val Dp.Companion.Space6: Dp get() = AudiofySpacing.Space6
+val Dp.Companion.Space7: Dp get() = AudiofySpacing.Space7
+val Dp.Companion.Space8: Dp get() = AudiofySpacing.Space8
