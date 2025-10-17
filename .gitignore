@@ -1,75 +1,28 @@
-# Kotlin Multiplatform
+# IDE
+.idea/
+.vscode/
 *.iml
-.kotlin
-.gradle
-**/build/
-xcuserdata
-!src/**/build/
+
+# Build outputs
+build/
+.gradle/
 local.properties
-.idea
+
+# Kotlin
+*.class
+*.jar
+*.war
+*.aar
+
+# Android
+captures/
+.externalNativeBuild/
+.cxx/
+
+# macOS
 .DS_Store
-captures
-.externalNativeBuild
-.cxx
 
-# Xcode
-*.xcodeproj/*
-!*.xcodeproj/project.pbxproj
-!*.xcodeproj/xcshareddata/
-!*.xcodeproj/project.xcworkspace/
-!*.xcworkspace/contents.xcworkspacedata
-**/xcshareddata/WorkspaceSettings.xcsettings
-
-# Node.js (for potential future use)
-node_modules/
-
-# Build artifacts
-*.apk
-*.ipa
-*.aab
-
-# Environment variables
-.env
-.env.local
-.env.*.local
-
-# Cloudflare Workers local development
-workers/**/.dev.vars
-workers/**/.wrangler/
-
-# Testing
-coverage/
-*.coveragerc
-
-# Temporary files
-tmp/
-temp/
-*.tmp
-
-# TypeScript
-*.tsbuildinfo
-
-# Logs
-*.log
-logs/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-*.swp
-*.swo
-*~
+# Sensitive development files (keep local, don't commit)
+.agents/
+AGENTS.md
+CLAUDE.md
