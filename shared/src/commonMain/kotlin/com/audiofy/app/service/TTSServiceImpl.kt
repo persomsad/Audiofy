@@ -29,6 +29,7 @@ class TTSServiceImpl : TTSService {
         ignoreUnknownKeys = true
         prettyPrint = true
         isLenient = true
+        encodeDefaults = true  // 🔑 关键修复：确保默认值参数也会被序列化
     }
 
     private fun createHttpClient(): HttpClient {
