@@ -1,5 +1,6 @@
 package com.audiofy.app.player
 
+import kotlinx.cinterop.*
 import platform.AVFAudio.AVAudioPlayer
 import platform.Foundation.NSError
 import platform.Foundation.NSURL
@@ -20,15 +21,19 @@ actual class AudioPlayer actual constructor() {
             updateState(PlayerState.LOADING)
 
             val url = NSURL.fileURLWithPath(filePath)
-            val error: NSError? = null
 
-            audioPlayer = AVAudioPlayer(contentsOfURL = url, error = error).apply {
-                if (error != null) {
+            // Create AVAudioPlayer with error handling
+            memScoped {
+                val errorPtr = alloc<ObjCObjectVar<NSError?>>()
+                val player = AVAudioPlayer(url, errorPtr.ptr)
+
+                if (errorPtr.value != null || player == null) {
                     updateState(PlayerState.ERROR)
                     return
                 }
 
-                prepareToPlay()
+                audioPlayer = player
+                player.prepareToPlay()
                 updateState(PlayerState.READY)
             }
         } catch (e: Exception) {
