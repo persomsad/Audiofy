@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
 import com.audiofy.app.ui.theme.AudiofyColors
 import com.audiofy.app.ui.theme.AudiofyRadius
 import com.audiofy.app.ui.theme.AudiofySpacing
@@ -245,7 +246,7 @@ private fun RecommendedPodcastsGrid(
                         .clip(RoundedCornerShape(AudiofyRadius.Medium)),
                     shadowElevation = 4.dp
                 ) {
-                    Box(
+                    AsyncImage(
                         model = "https://source.unsplash.com/random/300x400?book",
                         contentDescription = title,
                         contentScale = ContentScale.Crop

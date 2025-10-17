@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
 import com.audiofy.app.data.Podcast
 import com.audiofy.app.data.PodcastFilter
 import com.audiofy.app.ui.theme.AudiofyColors
@@ -228,7 +229,7 @@ private fun PodcastListItem(
                     .clip(RoundedCornerShape(AudiofyRadius.Medium)),
                 shadowElevation = 2.dp
             ) {
-                Box(
+                AsyncImage(
                     model = podcast.coverUrl ?: "https://source.unsplash.com/random/200x200?book",
                     contentDescription = podcast.title,
                     contentScale = ContentScale.Crop

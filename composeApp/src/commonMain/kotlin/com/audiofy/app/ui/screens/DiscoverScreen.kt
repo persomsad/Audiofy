@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
 import com.audiofy.app.ui.theme.AudiofyRadius
 import com.audiofy.app.ui.theme.AudiofySpacing
 
@@ -65,14 +66,14 @@ fun DiscoverScreen(
                     modifier = Modifier.fillMaxWidth().height(200.dp)
                 ) {
                     Box {
-                        Box(
+                        AsyncImage(
                             model =
                             "https://source.unsplash.com/random/800x400?technology",
                             contentDescription = null,
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Crop
                         )
-                        Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(0.6f)))))
+                        AsyncImage(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(0.6f)))))
                         Column(Modifier.align(Alignment.BottomStart).padding(AudiofySpacing.Space4)) {
                             Text("AI时代的思考", color = Color.White, style = MaterialTheme.typography.titleLarge)
                             Text("探索AI如何改变生活", color = Color.White.copy(0.8f), style = MaterialTheme.typography.bodySmall)
