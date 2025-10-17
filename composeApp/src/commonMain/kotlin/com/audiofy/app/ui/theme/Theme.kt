@@ -2,88 +2,79 @@ package com.audiofy.app.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
+import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 
 /**
- * Audiofy Light 配色方案
- * 基于设计文档 docs/design/design-system.md
+ * Audiofy主题系统
+ * 基于设计系统文档：docs/design/design-system.md
+ * 参考原型：docs/prototype/ui.html
+ */
+
+/**
+ * 亮色主题配色
  */
 private val LightColorScheme = lightColorScheme(
-    // Primary - 主色 (Coral)
-    primary = Primary500,
-    onPrimary = Neutral100,
-    primaryContainer = Primary100,
-    onPrimaryContainer = Primary900,
-
-    // Secondary - 强调色 (SaddleBrown)
-    secondary = Accent500,
-    onSecondary = Neutral100,
-    secondaryContainer = Accent100,
-    onSecondaryContainer = Accent500,
-
-    // Background - 背景色 (暖色调米白)
-    background = Neutral200,
-    onBackground = Neutral800,
-
-    // Surface - 表面色 (卡片、对话框等)
-    surface = Neutral100,
-    onSurface = Neutral800,
-    surfaceVariant = Neutral300,
-    onSurfaceVariant = Neutral700,
-
-    // Error - 错误色
-    error = Error,
-    onError = Neutral100,
-
-    // Outline - 边框色
-    outline = Neutral400,
-    outlineVariant = Neutral300,
+    // Primary色系
+    primary = AudiofyColors.Primary500,
+    onPrimary = AudiofyColors.Neutral100,
+    primaryContainer = AudiofyColors.Primary100,
+    onPrimaryContainer = AudiofyColors.Primary900,
+    
+    // Secondary色系（使用Accent色）
+    secondary = AudiofyColors.Accent500,
+    onSecondary = AudiofyColors.Neutral100,
+    secondaryContainer = AudiofyColors.Accent100,
+    onSecondaryContainer = AudiofyColors.Accent500,
+    
+    // Tertiary色系
+    tertiary = AudiofyColors.Primary700,
+    onTertiary = AudiofyColors.Neutral100,
+    
+    // Background
+    background = AudiofyColors.BgWarm,
+    onBackground = AudiofyColors.Neutral800,
+    
+    // Surface
+    surface = AudiofyColors.Neutral100,
+    onSurface = AudiofyColors.Neutral800,
+    surfaceVariant = AudiofyColors.Neutral200,
+    onSurfaceVariant = AudiofyColors.Neutral600,
+    
+    // 其他
+    outline = AudiofyColors.Neutral400,
+    outlineVariant = AudiofyColors.Neutral300,
+    error = AudiofyColors.Error,
+    onError = AudiofyColors.Neutral100
 )
 
 /**
- * Audiofy Dark 配色方案
- * 注意：设计文档未提供暗色模式，这里提供基础实现
- * 后续可根据设计需求调整
+ * 暗色主题配色（可选，暂时使用亮色方案）
  */
 private val DarkColorScheme = darkColorScheme(
-    primary = Primary400,
-    onPrimary = Neutral900,
-    primaryContainer = Primary700,
-    onPrimaryContainer = Primary100,
-
-    secondary = Accent400,
-    onSecondary = Neutral900,
-    secondaryContainer = Accent500,
-    onSecondaryContainer = Accent100,
-
-    background = Neutral900,
-    onBackground = Neutral200,
-
-    surface = Neutral800,
-    onSurface = Neutral200,
-    surfaceVariant = Neutral700,
-    onSurfaceVariant = Neutral300,
-
-    error = Error,
-    onError = Neutral900,
-
-    outline = Neutral600,
-    outlineVariant = Neutral700,
+    primary = AudiofyColors.Primary400,
+    onPrimary = AudiofyColors.Neutral900,
+    primaryContainer = AudiofyColors.Primary800,
+    onPrimaryContainer = AudiofyColors.Primary100,
+    
+    background = AudiofyColors.Neutral900,
+    onBackground = AudiofyColors.Neutral100,
+    
+    surface = AudiofyColors.Neutral800,
+    onSurface = AudiofyColors.Neutral100,
+    
+    outline = AudiofyColors.Neutral600,
+    error = AudiofyColors.Error
 )
 
 /**
- * Audiofy 主题
- *
- * @param darkTheme 是否使用暗色主题（默认跟随系统）
- * @param content 应用内容
- *
- * 使用示例：
+ * Audiofy主题组件
+ * 
+ * 用法：
  * ```kotlin
  * AudiofyTheme {
- *     // Your app content
- *     Scaffold { ... }
+ *     // 您的UI代码
  * }
  * ```
  */
@@ -92,8 +83,12 @@ fun AudiofyTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
-    val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
-
+    val colorScheme = if (darkTheme) {
+        DarkColorScheme
+    } else {
+        LightColorScheme
+    }
+    
     MaterialTheme(
         colorScheme = colorScheme,
         typography = AudiofyTypography,

@@ -5,28 +5,28 @@ import androidx.compose.material3.Shapes
 import androidx.compose.ui.unit.dp
 
 /**
- * Audiofy 圆角系统
- * 基于设计文档 docs/design/design-system.md
- *
- * 定义圆角，为组件增加现代感
- * 效果应保持微妙，以符合"清爽"的设计调性
+ * Audiofy 形状系统
+ * 基于设计系统文档：docs/design/design-system.md
  */
-
-val AudiofyShapes = Shapes(
-    // Small - 用于小组件（Chips, Tags）
-    small = RoundedCornerShape(4.dp),
-
-    // Medium - 默认圆角，用于按钮、输入框、卡片
-    medium = RoundedCornerShape(8.dp),
-
-    // Large - 用于大卡片、对话框
-    large = RoundedCornerShape(16.dp),
-
-    // Extra Large - 用于特殊场景
-    extraLarge = RoundedCornerShape(24.dp),
-)
 
 /**
- * 圆形形状（用于头像、圆形按钮等）
+ * 圆角尺寸
  */
-val CircleShape = RoundedCornerShape(50) // 50% = 完全圆形
+object AudiofyRadius {
+    val Small = 8.dp
+    val Medium = 12.dp
+    val Large = 16.dp
+    val ExtraLarge = 20.dp
+    val Full = 9999.dp  // 完全圆角
+}
+
+/**
+ * Material 3 Shapes配置
+ */
+val AudiofyShapes = Shapes(
+    extraSmall = RoundedCornerShape(AudiofyRadius.Small),
+    small = RoundedCornerShape(AudiofyRadius.Small),
+    medium = RoundedCornerShape(AudiofyRadius.Medium),
+    large = RoundedCornerShape(AudiofyRadius.Large),
+    extraLarge = RoundedCornerShape(AudiofyRadius.ExtraLarge)
+)
