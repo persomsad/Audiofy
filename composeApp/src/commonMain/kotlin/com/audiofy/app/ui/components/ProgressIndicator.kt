@@ -59,7 +59,7 @@ fun ProcessStepCard(steps: List<Triple<String, Boolean, Boolean>>, modifier: Mod
                                 when {
                                     completed -> Icon(Icons.Default.Check, null, tint = AudiofyColors.Primary500, modifier = Modifier.size(16.dp))
                                     inProgress -> CircularProgressIndicator(Modifier.size(16.dp), color = MaterialTheme.colorScheme.onPrimary, strokeWidth = 2.dp)
-                                    else -> Icon(Icons.Default.Circle, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(8.dp))
+                                    else -> Box(Modifier.size(8.dp))
                                 }
                             }
                         }
