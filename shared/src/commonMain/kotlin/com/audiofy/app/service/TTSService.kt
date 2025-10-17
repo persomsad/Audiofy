@@ -6,15 +6,15 @@ import kotlinx.coroutines.flow.Flow
 
 /**
  * Text-to-Speech (TTS) Service Interface
- * Converts Chinese text to natural speech audio using ElevenLabs API
+ * Converts text to natural speech audio using Qwen3 TTS API
  */
 interface TTSService {
 
     /**
-     * Synthesize speech from Chinese text
+     * Synthesize speech from text
      *
-     * @param text Chinese text to convert to speech
-     * @param config User's API configuration (API key, voice ID, model ID)
+     * @param text Text to convert to speech
+     * @param config User's API configuration (API key, voice, language type)
      * @return Result containing audio data as ByteArray or error
      */
     suspend fun synthesizeSpeech(
@@ -25,7 +25,7 @@ interface TTSService {
     /**
      * Synthesize speech with progress updates
      *
-     * @param text Chinese text to convert to speech
+     * @param text Text to convert to speech
      * @param config User's API configuration
      * @return Flow emitting progress updates and final audio data
      */

@@ -1,10 +1,13 @@
 package com.audiofy.app.service
 
 import com.audiofy.app.data.AppConfig
+import com.audiofy.app.data.Qwen3TTSInput
+import com.audiofy.app.data.Qwen3TTSRequest
+import com.audiofy.app.data.Qwen3TTSResponse
 import com.audiofy.app.data.TTSProgress
-import com.audiofy.app.data.TTSRequest
 import com.audiofy.app.data.TTSStage
 import io.ktor.client.*
+import io.ktor.client.call.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.logging.*
@@ -12,14 +15,13 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
-import io.ktor.utils.io.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.serialization.json.Json
 
 /**
- * ElevenLabs TTS Service Implementation
- * Uses Ktor Client to call ElevenLabs REST API
+ * Qwen3 TTS Service Implementation
+ * Uses Ktor Client to call Qwen3 (DashScope) REST API
  */
 class TTSServiceImpl : TTSService {
 
@@ -51,16 +53,16 @@ class TTSServiceImpl : TTSService {
     ): Result<ByteArray> {
         return try {
             // Validate config
-            if (!config.isElevenLabsConfigured()) {
-                throw IllegalStateException("ElevenLabs API 配置不完整")
+            if (!config.isQwen3Configured()) {
+                throw IllegalStateException("Qwen3 TTS API 配置不完整")
             }
 
-            // Validate text length (ElevenLabs limit ~5000 characters)
+            // Validate text length (Qwen3 limit ~5000 characters)
             if (text.length > MAX_TEXT_LENGTH) {
                 throw IllegalArgumentException("文本长度超过限制 ($MAX_TEXT_LENGTH 字符),请分段处理")
             }
 
-            val audioData = callElevenLabsAPI(text, config)
+            val audioData = callQwen3API(text, config)
             Result.success(audioData)
         } catch (e: Exception) {
             Result.failure(translateException(e))
@@ -73,8 +75,8 @@ class TTSServiceImpl : TTSService {
     ): Flow<TTSProgress> = flow {
         try {
             // Validate config
-            if (!config.isElevenLabsConfigured()) {
-                throw IllegalStateException("ElevenLabs API 配置不完整")
+            if (!config.isQwen3Configured()) {
+                throw IllegalStateException("Qwen3 TTS API 配置不完整")
             }
 
             // Validate text length
@@ -101,7 +103,7 @@ class TTSServiceImpl : TTSService {
             )
 
             // Call API and download audio stream
-            val audioData = callElevenLabsAPIWithProgress(text, config) { progress ->
+            val audioData = callQwen3APIWithProgress(text, config) { progress ->
                 emit(
                     TTSProgress(
                         stage = TTSStage.DOWNLOADING,
@@ -125,38 +127,59 @@ class TTSServiceImpl : TTSService {
     }
 
     /**
-     * Call ElevenLabs TTS API
+     * Call Qwen3 TTS API (two-step process)
+     * Step 1: Call API to get audio URL
+     * Step 2: Download audio from URL
      */
-    private suspend fun callElevenLabsAPI(
+    private suspend fun callQwen3API(
         text: String,
         config: AppConfig,
     ): ByteArray {
         val client = createHttpClient()
 
         try {
-            val request = TTSRequest(
-                text = text,
-                model_id = config.elevenLabsModelId
+            // Step 1: Call Qwen3 API to generate TTS and get audio URL
+            val request = Qwen3TTSRequest(
+                model = "qwen3-tts-flash",
+                input = Qwen3TTSInput(
+                    text = text,
+                    voice = config.qwen3Voice,
+                    languageType = config.qwen3LanguageType
+                )
             )
 
-            val url = "$ELEVENLABS_BASE_URL/text-to-speech/${config.elevenLabsVoiceId}"
-
-            val response: HttpResponse = client.post(url) {
+            val response: HttpResponse = client.post(QWEN3_BASE_URL) {
                 contentType(ContentType.Application.Json)
-                header("xi-api-key", config.elevenLabsApiKey)
+                header("Authorization", "Bearer ${config.qwen3ApiKey}")
                 setBody(request)
             }
 
-            return response.readBytes()
+            if (!response.status.isSuccess()) {
+                throw Exception("Qwen3 API 调用失败: ${response.status}")
+            }
+
+            val ttsResponse: Qwen3TTSResponse = response.body()
+            val audioUrl = ttsResponse.output.audio.url
+
+            // Step 2: Download audio from URL
+            val audioResponse: HttpResponse = client.get(audioUrl)
+
+            if (!audioResponse.status.isSuccess()) {
+                throw Exception("音频下载失败: ${audioResponse.status}")
+            }
+
+            return audioResponse.readRawBytes()
         } finally {
             client.close()
         }
     }
 
     /**
-     * Call ElevenLabs TTS API with progress tracking
+     * Call Qwen3 TTS API with progress tracking
+     * Step 1: Call API to get audio URL (progress 0-0.3)
+     * Step 2: Download audio from URL (progress 0.3-1.0)
      */
-    private suspend fun callElevenLabsAPIWithProgress(
+    private suspend fun callQwen3APIWithProgress(
         text: String,
         config: AppConfig,
         onProgress: suspend (Float) -> Unit,
@@ -164,25 +187,44 @@ class TTSServiceImpl : TTSService {
         val client = createHttpClient()
 
         try {
-            val request = TTSRequest(
-                text = text,
-                model_id = config.elevenLabsModelId
+            // Step 1: Call Qwen3 API to generate TTS and get audio URL
+            val request = Qwen3TTSRequest(
+                model = "qwen3-tts-flash",
+                input = Qwen3TTSInput(
+                    text = text,
+                    voice = config.qwen3Voice,
+                    languageType = config.qwen3LanguageType
+                )
             )
 
-            val url = "$ELEVENLABS_BASE_URL/text-to-speech/${config.elevenLabsVoiceId}"
+            onProgress(0.1f) // Starting API call
 
-            val response: HttpResponse = client.post(url) {
+            val response: HttpResponse = client.post(QWEN3_BASE_URL) {
                 contentType(ContentType.Application.Json)
-                header("xi-api-key", config.elevenLabsApiKey)
+                header("Authorization", "Bearer ${config.qwen3ApiKey}")
                 setBody(request)
             }
 
-            // Download audio data
-            // Note: Progress tracking for streaming is complex in Ktor
-            // For now, we'll download the entire response at once
-            onProgress(0.5f) // Halfway through (started download)
-            val audioData = response.readBytes()
-            onProgress(1.0f) // Completed
+            if (!response.status.isSuccess()) {
+                throw Exception("Qwen3 API 调用失败: ${response.status}")
+            }
+
+            onProgress(0.3f) // API call completed, got audio URL
+
+            val ttsResponse: Qwen3TTSResponse = response.body()
+            val audioUrl = ttsResponse.output.audio.url
+
+            // Step 2: Download audio from URL
+            onProgress(0.5f) // Starting audio download
+
+            val audioResponse: HttpResponse = client.get(audioUrl)
+
+            if (!audioResponse.status.isSuccess()) {
+                throw Exception("音频下载失败: ${audioResponse.status}")
+            }
+
+            val audioData = audioResponse.readBytes()
+            onProgress(1.0f) // Download completed
 
             return audioData
         } finally {
@@ -196,9 +238,9 @@ class TTSServiceImpl : TTSService {
     private fun translateException(e: Exception): Exception {
         val message = when {
             e is HttpRequestTimeoutException -> "请求超时,请重试"
-            e.message?.contains("401") == true -> "ElevenLabs API Key 无效,请在设置中重新配置"
+            e.message?.contains("401") == true -> "Qwen3 API Key 无效,请在设置中重新配置"
             e.message?.contains("403") == true -> "TTS 配额已用尽,请稍后再试"
-            e.message?.contains("404") == true -> "语音 ID 无效,请在设置中重新配置"
+            e.message?.contains("404") == true -> "API 端点无效,请检查配置"
             e.message?.contains("network", ignoreCase = true) == true -> "网络连接失败,请检查网络"
             e.message?.contains("timeout", ignoreCase = true) == true -> "请求超时,请重试"
             e.message?.contains("超过限制") == true -> e.message!!
@@ -210,7 +252,7 @@ class TTSServiceImpl : TTSService {
     }
 
     companion object {
-        private const val ELEVENLABS_BASE_URL = "https://api.elevenlabs.io/v1"
+        private const val QWEN3_BASE_URL = "https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation"
         private const val MAX_TEXT_LENGTH = 5000
     }
 }
