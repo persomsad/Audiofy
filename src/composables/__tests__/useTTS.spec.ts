@@ -18,8 +18,8 @@ vi.mock('@nativescript/core', () => ({
     join: (...args: string[]) => args.join('/'),
   },
 }))
-vi.mock('uuid', () => ({
-  v4: () => 'test-uuid-1234',
+vi.mock('@/utils/uuid', () => ({
+  generateUUID: () => 'test-uuid-1234',
 }))
 
 describe('useTTS', () => {

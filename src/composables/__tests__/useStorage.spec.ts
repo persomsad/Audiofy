@@ -23,8 +23,8 @@ vi.mock('@nativescript/core/file-system', () => ({
   Folder: vi.fn(),
 }))
 
-vi.mock('uuid', () => ({
-  v4: vi.fn(() => 'test-uuid-1234'),
+vi.mock('@/utils/uuid', () => ({
+  generateUUID: vi.fn(() => 'test-uuid-1234'),
 }))
 
 describe('useStorage', () => {

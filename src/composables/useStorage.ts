@@ -4,7 +4,7 @@
  */
 
 import { File, Folder, knownFolders, path } from '@nativescript/core/file-system'
-import { v4 as uuidv4 } from 'uuid'
+import { generateUUID } from '../utils/uuid'
 import type { Article, CreateArticleInput, UpdateArticleInput, StorageService } from '../types'
 
 /**
@@ -159,7 +159,7 @@ export function useStorage(): StorageService {
     // 1. 生成 UUID 和时间戳
     const article: Article = {
       ...input,
-      id: uuidv4(),
+      id: generateUUID(),
       createdAt: new Date(),
     }
 

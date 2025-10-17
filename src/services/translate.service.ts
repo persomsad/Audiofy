@@ -3,7 +3,7 @@
  * 调用 Cloudflare Workers Gemini API 代理
  */
 
-import { $fetch } from 'ofetch'
+import { Http } from '@nativescript/core'
 import { API_CONFIG } from './config'
 
 export interface TranslateRequest {
@@ -34,30 +34,37 @@ export class TranslateService {
     }
 
     try {
-      const response = await $fetch<TranslateResponse>(API_CONFIG.GEMINI_PROXY_URL, {
+      const response = await Http.request({
+        url: API_CONFIG.GEMINI_PROXY_URL,
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${API_CONFIG.APP_SECRET}`,
         },
-        body: {
+        content: JSON.stringify({
           text: text.trim(),
-        },
+        }),
         timeout: API_CONFIG.TIMEOUT,
       })
 
-      if (!response.translatedText) {
+      if (response.statusCode !== 200) {
+        throw new Error(`HTTP ${response.statusCode}: ${response.content?.toString()}`)
+      }
+
+      const result = response.content?.toJSON() as TranslateResponse
+
+      if (!result || !result.translatedText) {
         throw new Error('Invalid API response: missing translatedText')
       }
 
-      return response.translatedText
+      return result.translatedText
     } catch (error: any) {
       // 处理常见错误
-      if (error.status === 401) {
+      if (error.message?.includes('HTTP 401')) {
         throw new Error('Authentication failed: invalid APP_SECRET')
-      } else if (error.status === 429) {
+      } else if (error.message?.includes('HTTP 429')) {
         throw new Error('API rate limit exceeded, please try again later')
-      } else if (error.status >= 500) {
+      } else if (error.message?.includes('HTTP 5')) {
         throw new Error('Server error, please try again later')
       } else if (error.message?.includes('timeout')) {
         throw new Error('Request timeout, please check your network connection')

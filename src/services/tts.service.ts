@@ -3,8 +3,7 @@
  * 调用 Cloudflare Workers Qwen3-TTS API 代理
  */
 
-import { $fetch } from 'ofetch'
-import { File } from '@nativescript/core'
+import { Http, File } from '@nativescript/core'
 import { API_CONFIG } from './config'
 
 export interface TTSRequest {
@@ -34,32 +33,39 @@ export class TTSService {
     }
 
     try {
-      const response = await $fetch<TTSResponse>(API_CONFIG.TTS_PROXY_URL, {
+      const response = await Http.request({
+        url: API_CONFIG.TTS_PROXY_URL,
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${API_CONFIG.APP_SECRET}`,
         },
-        body: {
+        content: JSON.stringify({
           text: text.trim(),
           voice: voice,
-        },
+        }),
         timeout: API_CONFIG.TIMEOUT,
       })
 
-      if (!response.audioUrl || !response.duration) {
+      if (response.statusCode !== 200) {
+        throw new Error(`HTTP ${response.statusCode}: ${response.content?.toString()}`)
+      }
+
+      const result = response.content?.toJSON() as TTSResponse
+
+      if (!result || !result.audioUrl || !result.duration) {
         throw new Error('Invalid API response: missing audioUrl or duration')
       }
 
-      return response
+      return result
     } catch (error) {
       // 处理常见错误
-      const err = error as { status?: number; message?: string }
-      if (err.status === 401) {
+      const err = error as { message?: string }
+      if (err.message?.includes('HTTP 401')) {
         throw new Error('Authentication failed: invalid APP_SECRET')
-      } else if (err.status === 429) {
+      } else if (err.message?.includes('HTTP 429')) {
         throw new Error('API rate limit exceeded, please try again later')
-      } else if (err.status && err.status >= 500) {
+      } else if (err.message?.includes('HTTP 5')) {
         throw new Error('Server error, please try again later')
       } else if (err.message?.includes('timeout')) {
         throw new Error('Request timeout, please check your network connection')
@@ -91,15 +97,8 @@ export class TTSService {
           await new Promise((resolve) => setTimeout(resolve, delay))
         }
 
-        const response = await $fetch<ArrayBuffer>(audioUrl, {
-          method: 'GET',
-          timeout: 30000, // 30秒超时
-        })
-
-        // 将 ArrayBuffer 转换为 Uint8Array 并写入文件
-        const uint8Array = new Uint8Array(response)
-        const file = File.fromPath(localPath)
-        await file.write(uint8Array)
+        // 使用 Http.getFile 下载文件
+        await Http.getFile(audioUrl, localPath)
 
         // 验证文件完整性
         if (!File.exists(localPath)) {

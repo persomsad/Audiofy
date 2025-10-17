@@ -6,7 +6,7 @@
 
 import { ref } from 'vue'
 import { knownFolders, path } from '@nativescript/core'
-import { v4 as uuidv4 } from 'uuid'
+import { generateUUID } from '@/utils/uuid'
 import { API_CONFIG } from '@/services/config'
 import { TTSService, TTSResponse } from '@/services/tts.service'
 
@@ -76,7 +76,7 @@ export function useTTS(options: UseTTSOptions = {}) {
           const audioFolderPath = ensureAudioDirectory()
 
           // 3. 生成唯一文件名（Qwen3-TTS返回MP3格式）
-          const fileName = `${uuidv4()}.mp3`
+          const fileName = `${generateUUID()}.mp3`
           const audioPath = path.join(audioFolderPath, fileName)
 
           // 4. 下载音频文件并保存到本地（带内置重试机制：3次）
