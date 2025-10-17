@@ -4,9 +4,10 @@
     允许Qwen3 TTS音频下载 (OSS使用HTTP协议)
     Qwen3 API返回的音频URL使用http://而非https://
     Android 9+ 默认阻止cleartext HTTP流量
+    注意：音频文件可能来自不同区域的OSS（上海、北京、杭州等）
     -->
     <domain-config cleartextTrafficPermitted="true">
-        <domain includeSubdomains="true">oss-cn-shanghai.aliyuncs.com</domain>
+        <domain includeSubdomains="true">aliyuncs.com</domain>
     </domain-config>
 
     <!--
