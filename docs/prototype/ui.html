@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Audiofy (声阅) - 完整原型</title>
+    <title>Audiofy (声阅) - UI设计原型</title>
     
     <!-- Tailwind CSS via CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -14,14 +14,14 @@
     <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
         /*-------------------------------------------*/
-        /* 设计令牌 (Design Tokens) - 基于设计系统文档 */
+        /* 设计令牌 (Design Tokens)                   */
         /*-------------------------------------------*/
         :root {
-            /* 颜色系统 (Colors) */
+            /* 颜色系统 - 参考图片的暖色调风格 */
             --color-primary-100: #fff2ed;
             --color-primary-200: #ffdace;
             --color-primary-300: #ffbca5;
@@ -29,61 +29,58 @@
             --color-primary-500: #FF7F50; /* Coral - 主色 */
             --color-primary-600: #f56a36;
             --color-primary-700: #dd5724;
-            --color-primary-800: #c24516;
-            --color-primary-900: #a3360f;
             
             --color-accent-100: #f6ede6;
             --color-accent-200: #e2d3c5;
             --color-accent-300: #cbb3a0;
             --color-accent-400: #b5947c;
-            --color-accent-500: #8B4513; /* SaddleBrown - 强调色 */
+            --color-accent-500: #8B4513;
             
-            --color-neutral-100: #FFFFFF;
-            --color-neutral-200: #F7EEDD; /* 主背景 */
-            --color-neutral-300: #ede4d3; /* 次级背景 */
-            --color-neutral-400: #c4bcab; /* 边框/禁用 */
-            --color-neutral-500: #9e9587; /* 微妙文本/图标 */
-            --color-neutral-600: #776f64; /* 正文 */
-            --color-neutral-700: #544f47; /* 次级标题 */
-            --color-neutral-800: #2c2c2c; /* 主标题 */
-            --color-neutral-900: #000000;
+            --color-bg-warm: #FFF8F0; /* 暖色背景 - 参考图片 */
+            --color-bg-peach: #FFEEE5; /* 桃色背景 */
+            --color-surface: #FFFFFF;
             
-            --color-success: #28a745;
-            --color-error: #dc3545;
-            --color-warning: #ffc107;
-            --color-info: #17a2b8;
+            --color-text-primary: #2c2c2c;
+            --color-text-secondary: #6B6B6B;
+            --color-text-tertiary: #999999;
+            
+            --color-border: #E8E8E8;
 
-            /* 字体系统 (Typography) */
-            --font-family-sans: "Inter", system-ui, sans-serif;
+            /* 字体系统 */
+            --font-family-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 
-            /* 间距系统 (Spacing) - 8px网格 */
-            --space-1: 0.25rem; /* 4px */
-            --space-2: 0.5rem;  /* 8px */
-            --space-3: 0.75rem; /* 12px */
-            --space-4: 1rem;    /* 16px */
-            --space-5: 1.5rem;  /* 24px */
-            --space-6: 2rem;    /* 32px */
-            --space-7: 3rem;    /* 48px */
-            --space-8: 4rem;    /* 64px */
+            /* 间距系统 */
+            --space-1: 0.25rem;
+            --space-2: 0.5rem;
+            --space-3: 0.75rem;
+            --space-4: 1rem;
+            --space-5: 1.25rem;
+            --space-6: 1.5rem;
+            --space-8: 2rem;
+            --space-10: 2.5rem;
 
-            /* 效果系统 (Effects) */
-            --radius-sm: 4px;
-            --radius-md: 8px;
+            /* 效果系统 */
+            --radius-sm: 8px;
+            --radius-md: 12px;
             --radius-lg: 16px;
+            --radius-xl: 20px;
             --radius-full: 9999px;
             
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --shadow-card: 0 2px 10px rgba(0, 0, 0, 0.06);
         }
 
         /*-------------------------------------------*/
         /* 全局样式 */
         /*-------------------------------------------*/
+        * {
+            box-sizing: border-box;
+        }
+
         body {
-            background-color: var(--color-neutral-300);
+            background: linear-gradient(135deg, #F5E6D3 0%, #E8DDD0 100%);
             font-family: var(--font-family-sans);
-            color: var(--color-neutral-800);
+            color: var(--color-text-primary);
             margin: 0;
             padding: 0;
         }
@@ -93,42 +90,56 @@
         /*-------------------------------------------*/
         .prototype-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, 375px);
+            grid-template-columns: repeat(auto-fit, 390px);
             justify-content: center;
-            gap: var(--space-8);
-            padding: var(--space-8);
+            gap: 3rem;
+            padding: 3rem 2rem;
         }
 
         /*-------------------------------------------*/
-        /* 手机画板 (Phone Canvas) */
+        /* 手机画板 - 参考图片样式 */
         /*-------------------------------------------*/
         .phone-canvas {
-            width: 375px;
-            height: 812px;
-            border: 1px solid #ccc;
-            border-radius: 40px;
-            background-color: var(--color-neutral-200);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            width: 390px;
+            height: 844px;
+            border: 12px solid #1f1f1f;
+            border-radius: 50px;
+            background-color: var(--color-bg-warm);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.25);
             display: flex;
             flex-direction: column;
             overflow: hidden;
             position: relative;
         }
 
+        /* 刘海屏 */
+        .phone-canvas::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 140px;
+            height: 30px;
+            background-color: #1f1f1f;
+            border-radius: 0 0 20px 20px;
+            z-index: 100;
+        }
+
         /* 状态栏 */
         .status-bar {
-            height: 44px;
+            height: 54px;
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            padding: 0 var(--space-6);
+            align-items: flex-end;
+            padding: 0 1.5rem 0.5rem;
             font-size: 0.9rem;
             font-weight: 600;
             flex-shrink: 0;
-            z-index: 10;
+            z-index: 99;
         }
 
-        /* 主内容区（可滚动） */
+        /* 主内容区 */
         .main-content {
             flex-grow: 1;
             overflow-y: auto;
@@ -137,92 +148,110 @@
             z-index: 1;
         }
 
-        /* 底部标签栏 */
+        /* 底部标签栏 - 参考图片设计 */
         .tab-bar {
-            height: 84px;
+            height: 90px;
             flex-shrink: 0;
-            background-color: var(--color-neutral-100);
-            border-top: 1px solid var(--color-neutral-400);
+            background-color: var(--color-surface);
             display: flex;
             justify-content: space-around;
-            align-items: flex-start;
-            padding-top: var(--space-2);
+            align-items: center;
+            padding: 0 1rem;
+            padding-bottom: 1.5rem;
             z-index: 10;
-            box-shadow: 0 -5px 20px rgba(0,0,0,0.03);
         }
 
         .tab-item {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: var(--space-1);
-            color: var(--color-neutral-500);
+            gap: 0.25rem;
+            color: var(--color-text-tertiary);
             font-size: 0.7rem;
             font-weight: 500;
             cursor: pointer;
-            transition: color 0.2s;
+            transition: all 0.2s;
+            padding: 0.5rem;
+        }
+
+        .tab-item i {
+            font-size: 1.25rem;
         }
 
         .tab-item.active {
             color: var(--color-primary-500);
         }
 
-        .tab-item:hover {
-            color: var(--color-primary-600);
-        }
-
         /*-------------------------------------------*/
-        /* 按钮组件 */
+        /* 按钮组件 - 参考图片的圆角设计 */
         /*-------------------------------------------*/
         .btn {
             font-family: var(--font-family-sans);
             font-weight: 600;
-            border-radius: var(--radius-md);
-            transition: all 0.2s ease-in-out;
+            border-radius: var(--radius-full);
+            transition: all 0.3s ease;
             cursor: pointer;
             border: none;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: var(--space-2);
+            font-size: 1rem;
         }
 
         .btn-primary {
             background-color: var(--color-primary-500);
-            color: var(--color-neutral-100);
-            padding: var(--space-3) var(--space-5);
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 4px 15px rgba(255, 127, 80, 0.3);
         }
 
         .btn-primary:hover {
             background-color: var(--color-primary-600);
-            transform: translateY(-1px);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 127, 80, 0.4);
         }
 
         .btn-secondary {
-            background-color: var(--color-neutral-100);
-            color: var(--color-neutral-800);
-            border: 1px solid var(--color-neutral-400);
-            padding: var(--space-3) var(--space-5);
+            background-color: white;
+            color: var(--color-text-primary);
+            padding: 1rem 2rem;
+            border: 1.5px solid var(--color-border);
         }
 
         .btn-secondary:hover {
-            background-color: var(--color-neutral-300);
+            background-color: var(--color-bg-peach);
+            border-color: var(--color-primary-300);
+        }
+
+        .btn-small {
+            padding: 0.5rem 1.25rem;
+            font-size: 0.875rem;
         }
 
         /*-------------------------------------------*/
         /* 卡片组件 */
         /*-------------------------------------------*/
         .card {
-            background-color: var(--color-neutral-100);
+            background-color: var(--color-surface);
             border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-md);
-            padding: var(--space-4);
-            transition: all 0.2s ease-in-out;
+            box-shadow: var(--shadow-card);
+            padding: var(--space-5);
+            transition: all 0.3s ease;
         }
 
         .card:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-soft);
+        }
+
+        /*-------------------------------------------*/
+        /* 书籍/播客封面 */
+        /*-------------------------------------------*/
+        .book-cover {
+            border-radius: var(--radius-md);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            overflow: hidden;
         }
 
         /*-------------------------------------------*/
@@ -230,32 +259,70 @@
         /*-------------------------------------------*/
         .input {
             font-family: var(--font-family-sans);
-            color: var(--color-neutral-800);
-            background-color: var(--color-neutral-100);
-            border: 1px solid var(--color-neutral-400);
+            color: var(--color-text-primary);
+            background-color: var(--color-surface);
+            border: 1.5px solid var(--color-border);
             border-radius: var(--radius-md);
-            padding: var(--space-3) var(--space-4);
-            transition: border-color 0.2s, box-shadow 0.2s;
+            padding: var(--space-4);
+            transition: all 0.2s;
             width: 100%;
+            font-size: 1rem;
         }
 
         .input:focus {
             outline: none;
             border-color: var(--color-primary-500);
-            box-shadow: 0 0 0 2px var(--color-primary-200);
+            box-shadow: 0 0 0 3px rgba(255, 127, 80, 0.1);
         }
 
         /*-------------------------------------------*/
-        /* 标题样式 */
+        /* 标签页标题 */
         /*-------------------------------------------*/
-        .screen-title {
-            text-align: center;
-            margin-bottom: var(--space-4);
-            padding: var(--space-2);
-            background-color: var(--color-neutral-400);
-            color: var(--color-neutral-800);
+        .screen-label {
+            position: absolute;
+            bottom: -2.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0,0,0,0.7);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
             font-size: 0.75rem;
             font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .canvas-wrapper {
+            position: relative;
+            margin-bottom: 3rem;
+        }
+
+        /*-------------------------------------------*/
+        /* 连续收听打卡 */
+        /*-------------------------------------------*/
+        .streak-day {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .streak-circle {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+        }
+
+        .streak-circle.active {
+            background-color: var(--color-primary-500);
+        }
+
+        .streak-circle.inactive {
+            background-color: var(--color-border);
         }
     </style>
 </head>
@@ -264,305 +331,752 @@
     <div class="prototype-grid">
 
         <!-- =============================================================== -->
-        <!-- SCREEN 1: 主页 (Home)                                           -->
+        <!-- SCREEN 1: 主页 (Home) - 参考左图设计                            -->
         <!-- =============================================================== -->
-        <div class="phone-canvas">
-            <div class="screen-title">主页 (Home)</div>
-            <div class="status-bar"><span>9:41</span><div><i class="fas fa-signal"></i> <i class="fas fa-wifi"></i> <i class="fas fa-battery-full"></i></div></div>
-            <div class="main-content">
-                <div class="p-6">
-                    <div class="flex justify-between items-center mb-4">
-                        <div>
-                            <h1 class="text-3xl font-bold" style="color: var(--color-neutral-800);">Hi, Friend!</h1>
-                            <p style="color: var(--color-neutral-600);">今天想听点什么？</p>
-                        </div>
-                        <i class="fa-regular fa-bell text-2xl" style="color: var(--color-neutral-600);"></i>
-                    </div>
-                    
-                    <div class="card my-6">
-                        <p class="font-semibold text-sm mb-3 flex items-center"><i class="fa-solid fa-bolt mr-2" style="color: var(--color-primary-500);"></i> 120 天连续收听</p>
-                        <div class="flex justify-between items-center mb-4">
-                            <div class="flex flex-col items-center gap-1"><span class="text-xs" style="color: var(--color-neutral-500);">一</span><div class="w-7 h-7 rounded-full flex items-center justify-center" style="background-color: var(--color-primary-500);"><i class="fa-solid fa-headphones-simple text-white text-xs"></i></div></div>
-                            <div class="flex flex-col items-center gap-1"><span class="text-xs" style="color: var(--color-neutral-500);">二</span><div class="w-7 h-7 rounded-full flex items-center justify-center" style="background-color: var(--color-primary-500);"><i class="fa-solid fa-headphones-simple text-white text-xs"></i></div></div>
-                            <div class="flex flex-col items-center gap-1"><span class="text-xs" style="color: var(--color-neutral-500);">三</span><div class="w-7 h-7 rounded-full flex items-center justify-center" style="background-color: var(--color-primary-500);"><i class="fa-solid fa-headphones-simple text-white text-xs"></i></div></div>
-                            <div class="flex flex-col items-center gap-1"><span class="text-xs" style="color: var(--color-neutral-500);">四</span><div class="w-7 h-7 rounded-full flex items-center justify-center" style="background-color: var(--color-primary-500);"><i class="fa-solid fa-headphones-simple text-white text-xs"></i></div></div>
-                            <div class="flex flex-col items-center gap-1"><span class="text-xs" style="color: var(--color-neutral-500);">五</span><div class="w-7 h-7 rounded-full flex items-center justify-center" style="background-color: var(--color-primary-500);"><i class="fa-solid fa-headphones-simple text-white text-xs"></i></div></div>
-                            <div class="flex flex-col items-center gap-1"><span class="text-xs" style="color: var(--color-neutral-500);">六</span><div class="w-7 h-7 rounded-full" style="background-color: var(--color-neutral-400);"></div></div>
-                            <div class="flex flex-col items-center gap-1"><span class="text-xs" style="color: var(--color-neutral-500);">日</span><div class="w-7 h-7 rounded-full" style="background-color: var(--color-neutral-400);"></div></div>
-                        </div>
-                        <button class="btn btn-primary w-full" style="border-radius: var(--radius-full);">我今天听了</button>
-                    </div>
-
-                    <h2 class="text-xl font-bold mb-4">最近收听</h2>
-                    <div class="grid grid-cols-2 gap-5">
-                        <div>
-                            <div class="aspect-[3/4] rounded-lg mb-2 overflow-hidden" style="box-shadow: var(--shadow-md);"><img src="https://source.unsplash.com/random/300x400?book,technology" class="w-full h-full object-cover"/></div>
-                            <p class="font-semibold truncate">AI的未来展望</p>
-                            <p class="text-sm" style="color: var(--color-neutral-500);">15分钟</p>
-                        </div>
-                        <div>
-                            <div class="aspect-[3/4] rounded-lg mb-2 overflow-hidden" style="box-shadow: var(--shadow-md);"><img src="https://source.unsplash.com/random/300x400?design,minimal" class="w-full h-full object-cover"/></div>
-                            <p class="font-semibold truncate">设计系统构建</p>
-                            <p class="text-sm" style="color: var(--color-neutral-500);">22分钟</p>
-                        </div>
-                    </div>
+        <div class="canvas-wrapper">
+            <div class="phone-canvas">
+                <div class="status-bar">
+                    <span>9:41</span>
+                    <div><i class="fas fa-signal"></i> <i class="fas fa-wifi"></i> <i class="fas fa-battery-full"></i></div>
                 </div>
-            </div>
-            <div class="tab-bar">
-                <div class="tab-item active"><i class="fa-solid fa-house text-xl"></i><span>主页</span></div>
-                <div class="tab-item"><i class="fa-solid fa-list-ul text-xl"></i><span>播客库</span></div>
-                <div class="tab-item"><i class="fa-solid fa-circle-plus text-3xl" style="color: var(--color-primary-500);"></i></div>
-                <div class="tab-item"><i class="fa-solid fa-compass text-xl"></i><span>发现</span></div>
-                <div class="tab-item"><i class="fa-regular fa-user text-xl"></i><span>我的</span></div>
-            </div>
-        </div>
-
-        <!-- =============================================================== -->
-        <!-- SCREEN 2: 播客库 (Library)                                      -->
-        <!-- =============================================================== -->
-        <div class="phone-canvas">
-            <div class="screen-title">播客库 (Library)</div>
-            <div class="status-bar"><span>9:41</span><div><i class="fas fa-signal"></i> <i class="fas fa-wifi"></i> <i class="fas fa-battery-full"></i></div></div>
-            <div class="main-content">
-                <div class="p-6">
-                    <div class="flex justify-between items-center mb-6">
-                        <h1 class="text-3xl font-bold" style="color: var(--color-neutral-800);">我的播客</h1>
-                        <i class="fa-solid fa-magnifying-glass text-xl" style="color: var(--color-neutral-600);"></i>
-                    </div>
-
-                    <div class="flex gap-2 mb-6 overflow-x-auto">
-                        <button class="btn btn-primary" style="flex-shrink: 0; font-size: 0.875rem; padding: var(--space-2) var(--space-4);">全部</button>
-                        <button class="btn btn-secondary" style="flex-shrink: 0; font-size: 0.875rem; padding: var(--space-2) var(--space-4);">最近添加</button>
-                        <button class="btn btn-secondary" style="flex-shrink: 0; font-size: 0.875rem; padding: var(--space-2) var(--space-4);">未完成</button>
-                    </div>
-
-                    <div class="space-y-4">
-                        <!-- Podcast Item 1 -->
-                        <div class="card flex gap-4">
-                            <div class="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0" style="box-shadow: var(--shadow-sm);"><img src="https://source.unsplash.com/random/200x200?technology,future" class="w-full h-full object-cover"/></div>
-                            <div class="flex-grow min-w-0">
-                                <h3 class="font-semibold truncate">人工智能的未来展望</h3>
-                                <p class="text-sm truncate" style="color: var(--color-neutral-600);">探讨AI技术发展趋势与社会影响</p>
-                                <div class="flex items-center gap-3 mt-2 text-xs" style="color: var(--color-neutral-500);">
-                                    <span><i class="fa-regular fa-clock mr-1"></i>15分钟</span>
-                                    <span>2025-10-15</span>
-                                </div>
-                            </div>
-                            <div class="flex items-center">
-                                <i class="fa-solid fa-play text-xl" style="color: var(--color-primary-500);"></i>
-                            </div>
-                        </div>
-
-                        <!-- Podcast Item 2 -->
-                        <div class="card flex gap-4">
-                            <div class="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0" style="box-shadow: var(--shadow-sm);"><img src="https://source.unsplash.com/random/200x200?design,system" class="w-full h-full object-cover"/></div>
-                            <div class="flex-grow min-w-0">
-                                <h3 class="font-semibold truncate">构建现代设计系统</h3>
-                                <p class="text-sm truncate" style="color: var(--color-neutral-600);">从设计令牌到组件库的完整指南</p>
-                                <div class="flex items-center gap-3 mt-2 text-xs" style="color: var(--color-neutral-500);">
-                                    <span><i class="fa-regular fa-clock mr-1"></i>22分钟</span>
-                                    <span>2025-10-14</span>
-                                </div>
-                            </div>
-                            <div class="flex items-center">
-                                <i class="fa-solid fa-play text-xl" style="color: var(--color-primary-500);"></i>
-                            </div>
-                        </div>
-
-                        <!-- Podcast Item 3 -->
-                        <div class="card flex gap-4">
-                            <div class="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0" style="box-shadow: var(--shadow-sm);"><img src="https://source.unsplash.com/random/200x200?productivity,workflow" class="w-full h-full object-cover"/></div>
-                            <div class="flex-grow min-w-0">
-                                <h3 class="font-semibold truncate">提升个人生产力的10个习惯</h3>
-                                <p class="text-sm truncate" style="color: var(--color-neutral-600);">时间管理与效率优化实践</p>
-                                <div class="flex items-center gap-3 mt-2 text-xs" style="color: var(--color-neutral-500);">
-                                    <span><i class="fa-regular fa-clock mr-1"></i>18分钟</span>
-                                    <span>2025-10-13</span>
-                                </div>
-                            </div>
-                            <div class="flex items-center">
-                                <i class="fa-solid fa-play text-xl" style="color: var(--color-primary-500);"></i>
-                            </div>
-                        </div>
-
-                        <!-- Podcast Item 4 -->
-                        <div class="card flex gap-4">
-                            <div class="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0" style="box-shadow: var(--shadow-sm);"><img src="https://source.unsplash.com/random/200x200?code,programming" class="w-full h-full object-cover"/></div>
-                            <div class="flex-grow min-w-0">
-                                <h3 class="font-semibold truncate">Kotlin多平台开发实践</h3>
-                                <p class="text-sm truncate" style="color: var(--color-neutral-600);">跨平台代码共享最佳实践</p>
-                                <div class="flex items-center gap-3 mt-2 text-xs" style="color: var(--color-neutral-500);">
-                                    <span><i class="fa-regular fa-clock mr-1"></i>25分钟</span>
-                                    <span>2025-10-12</span>
-                                </div>
-                            </div>
-                            <div class="flex items-center">
-                                <i class="fa-solid fa-play text-xl" style="color: var(--color-primary-500);"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="tab-bar">
-                <div class="tab-item"><i class="fa-solid fa-house text-xl"></i><span>主页</span></div>
-                <div class="tab-item active"><i class="fa-solid fa-list-ul text-xl"></i><span>播客库</span></div>
-                <div class="tab-item"><i class="fa-solid fa-circle-plus text-3xl" style="color: var(--color-primary-500);"></i></div>
-                <div class="tab-item"><i class="fa-solid fa-compass text-xl"></i><span>发现</span></div>
-                <div class="tab-item"><i class="fa-regular fa-user text-xl"></i><span>我的</span></div>
-            </div>
-        </div>
-
-        <!-- =============================================================== -->
-        <!-- SCREEN 3: 创建/输入页 (Create/Input)                           -->
-        <!-- =============================================================== -->
-        <div class="phone-canvas">
-            <div class="screen-title">创建播客 (Create)</div>
-            <div class="status-bar"><span>9:41</span><div><i class="fas fa-signal"></i> <i class="fas fa-wifi"></i> <i class="fas fa-battery-full"></i></div></div>
-            <div class="main-content p-6 flex flex-col">
-                <div class="flex justify-between items-center mb-6">
-                    <h1 class="text-3xl font-bold" style="color: var(--color-neutral-800);">创建新播客</h1>
-                    <i class="fa-solid fa-xmark text-2xl" style="color: var(--color-neutral-600);"></i>
-                </div>
-                <p class="mb-6" style="color: var(--color-neutral-600);">粘贴文本内容，一键生成您的个人播客。</p>
                 
-                <textarea rows="10" class="input mb-4" placeholder="在此处粘贴您的文本内容..."></textarea>
+                <div class="main-content">
+                    <div class="px-6 py-4">
+                        <!-- 标题区域 -->
+                        <div class="flex justify-between items-start mb-8">
+                            <div>
+                                <h1 class="text-3xl font-bold mb-1" style="color: var(--color-text-primary);">嗨，朋友！</h1>
+                                <p class="text-base" style="color: var(--color-text-secondary);">今天想听点什么？</p>
+                            </div>
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background-color: white;">
+                                <i class="fa-regular fa-bell text-lg" style="color: var(--color-text-secondary);"></i>
+                            </div>
+                        </div>
 
-                <div class="mb-4">
-                    <label class="block text-sm font-semibold mb-2" style="color: var(--color-neutral-700);">选择声音</label>
-                    <select class="input">
-                        <option>Cherry - 温柔女声 (默认)</option>
-                        <option>Ethan - 沉稳男声</option>
-                        <option>Nofish - 清新女声</option>
-                        <option>Jennifer - 英文女声</option>
-                        <option>Ryan - 英文男声</option>
-                    </select>
+                        <!-- 连续收听卡片 -->
+                        <div class="rounded-3xl p-6 mb-8" style="background-color: white; box-shadow: var(--shadow-card);">
+                            <div class="flex items-center gap-2 mb-4">
+                                <i class="fa-solid fa-bolt" style="color: var(--color-primary-500); font-size: 1.25rem;"></i>
+                                <span class="font-semibold text-base">连续收听 120 天</span>
+                            </div>
+                            
+                            <div class="flex justify-between mb-6">
+                                <div class="streak-day">
+                                    <span class="text-xs" style="color: var(--color-text-tertiary);">周一</span>
+                                    <div class="streak-circle active">
+                                        <i class="fa-solid fa-headphones text-white text-sm"></i>
+                                    </div>
+                                </div>
+                                <div class="streak-day">
+                                    <span class="text-xs" style="color: var(--color-text-tertiary);">周二</span>
+                                    <div class="streak-circle active">
+                                        <i class="fa-solid fa-headphones text-white text-sm"></i>
+                                    </div>
+                                </div>
+                                <div class="streak-day">
+                                    <span class="text-xs" style="color: var(--color-text-tertiary);">周三</span>
+                                    <div class="streak-circle active">
+                                        <i class="fa-solid fa-headphones text-white text-sm"></i>
+                                    </div>
+                                </div>
+                                <div class="streak-day">
+                                    <span class="text-xs" style="color: var(--color-text-tertiary);">周四</span>
+                                    <div class="streak-circle active">
+                                        <i class="fa-solid fa-headphones text-white text-sm"></i>
+                                    </div>
+                                </div>
+                                <div class="streak-day">
+                                    <span class="text-xs" style="color: var(--color-text-tertiary);">周五</span>
+                                    <div class="streak-circle active">
+                                        <i class="fa-solid fa-headphones text-white text-sm"></i>
+                                    </div>
+                                </div>
+                                <div class="streak-day">
+                                    <span class="text-xs" style="color: var(--color-text-tertiary);">周六</span>
+                                    <div class="streak-circle inactive"></div>
+                                </div>
+                                <div class="streak-day">
+                                    <span class="text-xs" style="color: var(--color-text-tertiary);">周日</span>
+                                    <div class="streak-circle inactive"></div>
+                                </div>
+                            </div>
+
+                            <button class="btn btn-primary w-full">
+                                我今天听了
+                            </button>
+                        </div>
+
+                        <!-- 推荐内容 -->
+                        <h2 class="text-xl font-bold mb-5">为你推荐</h2>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <!-- 播客卡片 1 -->
+                            <div>
+                                <div class="book-cover aspect-[3/4] mb-3">
+                                    <img src="https://source.unsplash.com/random/300x400?book,atomic-habits" class="w-full h-full object-cover"/>
+                                </div>
+                                <h3 class="font-semibold text-base mb-1 line-clamp-2">原子习惯</h3>
+                                <p class="text-sm mb-2" style="color: var(--color-text-secondary);">詹姆斯·克利尔</p>
+                            </div>
+
+                            <!-- 播客卡片 2 -->
+                            <div>
+                                <div class="book-cover aspect-[3/4] mb-3">
+                                    <img src="https://source.unsplash.com/random/300x400?book,design" class="w-full h-full object-cover"/>
+                                </div>
+                                <h3 class="font-semibold text-base mb-1 line-clamp-2">设计心理学</h3>
+                                <p class="text-sm mb-2" style="color: var(--color-text-secondary);">唐纳德·诺曼</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <button class="btn btn-primary w-full text-lg mt-auto" style="border-radius: var(--radius-full); padding: var(--space-4);">
-                    <i class="fa-solid fa-wand-magic-sparkles"></i> 一键生成
-                </button>
+                <!-- 底部导航栏 - 参考图片设计 -->
+                <div class="tab-bar">
+                    <div class="tab-item active">
+                        <i class="fa-solid fa-book-open"></i>
+                        <span>阅读</span>
+                    </div>
+                    <div class="tab-item">
+                        <i class="fa-solid fa-bookmark"></i>
+                        <span>书架</span>
+                    </div>
+                    <div class="tab-item">
+                        <i class="fa-solid fa-compass"></i>
+                        <span>发现</span>
+                    </div>
+                    <div class="tab-item">
+                        <i class="fa-solid fa-headphones"></i>
+                        <span>有声书</span>
+                    </div>
+                    <div class="tab-item">
+                        <i class="fa-regular fa-user"></i>
+                        <span>我的</span>
+                    </div>
+                </div>
             </div>
+            <div class="screen-label">主页</div>
         </div>
 
         <!-- =============================================================== -->
-        <!-- SCREEN 4: 播客详情页 (Podcast Details)                         -->
+        <!-- SCREEN 2: 播客详情 (Details) - 参考中图设计                     -->
         <!-- =============================================================== -->
-        <div class="phone-canvas">
-            <div class="screen-title">播客详情 (Details)</div>
-            <div class="status-bar"><span>9:41</span><div><i class="fas fa-signal"></i> <i class="fas fa-wifi"></i> <i class="fas fa-battery-full"></i></div></div>
-            <div class="main-content">
-                <div class="flex justify-between items-center p-4">
-                    <i class="fa-solid fa-chevron-left text-xl"></i>
-                    <div>
-                        <i class="fa-regular fa-bookmark text-xl mr-4"></i>
-                        <i class="fa-solid fa-arrow-up-from-bracket text-xl"></i>
+        <div class="canvas-wrapper">
+            <div class="phone-canvas">
+                <div class="status-bar">
+                    <span>9:41</span>
+                    <div><i class="fas fa-signal"></i> <i class="fas fa-wifi"></i> <i class="fas fa-battery-full"></i></div>
+                </div>
+                
+                <div class="main-content">
+                    <!-- 顶部操作栏 -->
+                    <div class="flex justify-between items-center px-6 py-3">
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background-color: white;">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </div>
+                        <div class="flex gap-3">
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background-color: white;">
+                                <i class="fa-regular fa-bookmark"></i>
+                            </div>
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background-color: white;">
+                                <i class="fa-solid fa-arrow-up-from-bracket"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 书籍封面和信息 -->
+                    <div class="flex flex-col items-center px-8 pt-4">
+                        <div class="book-cover w-56 aspect-[3/4] mb-6">
+                            <img src="https://source.unsplash.com/random/400x600?atomic-habits,book" class="w-full h-full object-cover"/>
+                        </div>
+
+                        <h1 class="text-2xl font-bold text-center mb-2">原子习惯</h1>
+                        <p class="text-base mb-6" style="color: var(--color-text-secondary);">詹姆斯·克利尔</p>
+
+                        <!-- 元数据 -->
+                        <div class="flex items-center gap-6 mb-6 text-sm" style="color: var(--color-text-secondary);">
+                            <div class="flex items-center gap-1">
+                                <i class="fa-regular fa-star"></i>
+                                <span>4.5 评分</span>
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <i class="fa-regular fa-file-lines"></i>
+                                <span>356 页</span>
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <i class="fa-regular fa-eye"></i>
+                                <span>1.2万 收听</span>
+                            </div>
+                        </div>
+
+                        <!-- 内容简介 -->
+                        <div class="w-full text-left mb-8">
+                            <h3 class="font-semibold text-lg mb-3">内容简介</h3>
+                            <p class="text-sm leading-relaxed" style="color: var(--color-text-secondary);">
+                                每天进步一点点，微小改变带来惊人成就。世界级习惯养成专家詹姆斯·克利尔揭示了如何通过微小的习惯改变，实现卓越的人生成就。本书提供了简单实用的方法，帮助你建立好习惯、打破坏习惯...
+                            </p>
+                        </div>
+
+                        <!-- 行动按钮 - 参考图片设计 -->
+                        <div class="flex gap-3 w-full">
+                            <button class="btn btn-secondary flex-1">
+                                <i class="fa-solid fa-headphones"></i>
+                                <span>收听</span>
+                            </button>
+                            <button class="btn btn-primary flex-1">
+                                <i class="fa-solid fa-book-open"></i>
+                                <span>阅读</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
-                <div class="flex flex-col items-center px-8">
-                    <div class="w-48 aspect-[3/4] rounded-lg mb-6 overflow-hidden" style="box-shadow: var(--shadow-lg);"><img src="https://source.unsplash.com/random/400x600?technology,artificial-intelligence" class="w-full h-full object-cover"/></div>
-                    <h1 class="text-2xl font-bold text-center">人工智能的未来展望</h1>
-                    <p class="mt-1" style="color: var(--color-neutral-600);">来源: TechCrunch Weekly</p>
+            </div>
+            <div class="screen-label">播客详情</div>
+        </div>
 
-                    <div class="flex justify-around w-full my-6 py-3" style="border-top: 1px solid var(--color-neutral-400); border-bottom: 1px solid var(--color-neutral-400);">
-                        <div class="text-center text-sm"><i class="fa-regular fa-star mr-1"></i> 4.5</div>
-                        <div class="text-center text-sm"><i class="fa-regular fa-clock mr-1"></i> 15分钟</div>
-                        <div class="text-center text-sm"><i class="fa-solid fa-headphones-simple mr-1"></i> 1.2k</div>
+        <!-- =============================================================== -->
+        <!-- SCREEN 3: 播放器 (Player) - 全屏播放界面                        -->
+        <!-- =============================================================== -->
+        <div class="canvas-wrapper">
+            <div class="phone-canvas">
+                <div class="status-bar">
+                    <span>9:41</span>
+                    <div><i class="fas fa-signal"></i> <i class="fas fa-wifi"></i> <i class="fas fa-battery-full"></i></div>
+                </div>
+                
+                <div class="main-content flex flex-col">
+                    <!-- 顶部栏 -->
+                    <div class="flex justify-between items-center px-6 py-3">
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background-color: white;">
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </div>
+                        <div class="text-center flex-1">
+                            <p class="font-semibold text-sm">正在播放</p>
+                        </div>
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background-color: white;">
+                            <i class="fa-solid fa-ellipsis"></i>
+                        </div>
                     </div>
 
-                    <div class="text-left w-full">
-                        <h2 class="text-lg font-semibold mb-2">内容简介</h2>
-                        <p class="text-sm leading-relaxed" style="color: var(--color-neutral-600);">
-                            本文深入探讨了当前人工智能发展的最新趋势，分析了大型语言模型（LLM）对社会各行各业的潜在影响。从技术突破到伦理挑战，全面描绘了智能时代的未来图景...
+                    <!-- 封面 -->
+                    <div class="flex-1 flex items-center justify-center px-8">
+                        <div class="book-cover w-80 aspect-square">
+                            <img src="https://source.unsplash.com/random/600x600?book,habits" class="w-full h-full object-cover"/>
+                        </div>
+                    </div>
+
+                    <!-- 播放信息和控制 -->
+                    <div class="px-8 pb-6">
+                        <div class="text-center mb-6">
+                            <h2 class="text-xl font-bold mb-1">原子习惯</h2>
+                            <p style="color: var(--color-text-secondary);">詹姆斯·克利尔</p>
+                        </div>
+
+                        <!-- 进度条 -->
+                        <div class="mb-6">
+                            <div class="w-full h-1 rounded-full mb-2" style="background-color: var(--color-border);">
+                                <div class="h-full rounded-full" style="width: 35%; background-color: var(--color-primary-500);"></div>
+                            </div>
+                            <div class="flex justify-between text-xs" style="color: var(--color-text-tertiary);">
+                                <span>12:45</span>
+                                <span>36:20</span>
+                            </div>
+                        </div>
+
+                        <!-- 播放控制 -->
+                        <div class="flex items-center justify-center gap-8 mb-6">
+                            <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background-color: white;">
+                                <i class="fa-solid fa-backward-step text-xl" style="color: var(--color-text-secondary);"></i>
+                            </div>
+                            
+                            <div class="w-20 h-20 rounded-full flex items-center justify-center" style="background-color: var(--color-primary-500); box-shadow: 0 8px 24px rgba(255, 127, 80, 0.4);">
+                                <i class="fa-solid fa-pause text-3xl text-white"></i>
+                            </div>
+                            
+                            <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background-color: white;">
+                                <i class="fa-solid fa-forward-step text-xl" style="color: var(--color-text-secondary);"></i>
+                            </div>
+                        </div>
+
+                        <!-- 辅助功能 -->
+                        <div class="flex justify-around items-center pt-4" style="border-top: 1px solid var(--color-border);">
+                            <i class="fa-solid fa-list-ul text-lg" style="color: var(--color-text-tertiary);"></i>
+                            <i class="fa-solid fa-gauge-simple-high text-lg" style="color: var(--color-text-tertiary);"></i>
+                            <i class="fa-regular fa-clock text-lg" style="color: var(--color-text-tertiary);"></i>
+                            <i class="fa-solid fa-share-nodes text-lg" style="color: var(--color-text-tertiary);"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="screen-label">播放器</div>
+        </div>
+
+        <!-- =============================================================== -->
+        <!-- SCREEN 4: 书架/播客库 (Library)                                 -->
+        <!-- =============================================================== -->
+        <div class="canvas-wrapper">
+            <div class="phone-canvas">
+                <div class="status-bar">
+                    <span>9:41</span>
+                    <div><i class="fas fa-signal"></i> <i class="fas fa-wifi"></i> <i class="fas fa-battery-full"></i></div>
+                </div>
+                
+                <div class="main-content">
+                    <div class="px-6 py-4">
+                        <!-- 标题栏 -->
+                        <div class="flex justify-between items-center mb-6">
+                            <h1 class="text-3xl font-bold">我的书架</h1>
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background-color: white;">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </div>
+                        </div>
+
+                        <!-- 筛选标签 -->
+                        <div class="flex gap-2 mb-6 overflow-x-auto pb-2">
+                            <button class="btn btn-primary btn-small">全部</button>
+                            <button class="btn btn-secondary btn-small">最近添加</button>
+                            <button class="btn btn-secondary btn-small">未完成</button>
+                            <button class="btn btn-secondary btn-small">已收藏</button>
+                        </div>
+
+                        <!-- 播客列表 -->
+                        <div class="space-y-4">
+                            <!-- 播客项 1 -->
+                            <div class="rounded-2xl p-4 flex gap-4" style="background-color: white;">
+                                <div class="book-cover w-20 h-20 flex-shrink-0">
+                                    <img src="https://source.unsplash.com/random/200x200?ai,future" class="w-full h-full object-cover"/>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <h3 class="font-semibold text-base mb-1 truncate">人工智能的未来</h3>
+                                    <p class="text-sm mb-2 truncate" style="color: var(--color-text-secondary);">科技前沿探索</p>
+                                    <div class="flex items-center gap-3 text-xs" style="color: var(--color-text-tertiary);">
+                                        <span><i class="fa-regular fa-clock mr-1"></i>15分钟</span>
+                                        <span>10月15日</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background-color: var(--color-primary-100);">
+                                        <i class="fa-solid fa-play" style="color: var(--color-primary-500);"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 播客项 2 -->
+                            <div class="rounded-2xl p-4 flex gap-4" style="background-color: white;">
+                                <div class="book-cover w-20 h-20 flex-shrink-0">
+                                    <img src="https://source.unsplash.com/random/200x200?productivity,habits" class="w-full h-full object-cover"/>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <h3 class="font-semibold text-base mb-1 truncate">提升个人效率的10个方法</h3>
+                                    <p class="text-sm mb-2 truncate" style="color: var(--color-text-secondary);">时间管理实践</p>
+                                    <div class="flex items-center gap-3 text-xs" style="color: var(--color-text-tertiary);">
+                                        <span><i class="fa-regular fa-clock mr-1"></i>22分钟</span>
+                                        <span>10月14日</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background-color: var(--color-primary-100);">
+                                        <i class="fa-solid fa-play" style="color: var(--color-primary-500);"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 播客项 3 -->
+                            <div class="rounded-2xl p-4 flex gap-4" style="background-color: white;">
+                                <div class="book-cover w-20 h-20 flex-shrink-0">
+                                    <img src="https://source.unsplash.com/random/200x200?design,system" class="w-full h-full object-cover"/>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <h3 class="font-semibold text-base mb-1 truncate">构建现代设计系统</h3>
+                                    <p class="text-sm mb-2 truncate" style="color: var(--color-text-secondary);">设计工程实践</p>
+                                    <div class="flex items-center gap-3 text-xs" style="color: var(--color-text-tertiary);">
+                                        <span><i class="fa-regular fa-clock mr-1"></i>18分钟</span>
+                                        <span>10月13日</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background-color: var(--color-primary-100);">
+                                        <i class="fa-solid fa-play" style="color: var(--color-primary-500);"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 播客项 4 -->
+                            <div class="rounded-2xl p-4 flex gap-4" style="background-color: white;">
+                                <div class="book-cover w-20 h-20 flex-shrink-0">
+                                    <img src="https://source.unsplash.com/random/200x200?code,programming" class="w-full h-full object-cover"/>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <h3 class="font-semibold text-base mb-1 truncate">Kotlin多平台开发</h3>
+                                    <p class="text-sm mb-2 truncate" style="color: var(--color-text-secondary);">跨平台开发实践</p>
+                                    <div class="flex items-center gap-3 text-xs" style="color: var(--color-text-tertiary);">
+                                        <span><i class="fa-regular fa-clock mr-1"></i>25分钟</span>
+                                        <span>10月12日</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background-color: var(--color-primary-100);">
+                                        <i class="fa-solid fa-play" style="color: var(--color-primary-500);"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-bar">
+                    <div class="tab-item">
+                        <i class="fa-solid fa-book-open"></i>
+                        <span>阅读</span>
+                    </div>
+                    <div class="tab-item active">
+                        <i class="fa-solid fa-bookmark"></i>
+                        <span>书架</span>
+                    </div>
+                    <div class="tab-item">
+                        <i class="fa-solid fa-compass"></i>
+                        <span>发现</span>
+                    </div>
+                    <div class="tab-item">
+                        <i class="fa-solid fa-headphones"></i>
+                        <span>有声书</span>
+                    </div>
+                    <div class="tab-item">
+                        <i class="fa-regular fa-user"></i>
+                        <span>我的</span>
+                    </div>
+                </div>
+            </div>
+            <div class="screen-label">书架/播客库</div>
+        </div>
+
+        <!-- =============================================================== -->
+        <!-- SCREEN 5: 阅读页面 (Reading) - 参考右图设计                     -->
+        <!-- =============================================================== -->
+        <div class="canvas-wrapper">
+            <div class="phone-canvas" style="background-color: #FFFBF5;">
+                <div class="status-bar">
+                    <span>9:41</span>
+                    <div><i class="fas fa-signal"></i> <i class="fas fa-wifi"></i> <i class="fas fa-battery-full"></i></div>
+                </div>
+                
+                <div class="main-content">
+                    <!-- 顶部工具栏 -->
+                    <div class="flex justify-between items-center px-6 py-3">
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background-color: white;">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </div>
+                        <div class="flex gap-2">
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background-color: white;">
+                                <i class="fa-solid fa-magnifying-glass text-sm"></i>
+                            </div>
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background-color: white;">
+                                <i class="fa-solid fa-text-height text-sm"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 文章内容 -->
+                    <div class="px-8 py-4">
+                        <h1 class="text-2xl font-bold mb-6 text-center" style="color: var(--color-text-primary);">习惯的记分卡</h1>
+                        
+                        <p class="text-base leading-relaxed mb-4" style="color: var(--color-text-primary);">
+                            日本铁路系统被誉为世界上最好的系统之一。如果你在东京坐火车，你会注意到列车员有一个奇特的习惯。
+                        </p>
+                        
+                        <p class="text-base leading-relaxed mb-4" style="color: var(--color-text-primary);">
+                            当每个操作员驾驶火车时，他们会进行一种指向不同物体的仪式并喊出指令。当火车接近信号时，操作员会指向它并说："信号是绿色的。"当火车拉入车站时，操作员会<mark style="background-color: var(--color-primary-200); padding: 2px 4px; border-radius: 4px;">指向速度表并喊出</mark>确切的速度。当需要离开时，操作员会指向时间表并说明时间。
+                        </p>
+
+                        <p class="text-base leading-relaxed mb-4" style="color: var(--color-text-primary);">
+                            在月台上，其他员工正在执行类似的动作。离开前，工作人员会指向平台边缘并宣布："一切就绪！"每个细节都被识别、指向并大声说出。
+                        </p>
+
+                        <p class="text-base leading-relaxed" style="color: var(--color-text-primary);">
+                            这个过程，被称为指向和呼叫（Pointing-and-Calling），是一个旨在减少错误的安全系统。它看起来很傻，但它的效果令人难以置信。
                         </p>
                     </div>
+                </div>
 
-                    <div class="flex gap-4 w-full mt-8">
-                        <button class="btn btn-secondary flex-1">
-                           <i class="fa-solid fa-align-left"></i> 查看原文
-                        </button>
-                        <button class="btn btn-primary flex-1" style="border-radius: var(--radius-full);">
-                           <i class="fa-solid fa-play"></i> 开始收听
+                <!-- 底部工具栏 - 参考图片 -->
+                <div class="flex justify-center gap-4 py-6" style="background-color: white; border-top: 1px solid var(--color-border);">
+                    <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background-color: var(--color-bg-peach);">
+                        <i class="fa-solid fa-headphones" style="color: var(--color-primary-500);"></i>
+                    </div>
+                    <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background-color: var(--color-bg-peach);">
+                        <i class="fa-solid fa-book-open" style="color: var(--color-primary-500);"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="screen-label">阅读页面</div>
+        </div>
+
+        <!-- =============================================================== -->
+        <!-- SCREEN 6: 创建播客 (Create)                                     -->
+        <!-- =============================================================== -->
+        <div class="canvas-wrapper">
+            <div class="phone-canvas">
+                <div class="status-bar">
+                    <span>9:41</span>
+                    <div><i class="fas fa-signal"></i> <i class="fas fa-wifi"></i> <i class="fas fa-battery-full"></i></div>
+                </div>
+                
+                <div class="main-content">
+                    <div class="px-6 py-4 h-full flex flex-col">
+                        <!-- 标题栏 -->
+                        <div class="flex justify-between items-center mb-6">
+                            <h1 class="text-3xl font-bold">创建播客</h1>
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background-color: white;">
+                                <i class="fa-solid fa-xmark"></i>
+                            </div>
+                        </div>
+
+                        <p class="text-base mb-6" style="color: var(--color-text-secondary);">
+                            粘贴文本内容，一键生成专属播客
+                        </p>
+
+                        <!-- 文本输入区 -->
+                        <div class="flex-1 mb-6">
+                            <textarea 
+                                class="input h-full resize-none" 
+                                placeholder="在此粘贴您的文本内容...&#10;&#10;支持任意长度文本，系统会自动分片处理"
+                                style="min-height: 200px;"
+                            ></textarea>
+                        </div>
+
+                        <!-- 配置选项 -->
+                        <div class="rounded-2xl p-4 mb-6" style="background-color: white;">
+                            <div class="mb-4">
+                                <label class="block text-sm font-semibold mb-2" style="color: var(--color-text-secondary);">
+                                    <i class="fa-solid fa-microphone mr-2" style="color: var(--color-primary-500);"></i>选择声音
+                                </label>
+                                <select class="input">
+                                    <option>Cherry - 温柔女声（推荐）</option>
+                                    <option>Ethan - 沉稳男声</option>
+                                    <option>Nofish - 清新女声</option>
+                                    <option>Jennifer - 英文女声</option>
+                                    <option>Ryan - 英文男声</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold mb-2" style="color: var(--color-text-secondary);">
+                                    <i class="fa-solid fa-language mr-2" style="color: var(--color-primary-500);"></i>语言
+                                </label>
+                                <select class="input">
+                                    <option>中文</option>
+                                    <option>英文</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- 生成按钮 -->
+                        <button class="btn btn-primary w-full text-lg">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                            <span>一键生成播客</span>
                         </button>
                     </div>
                 </div>
             </div>
+            <div class="screen-label">创建播客</div>
         </div>
 
         <!-- =============================================================== -->
-        <!-- SCREEN 5: 播放器界面 (Player)                                   -->
+        <!-- SCREEN 7: 生成中 (Processing)                                   -->
         <!-- =============================================================== -->
-        <div class="phone-canvas">
-            <div class="screen-title">播放器 (Player)</div>
-            <div class="status-bar"><span>9:41</span><div><i class="fas fa-signal"></i> <i class="fas fa-wifi"></i> <i class="fas fa-battery-full"></i></div></div>
-            <div class="flex flex-col h-full">
-                <div class="flex justify-between items-center p-4">
-                    <i class="fa-solid fa-chevron-left text-xl"></i>
-                    <div class="text-center">
-                        <p class="font-bold">人工智能的未来展望</p>
-                        <p class="text-sm" style="color: var(--color-neutral-500);">TechCrunch Weekly</p>
-                    </div>
-                    <i class="fa-solid fa-ellipsis text-xl"></i>
+        <div class="canvas-wrapper">
+            <div class="phone-canvas">
+                <div class="status-bar">
+                    <span>9:41</span>
+                    <div><i class="fas fa-signal"></i> <i class="fas fa-wifi"></i> <i class="fas fa-battery-full"></i></div>
                 </div>
-                <div class="flex-grow flex items-center justify-center">
-                     <div class="w-72 h-72 rounded-2xl overflow-hidden" style="box-shadow: var(--shadow-lg);">
-                         <img src="https://source.unsplash.com/random/600x600?technology,ai" class="w-full h-full object-cover"/>
-                     </div>
-                </div>
-                <div class="p-6">
-                    <div class="mb-4">
-                        <div class="w-full h-2 rounded-full overflow-hidden" style="background-color: var(--color-neutral-400);"><div class="h-full" style="width: 33%; background-color: var(--color-primary-500); border-radius: var(--radius-full);"></div></div>
-                        <div class="flex justify-between text-xs mt-2" style="color: var(--color-neutral-500);"><span>05:09</span><span>15:27</span></div>
+                
+                <div class="main-content flex items-center justify-center">
+                    <div class="px-8 text-center">
+                        <!-- 进度动画 -->
+                        <div class="relative w-32 h-32 mx-auto mb-8">
+                            <svg class="w-full h-full" viewBox="0 0 120 120">
+                                <circle cx="60" cy="60" r="54" fill="none" stroke="var(--color-border)" stroke-width="8"/>
+                                <circle cx="60" cy="60" r="54" fill="none" stroke="var(--color-primary-500)" stroke-width="8" stroke-linecap="round" stroke-dasharray="240 340" transform="rotate(-90 60 60)">
+                                    <animateTransform attributeName="transform" type="rotate" from="0 60 60" to="360 60 60" dur="2s" repeatCount="indefinite"/>
+                                </circle>
+                            </svg>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <span class="text-2xl font-bold" style="color: var(--color-primary-500);">70%</span>
+                            </div>
+                        </div>
+
+                        <h2 class="text-2xl font-bold mb-2">正在生成播客...</h2>
+                        <p class="text-base mb-2" style="color: var(--color-text-secondary);">
+                            生成中...(第 3/5 片)
+                        </p>
+                        <p class="text-sm mb-8" style="color: var(--color-text-tertiary);">
+                            预计还需 25 秒
+                        </p>
+
+                        <!-- 步骤进度 -->
+                        <div class="rounded-2xl p-5" style="background-color: white; box-shadow: var(--shadow-card);">
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded-full flex items-center justify-center" style="background-color: var(--color-primary-100);">
+                                            <i class="fa-solid fa-check" style="color: var(--color-primary-500);"></i>
+                                        </div>
+                                        <span class="font-medium">文本分片</span>
+                                    </div>
+                                    <span class="text-sm font-semibold" style="color: var(--color-primary-500);">完成</span>
+                                </div>
+
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded-full flex items-center justify-center" style="background-color: var(--color-primary-500);">
+                                            <i class="fa-solid fa-spinner fa-spin text-white"></i>
+                                        </div>
+                                        <span class="font-medium">语音合成</span>
+                                    </div>
+                                    <span class="text-sm font-semibold" style="color: var(--color-primary-500);">进行中</span>
+                                </div>
+
+                                <div class="flex items-center justify-between" style="opacity: 0.4;">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded-full flex items-center justify-center" style="background-color: var(--color-border);">
+                                            <i class="fa-regular fa-circle" style="color: var(--color-text-tertiary);"></i>
+                                        </div>
+                                        <span class="font-medium">音频拼接</span>
+                                    </div>
+                                    <span class="text-sm" style="color: var(--color-text-tertiary);">等待中</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="flex items-center justify-around">
-                        <i class="fa-solid fa-backward-step text-2xl" style="color: var(--color-neutral-500);"></i>
-                        <div class="w-20 h-20 rounded-full flex items-center justify-center" style="background-color: var(--color-primary-500); box-shadow: var(--shadow-md);"><i class="fa-solid fa-pause text-4xl text-white"></i></div>
-                        <i class="fa-solid fa-forward-step text-2xl" style="color: var(--color-neutral-500);"></i>
-                    </div>
-                </div>
-                <div class="flex justify-around items-center py-4" style="background-color: var(--color-neutral-100); border-top: 1px solid var(--color-neutral-400);">
-                    <i class="fa-solid fa-list-ul text-xl" style="color: var(--color-neutral-500);"></i>
-                    <i class="fa-solid fa-gauge-simple-high text-xl" style="color: var(--color-neutral-500);"></i>
-                    <i class="fa-regular fa-moon text-xl" style="color: var(--color-neutral-500);"></i>
-                    <i class="fa-solid fa-share-nodes text-xl" style="color: var(--color-neutral-500);"></i>
                 </div>
             </div>
+            <div class="screen-label">生成进度</div>
         </div>
 
         <!-- =============================================================== -->
-        <!-- SCREEN 6: 设置页面 (Settings)                                   -->
+        <!-- SCREEN 8: 空状态 (Empty State)                                  -->
         <!-- =============================================================== -->
-        <div class="phone-canvas">
-            <div class="screen-title">设置 (Settings)</div>
-            <div class="status-bar"><span>9:41</span><div><i class="fas fa-signal"></i> <i class="fas fa-wifi"></i> <i class="fas fa-battery-full"></i></div></div>
-            <div class="main-content">
-                <div class="p-6">
-                    <div class="flex justify-between items-center mb-6">
-                        <h1 class="text-3xl font-bold" style="color: var(--color-neutral-800);">设置</h1>
-                        <i class="fa-solid fa-chevron-left text-xl"></i>
-                    </div>
+        <div class="canvas-wrapper">
+            <div class="phone-canvas">
+                <div class="status-bar">
+                    <span>9:41</span>
+                    <div><i class="fas fa-signal"></i> <i class="fas fa-wifi"></i> <i class="fas fa-battery-full"></i></div>
+                </div>
+                
+                <div class="main-content flex items-center justify-center">
+                    <div class="px-8 text-center">
+                        <!-- 空状态插图 -->
+                        <div class="w-48 h-48 mx-auto mb-8 relative">
+                            <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <!-- 大圆背景 -->
+                                <circle cx="100" cy="100" r="90" fill="var(--color-primary-100)" opacity="0.4"/>
+                                <circle cx="100" cy="100" r="70" fill="var(--color-primary-200)" opacity="0.5"/>
+                                
+                                <!-- 耳机图标 -->
+                                <path d="M70 90 Q70 60 100 60 Q130 60 130 90" stroke="var(--color-primary-500)" stroke-width="6" fill="none" stroke-linecap="round"/>
+                                <rect x="60" y="85" width="20" height="30" rx="8" fill="var(--color-primary-500)"/>
+                                <rect x="120" y="85" width="20" height="30" rx="8" fill="var(--color-primary-500)"/>
+                                
+                                <!-- 音波 -->
+                                <path d="M50 100 Q45 100 45 95" stroke="var(--color-primary-300)" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.6"/>
+                                <path d="M150 100 Q155 100 155 95" stroke="var(--color-primary-300)" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.6"/>
+                            </svg>
+                        </div>
 
-                    <div class="space-y-6">
+                        <h2 class="text-2xl font-bold mb-3">还没有播客</h2>
+                        <p class="text-base mb-8" style="color: var(--color-text-secondary);">
+                            创建您的第一个播客<br/>开始智能听读之旅
+                        </p>
+
+                        <button class="btn btn-primary">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>创建第一个播客</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="tab-bar">
+                    <div class="tab-item">
+                        <i class="fa-solid fa-book-open"></i>
+                        <span>阅读</span>
+                    </div>
+                    <div class="tab-item active">
+                        <i class="fa-solid fa-bookmark"></i>
+                        <span>书架</span>
+                    </div>
+                    <div class="tab-item">
+                        <i class="fa-solid fa-compass"></i>
+                        <span>发现</span>
+                    </div>
+                    <div class="tab-item">
+                        <i class="fa-solid fa-headphones"></i>
+                        <span>有声书</span>
+                    </div>
+                    <div class="tab-item">
+                        <i class="fa-regular fa-user"></i>
+                        <span>我的</span>
+                    </div>
+                </div>
+            </div>
+            <div class="screen-label">空状态</div>
+        </div>
+
+        <!-- =============================================================== -->
+        <!-- SCREEN 9: 设置页面 (Settings)                                   -->
+        <!-- =============================================================== -->
+        <div class="canvas-wrapper">
+            <div class="phone-canvas">
+                <div class="status-bar">
+                    <span>9:41</span>
+                    <div><i class="fas fa-signal"></i> <i class="fas fa-wifi"></i> <i class="fas fa-battery-full"></i></div>
+                </div>
+                
+                <div class="main-content">
+                    <div class="px-6 py-4">
+                        <!-- 标题栏 -->
+                        <div class="flex justify-between items-center mb-8">
+                            <h1 class="text-3xl font-bold">设置</h1>
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background-color: white;">
+                                <i class="fa-solid fa-chevron-left"></i>
+                            </div>
+                        </div>
+
+                        <!-- 用户信息卡片 -->
+                        <div class="rounded-2xl p-5 mb-6 flex items-center gap-4" style="background-color: white;">
+                            <div class="w-16 h-16 rounded-full flex items-center justify-center flex-shrink-0" style="background: linear-gradient(135deg, var(--color-primary-400), var(--color-primary-600));">
+                                <i class="fa-solid fa-user text-2xl text-white"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg mb-1">听书达人</h3>
+                                <p class="text-sm" style="color: var(--color-text-secondary);">已收听 45 个播客</p>
+                            </div>
+                        </div>
+
                         <!-- API配置 -->
-                        <div>
-                            <h2 class="text-lg font-semibold mb-3" style="color: var(--color-neutral-800);">API 配置</h2>
-                            <div class="card space-y-4">
+                        <div class="mb-6">
+                            <h2 class="font-bold text-lg mb-4">API 配置</h2>
+                            <div class="rounded-2xl p-5 space-y-4" style="background-color: white;">
                                 <div>
-                                    <label class="block text-sm font-semibold mb-2" style="color: var(--color-neutral-700);">Qwen3 API Key</label>
+                                    <label class="block text-sm font-semibold mb-2" style="color: var(--color-text-secondary);">Qwen3 API Key</label>
                                     <input type="password" class="input" placeholder="sk-xxxxxxxxxxxx" value="sk-****************"/>
                                 </div>
-                                <div class="flex items-center justify-between py-2">
-                                    <span class="text-sm font-semibold" style="color: var(--color-neutral-700);">API 状态</span>
-                                    <span class="text-sm px-3 py-1 rounded-full" style="background-color: var(--color-success); color: white;">已连接</span>
+                                <div class="flex items-center justify-between pt-2">
+                                    <span class="text-sm font-medium">连接状态</span>
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-2 h-2 rounded-full" style="background-color: #28a745;"></div>
+                                        <span class="text-sm font-semibold" style="color: #28a745;">已连接</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- 语音设置 -->
-                        <div>
-                            <h2 class="text-lg font-semibold mb-3" style="color: var(--color-neutral-800);">语音设置</h2>
-                            <div class="card space-y-4">
+                        <div class="mb-6">
+                            <h2 class="font-bold text-lg mb-4">语音设置</h2>
+                            <div class="rounded-2xl p-5 space-y-4" style="background-color: white;">
                                 <div>
-                                    <label class="block text-sm font-semibold mb-2" style="color: var(--color-neutral-700);">默认语音</label>
+                                    <label class="block text-sm font-semibold mb-2" style="color: var(--color-text-secondary);">默认语音</label>
                                     <select class="input">
                                         <option>Cherry - 温柔女声</option>
                                         <option>Ethan - 沉稳男声</option>
@@ -570,133 +1084,355 @@
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-semibold mb-2" style="color: var(--color-neutral-700);">默认语言</label>
+                                    <label class="block text-sm font-semibold mb-2" style="color: var(--color-text-secondary);">默认语言</label>
                                     <select class="input">
-                                        <option>中文 (Chinese)</option>
-                                        <option>英文 (English)</option>
+                                        <option>中文</option>
+                                        <option>英文</option>
                                     </select>
                                 </div>
                             </div>
                         </div>
 
                         <!-- 播放设置 -->
-                        <div>
-                            <h2 class="text-lg font-semibold mb-3" style="color: var(--color-neutral-800);">播放设置</h2>
-                            <div class="card space-y-3">
+                        <div class="mb-6">
+                            <h2 class="font-bold text-lg mb-4">播放设置</h2>
+                            <div class="rounded-2xl p-5 space-y-4" style="background-color: white;">
                                 <div class="flex items-center justify-between">
-                                    <span class="text-sm font-semibold" style="color: var(--color-neutral-700);">自动播放下一个</span>
-                                    <div class="w-12 h-6 rounded-full relative" style="background-color: var(--color-primary-500);"><div class="absolute right-1 top-1 w-4 h-4 rounded-full bg-white"></div></div>
+                                    <span class="font-medium">自动播放下一个</span>
+                                    <div class="w-14 h-8 rounded-full relative cursor-pointer" style="background-color: var(--color-primary-500);">
+                                        <div class="absolute right-1 top-1 w-6 h-6 bg-white rounded-full shadow"></div>
+                                    </div>
                                 </div>
                                 <div class="flex items-center justify-between">
-                                    <span class="text-sm font-semibold" style="color: var(--color-neutral-700);">后台播放</span>
-                                    <div class="w-12 h-6 rounded-full relative" style="background-color: var(--color-primary-500);"><div class="absolute right-1 top-1 w-4 h-4 rounded-full bg-white"></div></div>
+                                    <span class="font-medium">后台播放</span>
+                                    <div class="w-14 h-8 rounded-full relative cursor-pointer" style="background-color: var(--color-primary-500);">
+                                        <div class="absolute right-1 top-1 w-6 h-6 bg-white rounded-full shadow"></div>
+                                    </div>
                                 </div>
                                 <div class="flex items-center justify-between">
-                                    <span class="text-sm font-semibold" style="color: var(--color-neutral-700);">睡眠定时器</span>
-                                    <span class="text-sm" style="color: var(--color-neutral-500);">30分钟</span>
+                                    <span class="font-medium">睡眠定时器</span>
+                                    <span style="color: var(--color-text-tertiary);">30分钟 <i class="fa-solid fa-chevron-right text-xs ml-1"></i></span>
                                 </div>
                             </div>
                         </div>
 
                         <!-- 关于 -->
                         <div>
-                            <h2 class="text-lg font-semibold mb-3" style="color: var(--color-neutral-800);">关于</h2>
-                            <div class="card space-y-3">
+                            <h2 class="font-bold text-lg mb-4">关于</h2>
+                            <div class="rounded-2xl p-5 space-y-4" style="background-color: white;">
                                 <div class="flex items-center justify-between">
-                                    <span class="text-sm font-semibold" style="color: var(--color-neutral-700);">版本</span>
-                                    <span class="text-sm" style="color: var(--color-neutral-500);">v1.3.0</span>
+                                    <span class="font-medium">版本</span>
+                                    <span style="color: var(--color-text-tertiary);">v1.3.0</span>
                                 </div>
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm font-semibold" style="color: var(--color-neutral-700);">检查更新</span>
-                                    <i class="fa-solid fa-chevron-right text-sm" style="color: var(--color-neutral-500);"></i>
+                                <div class="flex items-center justify-between cursor-pointer">
+                                    <span class="font-medium">检查更新</span>
+                                    <i class="fa-solid fa-chevron-right" style="color: var(--color-text-tertiary);"></i>
                                 </div>
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm font-semibold" style="color: var(--color-neutral-700);">使用帮助</span>
-                                    <i class="fa-solid fa-chevron-right text-sm" style="color: var(--color-neutral-500);"></i>
+                                <div class="flex items-center justify-between cursor-pointer">
+                                    <span class="font-medium">使用帮助</span>
+                                    <i class="fa-solid fa-chevron-right" style="color: var(--color-text-tertiary);"></i>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="tab-bar">
-                <div class="tab-item"><i class="fa-solid fa-house text-xl"></i><span>主页</span></div>
-                <div class="tab-item"><i class="fa-solid fa-list-ul text-xl"></i><span>播客库</span></div>
-                <div class="tab-item"><i class="fa-solid fa-circle-plus text-3xl" style="color: var(--color-primary-500);"></i></div>
-                <div class="tab-item"><i class="fa-solid fa-compass text-xl"></i><span>发现</span></div>
-                <div class="tab-item active"><i class="fa-regular fa-user text-xl"></i><span>我的</span></div>
-            </div>
-        </div>
 
-        <!-- =============================================================== -->
-        <!-- SCREEN 7: 空状态 (Empty State)                                  -->
-        <!-- =============================================================== -->
-        <div class="phone-canvas">
-            <div class="screen-title">空状态 (Empty State)</div>
-            <div class="status-bar"><span>9:41</span><div><i class="fas fa-signal"></i> <i class="fas fa-wifi"></i> <i class="fas fa-battery-full"></i></div></div>
-            <div class="main-content flex items-center justify-center">
-                <div class="px-8 text-center">
-                    <!-- SVG Illustration -->
-                    <svg class="w-48 h-48 mx-auto mb-6" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="100" cy="100" r="80" fill="var(--color-neutral-300)" opacity="0.5"/>
-                        <circle cx="100" cy="100" r="60" fill="var(--color-neutral-400)" opacity="0.3"/>
-                        <path d="M80 90 L90 100 L80 110 M120 90 L110 100 L120 110 M95 85 L105 115" stroke="var(--color-neutral-500)" stroke-width="4" stroke-linecap="round"/>
-                    </svg>
-                    
-                    <h2 class="text-2xl font-bold mb-2" style="color: var(--color-neutral-800);">还没有播客</h2>
-                    <p class="mb-8" style="color: var(--color-neutral-600);">创建您的第一个播客，开始智能听读之旅</p>
-                    
-                    <button class="btn btn-primary" style="border-radius: var(--radius-full); padding: var(--space-3) var(--space-6);">
-                        <i class="fa-solid fa-plus"></i> 创建播客
-                    </button>
+                <div class="tab-bar">
+                    <div class="tab-item">
+                        <i class="fa-solid fa-book-open"></i>
+                        <span>阅读</span>
+                    </div>
+                    <div class="tab-item">
+                        <i class="fa-solid fa-bookmark"></i>
+                        <span>书架</span>
+                    </div>
+                    <div class="tab-item">
+                        <i class="fa-solid fa-compass"></i>
+                        <span>发现</span>
+                    </div>
+                    <div class="tab-item">
+                        <i class="fa-solid fa-headphones"></i>
+                        <span>有声书</span>
+                    </div>
+                    <div class="tab-item active">
+                        <i class="fa-regular fa-user"></i>
+                        <span>我的</span>
+                    </div>
                 </div>
             </div>
-            <div class="tab-bar">
-                <div class="tab-item"><i class="fa-solid fa-house text-xl"></i><span>主页</span></div>
-                <div class="tab-item active"><i class="fa-solid fa-list-ul text-xl"></i><span>播客库</span></div>
-                <div class="tab-item"><i class="fa-solid fa-circle-plus text-3xl" style="color: var(--color-primary-500);"></i></div>
-                <div class="tab-item"><i class="fa-solid fa-compass text-xl"></i><span>发现</span></div>
-                <div class="tab-item"><i class="fa-regular fa-user text-xl"></i><span>我的</span></div>
-            </div>
+            <div class="screen-label">设置页面</div>
         </div>
 
         <!-- =============================================================== -->
-        <!-- SCREEN 8: 生成中 (Processing)                                   -->
+        <!-- SCREEN 10: 发现页面 (Discover)                                  -->
         <!-- =============================================================== -->
-        <div class="phone-canvas">
-            <div class="screen-title">生成中 (Processing)</div>
-            <div class="status-bar"><span>9:41</span><div><i class="fas fa-signal"></i> <i class="fas fa-wifi"></i> <i class="fas fa-battery-full"></i></div></div>
-            <div class="main-content flex items-center justify-center">
-                <div class="px-8 text-center">
-                    <!-- Animated SVG -->
-                    <svg class="w-32 h-32 mx-auto mb-6" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="50" cy="50" r="40" stroke="var(--color-neutral-400)" stroke-width="6" opacity="0.2"/>
-                        <circle cx="50" cy="50" r="40" stroke="var(--color-primary-500)" stroke-width="6" stroke-linecap="round" stroke-dasharray="60 200" stroke-dashoffset="0" transform="rotate(-90 50 50)">
-                            <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="1s" repeatCount="indefinite"/>
-                        </circle>
-                        <text x="50" y="55" text-anchor="middle" font-family="var(--font-family-sans)" font-size="16" font-weight="600" fill="var(--color-neutral-800)">75%</text>
-                    </svg>
-                    
-                    <h2 class="text-2xl font-bold mb-2" style="color: var(--color-neutral-800);">正在生成中...</h2>
-                    <p class="mb-2" style="color: var(--color-neutral-600);">生成中...(第 3/5 片)</p>
-                    <p class="text-sm" style="color: var(--color-neutral-500);">预计还需 30 秒</p>
-                    
-                    <div class="mt-8 space-y-3">
-                        <div class="flex items-center justify-between text-sm">
-                            <span style="color: var(--color-neutral-600);"><i class="fa-solid fa-check mr-2" style="color: var(--color-success);"></i>文本分片</span>
-                            <span style="color: var(--color-success);">完成</span>
+        <div class="canvas-wrapper">
+            <div class="phone-canvas">
+                <div class="status-bar">
+                    <span>9:41</span>
+                    <div><i class="fas fa-signal"></i> <i class="fas fa-wifi"></i> <i class="fas fa-battery-full"></i></div>
+                </div>
+                
+                <div class="main-content">
+                    <div class="px-6 py-4">
+                        <!-- 标题栏 -->
+                        <div class="flex justify-between items-center mb-6">
+                            <h1 class="text-3xl font-bold">发现</h1>
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background-color: white;">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </div>
                         </div>
-                        <div class="flex items-center justify-between text-sm">
-                            <span style="color: var(--color-neutral-600);"><i class="fa-solid fa-spinner fa-spin mr-2" style="color: var(--color-primary-500);"></i>语音合成</span>
-                            <span style="color: var(--color-primary-500);">进行中</span>
+
+                        <!-- 分类标签 -->
+                        <div class="flex gap-2 mb-6 overflow-x-auto pb-2">
+                            <button class="btn btn-primary btn-small">精选</button>
+                            <button class="btn btn-secondary btn-small">科技</button>
+                            <button class="btn btn-secondary btn-small">商业</button>
+                            <button class="btn btn-secondary btn-small">个人成长</button>
+                            <button class="btn btn-secondary btn-small">历史</button>
                         </div>
-                        <div class="flex items-center justify-between text-sm" style="opacity: 0.5;">
-                            <span style="color: var(--color-neutral-600);"><i class="fa-regular fa-circle mr-2" style="color: var(--color-neutral-400);"></i>音频拼接</span>
-                            <span style="color: var(--color-neutral-500);">等待中</span>
+
+                        <!-- 推荐内容 -->
+                        <h2 class="text-lg font-bold mb-4">本周热门</h2>
+                        
+                        <div class="space-y-4">
+                            <!-- 推荐卡片 1 -->
+                            <div class="rounded-2xl overflow-hidden" style="background-color: white; box-shadow: var(--shadow-card);">
+                                <div class="h-40 relative">
+                                    <img src="https://source.unsplash.com/random/800x400?technology,future" class="w-full h-full object-cover"/>
+                                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                                    <div class="absolute bottom-4 left-4 right-4">
+                                        <h3 class="text-white font-bold text-lg mb-1">人工智能时代的思考</h3>
+                                        <p class="text-white/80 text-sm">探索AI如何改变我们的生活</p>
+                                    </div>
+                                </div>
+                                <div class="p-4 flex items-center justify-between">
+                                    <div class="flex items-center gap-4 text-sm" style="color: var(--color-text-tertiary);">
+                                        <span><i class="fa-regular fa-clock mr-1"></i>25分钟</span>
+                                        <span><i class="fa-solid fa-headphones mr-1"></i>8.5k</span>
+                                    </div>
+                                    <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background-color: var(--color-primary-100);">
+                                        <i class="fa-solid fa-play" style="color: var(--color-primary-500);"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 推荐卡片 2 -->
+                            <div class="rounded-2xl overflow-hidden" style="background-color: white; box-shadow: var(--shadow-card);">
+                                <div class="h-40 relative">
+                                    <img src="https://source.unsplash.com/random/800x400?productivity,workspace" class="w-full h-full object-cover"/>
+                                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                                    <div class="absolute bottom-4 left-4 right-4">
+                                        <h3 class="text-white font-bold text-lg mb-1">高效工作的秘密</h3>
+                                        <p class="text-white/80 text-sm">时间管理与专注力提升</p>
+                                    </div>
+                                </div>
+                                <div class="p-4 flex items-center justify-between">
+                                    <div class="flex items-center gap-4 text-sm" style="color: var(--color-text-tertiary);">
+                                        <span><i class="fa-regular fa-clock mr-1"></i>18分钟</span>
+                                        <span><i class="fa-solid fa-headphones mr-1"></i>6.2k</span>
+                                    </div>
+                                    <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background-color: var(--color-primary-100);">
+                                        <i class="fa-solid fa-play" style="color: var(--color-primary-500);"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-bar">
+                    <div class="tab-item">
+                        <i class="fa-solid fa-book-open"></i>
+                        <span>阅读</span>
+                    </div>
+                    <div class="tab-item">
+                        <i class="fa-solid fa-bookmark"></i>
+                        <span>书架</span>
+                    </div>
+                    <div class="tab-item active">
+                        <i class="fa-solid fa-compass"></i>
+                        <span>发现</span>
+                    </div>
+                    <div class="tab-item">
+                        <i class="fa-solid fa-headphones"></i>
+                        <span>有声书</span>
+                    </div>
+                    <div class="tab-item">
+                        <i class="fa-regular fa-user"></i>
+                        <span>我的</span>
+                    </div>
+                </div>
+            </div>
+            <div class="screen-label">发现页面</div>
+        </div>
+
+        <!-- =============================================================== -->
+        <!-- SCREEN 11: 播放列表 (Playlist)                                  -->
+        <!-- =============================================================== -->
+        <div class="canvas-wrapper">
+            <div class="phone-canvas">
+                <div class="status-bar">
+                    <span>9:41</span>
+                    <div><i class="fas fa-signal"></i> <i class="fas fa-wifi"></i> <i class="fas fa-battery-full"></i></div>
+                </div>
+                
+                <div class="main-content">
+                    <div class="px-6 py-4">
+                        <!-- 顶部栏 -->
+                        <div class="flex justify-between items-center mb-6">
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background-color: white;">
+                                <i class="fa-solid fa-chevron-down"></i>
+                            </div>
+                            <h2 class="font-semibold">播放列表</h2>
+                            <div class="w-10"></div>
+                        </div>
+
+                        <!-- 当前播放 -->
+                        <div class="rounded-2xl p-4 mb-6 flex gap-4" style="background: linear-gradient(135deg, var(--color-primary-100), var(--color-primary-200));">
+                            <div class="book-cover w-16 h-16 flex-shrink-0">
+                                <img src="https://source.unsplash.com/random/200x200?atomic-habits" class="w-full h-full object-cover"/>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-xs mb-1" style="color: var(--color-text-tertiary);">正在播放</p>
+                                <h3 class="font-bold mb-1">原子习惯</h3>
+                                <p class="text-sm" style="color: var(--color-text-secondary);">詹姆斯·克利尔</p>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fa-solid fa-pause text-xl" style="color: var(--color-primary-500);"></i>
+                            </div>
+                        </div>
+
+                        <!-- 队列标题 -->
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-bold text-lg">接下来播放</h3>
+                            <button class="text-sm font-semibold" style="color: var(--color-primary-500);">清空</button>
+                        </div>
+
+                        <!-- 队列列表 -->
+                        <div class="space-y-3">
+                            <div class="flex items-center gap-4 p-3 rounded-xl" style="background-color: white;">
+                                <div class="book-cover w-14 h-14 flex-shrink-0">
+                                    <img src="https://source.unsplash.com/random/200x200?design,thinking" class="w-full h-full object-cover"/>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <h4 class="font-semibold text-sm mb-1 truncate">设计心理学</h4>
+                                    <p class="text-xs truncate" style="color: var(--color-text-secondary);">唐纳德·诺曼</p>
+                                </div>
+                                <i class="fa-solid fa-grip-vertical" style="color: var(--color-text-tertiary);"></i>
+                            </div>
+
+                            <div class="flex items-center gap-4 p-3 rounded-xl" style="background-color: white;">
+                                <div class="book-cover w-14 h-14 flex-shrink-0">
+                                    <img src="https://source.unsplash.com/random/200x200?productivity" class="w-full h-full object-cover"/>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <h4 class="font-semibold text-sm mb-1 truncate">深度工作</h4>
+                                    <p class="text-xs truncate" style="color: var(--color-text-secondary);">卡尔·纽波特</p>
+                                </div>
+                                <i class="fa-solid fa-grip-vertical" style="color: var(--color-text-tertiary);"></i>
+                            </div>
+
+                            <div class="flex items-center gap-4 p-3 rounded-xl" style="background-color: white;">
+                                <div class="book-cover w-14 h-14 flex-shrink-0">
+                                    <img src="https://source.unsplash.com/random/200x200?mindfulness" class="w-full h-full object-cover"/>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <h4 class="font-semibold text-sm mb-1 truncate">正念的奇迹</h4>
+                                    <p class="text-xs truncate" style="color: var(--color-text-secondary);">一行禅师</p>
+                                </div>
+                                <i class="fa-solid fa-grip-vertical" style="color: var(--color-text-tertiary);"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+            <div class="screen-label">播放列表</div>
+        </div>
+
+        <!-- =============================================================== -->
+        <!-- SCREEN 12: 成功提示 (Success)                                   -->
+        <!-- =============================================================== -->
+        <div class="canvas-wrapper">
+            <div class="phone-canvas">
+                <div class="status-bar">
+                    <span>9:41</span>
+                    <div><i class="fas fa-signal"></i> <i class="fas fa-wifi"></i> <i class="fas fa-battery-full"></i></div>
+                </div>
+                
+                <div class="main-content flex items-center justify-center">
+                    <div class="px-8 text-center">
+                        <!-- 成功动画 -->
+                        <div class="w-32 h-32 mx-auto mb-8 relative">
+                            <div class="absolute inset-0 rounded-full" style="background-color: var(--color-primary-100);"></div>
+                            <div class="absolute inset-4 rounded-full flex items-center justify-center" style="background-color: var(--color-primary-500);">
+                                <i class="fa-solid fa-check text-5xl text-white"></i>
+                            </div>
+                        </div>
+
+                        <h2 class="text-2xl font-bold mb-3">播客生成成功！</h2>
+                        <p class="text-base mb-8" style="color: var(--color-text-secondary);">
+                            已为您生成 5 个音频片段<br/>
+                            总时长 36 分钟
+                        </p>
+
+                        <div class="space-y-3">
+                            <button class="btn btn-primary w-full">
+                                <i class="fa-solid fa-play"></i>
+                                <span>立即播放</span>
+                            </button>
+                            <button class="btn btn-secondary w-full">
+                                <i class="fa-solid fa-bookmark"></i>
+                                <span>保存到书架</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="screen-label">成功提示</div>
+        </div>
+
+        <!-- =============================================================== -->
+        <!-- SCREEN 13: 错误提示 (Error)                                     -->
+        <!-- =============================================================== -->
+        <div class="canvas-wrapper">
+            <div class="phone-canvas">
+                <div class="status-bar">
+                    <span>9:41</span>
+                    <div><i class="fas fa-signal"></i> <i class="fas fa-wifi"></i> <i class="fas fa-battery-full"></i></div>
+                </div>
+                
+                <div class="main-content flex items-center justify-center">
+                    <div class="px-8 text-center">
+                        <!-- 错误图标 -->
+                        <div class="w-32 h-32 mx-auto mb-8 relative">
+                            <div class="absolute inset-0 rounded-full" style="background-color: #FFE5E5;"></div>
+                            <div class="absolute inset-4 rounded-full flex items-center justify-center" style="background-color: #dc3545;">
+                                <i class="fa-solid fa-exclamation text-5xl text-white"></i>
+                            </div>
+                        </div>
+
+                        <h2 class="text-2xl font-bold mb-3">生成失败</h2>
+                        <p class="text-base mb-2" style="color: var(--color-text-secondary);">
+                            网络连接失败，请检查网络
+                        </p>
+                        <p class="text-sm mb-8" style="color: var(--color-text-tertiary);">
+                            错误代码: NETWORK_ERROR
+                        </p>
+
+                        <div class="space-y-3">
+                            <button class="btn btn-primary w-full">
+                                <i class="fa-solid fa-rotate-right"></i>
+                                <span>重试</span>
+                            </button>
+                            <button class="btn btn-secondary w-full">
+                                <span>返回</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="screen-label">错误提示</div>
         </div>
 
     </div>
