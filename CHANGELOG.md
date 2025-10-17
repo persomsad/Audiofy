@@ -5,6 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.2] - 2025-10-17
+
+### Fixed
+- **🔥 重大修复：发现并修复根本问题 - 限制是600字节而非600字符** (P0 - 阻塞问题)
+  - 通过Python测试脚本验证：Qwen3 TTS Flash限制是600字节（UTF-8编码），不是600字符
+  - 英文：1字符=1字节，最多600字符
+  - 中文：1字符=3字节，最多**200字符**
+  - 完全重写TextChunker：所有长度计算改为UTF-8字节数
+  - 新增hardChunkByBytes()：逐字符累加字节数的精确切割
+  - 更新TTSServiceImpl：MAX_TEXT_LENGTH → MAX_TEXT_BYTES
+  - 更新所有测试：断言检查字节数而非字符数
+
+### Added
+- 新增3个Python测试脚本验证API限制：
+  - scripts/test-simple-tts.py：基础API测试
+  - scripts/test-byte-limit.py：字节数vs字符数验证
+  - scripts/test-long-text-tts.py：长文本处理测试
+
+### Changed
+- 中文文本分片数量增加约3倍（从字符计数改为字节计数）
+- 日志输出格式：同时显示字符数和字节数
+
+### Technical Details
+- 修复文件: TextChunker.kt, TTSServiceImpl.kt, TextChunkerTest.kt
+- 新增文件: 3个Python测试脚本
+- 代码变更: 623行新增，70行删除
+- 测试: 所有单元测试通过 + Python脚本验证通过
+
+### Related
+- Issue: #53
+- Pull Request: #54
+
+---
+
 ## [1.3.1] - 2025-10-17
 
 ### Fixed
