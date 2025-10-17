@@ -35,9 +35,6 @@ class SettingsViewModel(
 
                 configRepository.getConfigFlow().collect { config ->
                     _uiState.value = SettingsUiState(
-                        geminiApiKey = config.geminiApiKey,
-                        geminiModelId = config.geminiModelId,
-                        geminiBaseUrl = config.geminiBaseUrl,
                         qwen3ApiKey = config.qwen3ApiKey,
                         qwen3Voice = config.qwen3Voice,
                         qwen3LanguageType = config.qwen3LanguageType,
@@ -51,27 +48,6 @@ class SettingsViewModel(
                 )
             }
         }
-    }
-
-    /**
-     * 更新 Gemini API Key
-     */
-    fun updateGeminiApiKey(value: String) {
-        _uiState.value = _uiState.value.copy(geminiApiKey = value)
-    }
-
-    /**
-     * 更新 Gemini Model ID
-     */
-    fun updateGeminiModelId(value: String) {
-        _uiState.value = _uiState.value.copy(geminiModelId = value)
-    }
-
-    /**
-     * 更新 Gemini Base URL
-     */
-    fun updateGeminiBaseUrl(value: String) {
-        _uiState.value = _uiState.value.copy(geminiBaseUrl = value)
     }
 
     /**
@@ -104,10 +80,6 @@ class SettingsViewModel(
                 val state = _uiState.value
 
                 // 验证输入
-                if (state.geminiApiKey.isBlank()) {
-                    _uiState.value = state.copy(errorMessage = "Gemini API Key 不能为空")
-                    return@launch
-                }
                 if (state.qwen3ApiKey.isBlank()) {
                     _uiState.value = state.copy(errorMessage = "Qwen3 API Key 不能为空")
                     return@launch
@@ -116,9 +88,6 @@ class SettingsViewModel(
                 _uiState.value = state.copy(isSaving = true, errorMessage = null, successMessage = null)
 
                 val config = AppConfig(
-                    geminiApiKey = state.geminiApiKey,
-                    geminiModelId = state.geminiModelId,
-                    geminiBaseUrl = state.geminiBaseUrl,
                     qwen3ApiKey = state.qwen3ApiKey,
                     qwen3Voice = state.qwen3Voice,
                     qwen3LanguageType = state.qwen3LanguageType,
@@ -175,11 +144,6 @@ class SettingsViewModel(
  * 设置页面 UI 状态
  */
 data class SettingsUiState(
-    // Gemini API
-    val geminiApiKey: String = "",
-    val geminiModelId: String = "gemini-2.0-flash-exp",
-    val geminiBaseUrl: String = "https://generativelanguage.googleapis.com/v1beta",
-
     // Qwen3 TTS API
     val qwen3ApiKey: String = "",
     val qwen3Voice: String = "cherry",
