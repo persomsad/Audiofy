@@ -8,8 +8,10 @@ import com.audiofy.app.data.Podcast
 import com.audiofy.app.repository.PodcastRepository
 import com.audiofy.app.repository.createPodcastRepository
 import com.audiofy.app.service.FileStorageService
+import com.audiofy.app.service.StreamingTTSService
 import com.audiofy.app.service.TTSService
 import com.audiofy.app.service.createFileStorageService
+import com.audiofy.app.service.createStreamingTTSService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -79,13 +81,25 @@ class ProcessingViewModel(
     private val ttsService: TTSService,
     private val config: AppConfig,
     private val podcastRepository: PodcastRepository = createPodcastRepository(),
-    private val fileStorageService: FileStorageService = createFileStorageService()
+    private val fileStorageService: FileStorageService = createFileStorageService(),
+    private val streamingTTSService: StreamingTTSService = createStreamingTTSService()
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ProcessingUiState())
     val uiState: StateFlow<ProcessingUiState> = _uiState.asStateFlow()
     
     private var currentPodcastId: String? = null
+    
+    // TODO: Issue #55 - 实现流式TTS处理
+    // 1. 在startProcessing中添加useStreaming参数
+    // 2. 创建startProcessingStreaming方法使用streamingTTSService
+    // 3. 集成音频流播放器，边接收边播放
+    // 4. 更新UI显示流式进度（已生成/已播放百分比）
+    // 5. 处理流式连接错误和重试
+    //
+    // 预期效果：
+    // - 短文本(600字): 首次播放延迟从5秒降至<2秒
+    // - 长文本(5000字): 首次播放延迟从40秒降至<5秒
 
     /**
      * Start processing pipeline
