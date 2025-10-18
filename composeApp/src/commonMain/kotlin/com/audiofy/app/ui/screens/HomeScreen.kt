@@ -18,10 +18,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
+import com.audiofy.app.data.ListeningStreak
+import com.audiofy.app.repository.createStreakRepository
+import com.audiofy.app.ui.components.StreakCard
 import com.audiofy.app.ui.theme.AudiofyColors
 import com.audiofy.app.ui.theme.AudiofyRadius
 import com.audiofy.app.ui.theme.AudiofySpacing
+import kotlinx.coroutines.flow.Flow
 
 /**
  * 主页（阅读）
@@ -33,6 +39,8 @@ import com.audiofy.app.ui.theme.AudiofySpacing
 fun HomeScreen(
     modifier: Modifier = Modifier
 ) {
+    val streakRepository = remember { createStreakRepository() }
+    val streak by streakRepository.getStreakFlow().collectAsStateWithLifecycle(ListeningStreak.DEFAULT)
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
@@ -81,11 +89,7 @@ fun HomeScreen(
         item {
             Spacer(modifier = Modifier.height(AudiofySpacing.Space6))
             
-            StreakCard(
-                currentStreak = 120,
-                weekDays = listOf(true, true, true, true, true, false, false),
-                onCheckIn = { /* TODO: 打卡功能 */ }
-            )
+            StreakCard(streak = streak)
         }
         
         // 推荐内容

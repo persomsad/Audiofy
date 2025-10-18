@@ -6,7 +6,9 @@ import com.audiofy.app.data.Podcast
 import com.audiofy.app.player.AudioPlayer
 import com.audiofy.app.player.PlayerState
 import com.audiofy.app.repository.PodcastRepository
+import com.audiofy.app.repository.StreakRepository
 import com.audiofy.app.repository.createPodcastRepository
+import com.audiofy.app.repository.createStreakRepository
 import com.audiofy.app.service.FileStorageService
 import com.audiofy.app.service.createFileStorageService
 import kotlinx.coroutines.Job
@@ -36,7 +38,8 @@ data class PlayerUiState(
  */
 class PlayerViewModel(
     private val podcastRepository: PodcastRepository = createPodcastRepository(),
-    private val fileStorageService: FileStorageService = createFileStorageService()
+    private val fileStorageService: FileStorageService = createFileStorageService(),
+    private val streakRepository: StreakRepository = createStreakRepository()
 ) : ViewModel() {
 
     private val player = AudioPlayer()
@@ -45,6 +48,7 @@ class PlayerViewModel(
     val uiState: StateFlow<PlayerUiState> = _uiState.asStateFlow()
 
     private var progressUpdateJob: Job? = null
+    private var hasRecordedListening = false
 
     init {
         player.setOnStateChangedListener { newState ->
@@ -157,6 +161,12 @@ class PlayerViewModel(
                     val currentPos = player.getCurrentPosition()
                     _uiState.update { it.copy(currentPosition = currentPos) }
 
+                    // Record listening after 30 seconds of playback (once per session)
+                    if (!hasRecordedListening && currentPos >= 30000) {
+                        recordListening()
+                        hasRecordedListening = true
+                    }
+
                     // Check if playback completed
                     val duration = player.getDuration()
                     if (duration > 0 && currentPos >= duration) {
@@ -166,6 +176,20 @@ class PlayerViewModel(
                     }
                 }
                 delay(100) // Update every 100ms
+            }
+        }
+    }
+    
+    /**
+     * Record listening for streak tracking
+     */
+    private fun recordListening() {
+        viewModelScope.launch {
+            try {
+                streakRepository.recordListening()
+            } catch (e: Exception) {
+                // Silently fail, don't interrupt playback
+                e.printStackTrace()
             }
         }
     }
