@@ -17,9 +17,13 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import androidx.compose.ui.unit.sp
 import com.audiofy.app.data.Podcast
+import com.audiofy.app.data.VoiceOptions
+import com.audiofy.app.repository.createPodcastRepository
+import com.audiofy.app.ui.components.VoiceSelectionDialog
 import com.audiofy.app.ui.theme.AudiofyColors
 import com.audiofy.app.ui.theme.AudiofyRadius
 import com.audiofy.app.ui.theme.AudiofySpacing
+import kotlinx.coroutines.launch
 
 /**
  * 播客详情页面
@@ -35,13 +39,27 @@ fun PodcastDetailScreen(
     onNavigateToReading: (String) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    // TODO: 从Repository获取播客数据
-    // val podcast = viewModel.getPodcastById(podcastId)
+    val podcastRepository = remember { createPodcastRepository() }
+    var podcast by remember { mutableStateOf<Podcast?>(null) }
+    var showVoiceDialog by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
     
-    // Mock数据
-    val mockPodcast = remember {
-        // 暂时使用null，实际会从Repository获取
-        null as Podcast?
+    // 加载播客数据
+    LaunchedEffect(podcastId) {
+        podcast = podcastRepository.getPodcastById(podcastId)
+    }
+    
+    // 音色选择对话框
+    if (showVoiceDialog && podcast != null) {
+        val currentVersion = podcast!!.audioVersions.find { it.versionId == podcast!!.currentVersionId }
+        VoiceSelectionDialog(
+            currentVoiceId = currentVersion?.voice ?: "Cherry",
+            onVoiceSelected = { voiceOption ->
+                // TODO: 生成新音色版本
+                showVoiceDialog = false
+            },
+            onDismiss = { showVoiceDialog = false }
+        )
     }
     
     LazyColumn(
@@ -116,8 +134,8 @@ fun PodcastDetailScreen(
                 shadowElevation = 8.dp
             ) {
                 AsyncImage(
-                    model = mockPodcast?.coverUrl ?: "https://source.unsplash.com/random/400x600?book",
-                    contentDescription = mockPodcast?.title,
+                    model = podcast?.coverUrl ?: "https://source.unsplash.com/random/400x600?book",
+                    contentDescription = podcast?.title,
                     contentScale = ContentScale.Crop
                 )
             }
@@ -128,7 +146,7 @@ fun PodcastDetailScreen(
             Spacer(modifier = Modifier.height(AudiofySpacing.Space5))
             
             Text(
-                text = mockPodcast?.title ?: "原子习惯",
+                text = podcast?.title ?: "原子习惯",
                 style = MaterialTheme.typography.headlineMedium,
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center
             )
@@ -136,7 +154,7 @@ fun PodcastDetailScreen(
             Spacer(modifier = Modifier.height(AudiofySpacing.Space2))
             
             Text(
-                text = mockPodcast?.author ?: "詹姆斯·克利尔",
+                text = podcast?.author ?: "詹姆斯·克利尔",
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -181,7 +199,7 @@ fun PodcastDetailScreen(
                 Spacer(modifier = Modifier.height(AudiofySpacing.Space3))
                 
                 Text(
-                    text = mockPodcast?.textContent?.take(200) ?: "每天进步一点点，微小改变带来惊人成就。世界级习惯养成专家詹姆斯·克利尔揭示了如何通过微小的习惯改变，实现卓越的人生成就。本书提供了简单实用的方法，帮助你建立好习惯、打破坏习惯...",
+                    text = podcast?.textContent?.take(200) ?: "加载中...",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     lineHeight = 24.sp
